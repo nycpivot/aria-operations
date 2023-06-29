@@ -1,0 +1,64 @@
+Description: "Creates a Linux operator machine."
+Mappings:
+  Images:
+    us-east-1:
+      Id: "ami-04505e74c0741db8d"
+    us-east-2:
+      Id: "ami-0fb653ca2d3203ac1"
+    us-west-1:
+      Id: "ami-01f87c43e618bf8f0"
+    us-west-2:
+      Id: "ami-017fecd1353bcc96e"
+Parameters:
+  OperatorName:
+    Type: String
+    Default: aria-operator
+    AllowedValues:
+      - aria-operator
+      - aria-operator-1
+      - aria-operator-2
+      - aria-operator-3
+      - aria-operator-4
+      - aria-operator-5
+Resources:
+  OperatorKeyPair:
+    Type: 'AWS::EC2::KeyPair'
+    Properties:
+      KeyName: operator-keypair
+  OperatorSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: vpc-0616056f55547657e
+      GroupDescription: Security Group for AMIs
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+  OperatorInstance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: !FindInMap
+        - Images
+        - !Ref AWS::Region
+        - Id
+      InstanceType: "t3.large"
+      KeyName: !Ref OperatorKeyPair
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 50
+            DeleteOnTermination: true
+      SecurityGroupIds:
+        - !Ref OperatorSecurityGroup
+      Tags:
+        - Key: "Name"
+          Value: !Ref OperatorName
+Outputs:
+  InstanceId:
+    Value: !Ref OperatorInstance
+  PublicDnsName:
+    Value: !GetAtt OperatorInstance.PublicDnsName
