@@ -14,19 +14,10 @@ aws configure set aws_access_key_id $aws_access_key
 aws configure set aws_secret_access_key $aws_secret_access_key
 aws configure set default.region $aws_region_code
 
-aws_account_id=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"aws-account-id\")
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
+AWS_REGION=$(aws configure get region)
 
-echo export AWS_ACCOUNT_ID=$aws_account_id >> .bashrc
-echo export AWS_REGION=$aws_region_code >> .bashrc
-source ~/.bashrc
-
-export TANZU_CLI_NO_INIT=true
-export TANZU_VERSION=v0.28.1
-export TAP_VERSION=1.5.0
-
-export CLI_FILENAME=tanzu-framework-linux-amd64-v0.28.1.1.tar
-export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
-
+#PIVNET CREDENTIALS
 export PIVNET_USERNAME=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-username\")
 export PIVNET_PASSWORD=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-password\")
 export PIVNET_TOKEN=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-token\")
@@ -38,6 +29,14 @@ curl -i -H "Accept: application/json" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $access_token" \
     -X GET https://network.pivotal.io/api/v2/authentication
+
+#TANZU AND TAP
+export TANZU_CLI_NO_INIT=true
+export TANZU_VERSION=v0.28.1
+export TAP_VERSION=1.5.0
+
+export CLI_FILENAME=tanzu-framework-linux-amd64-v0.28.1.1.tar
+export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
 
 tap_view=tap-view
 tap_build=tap-build

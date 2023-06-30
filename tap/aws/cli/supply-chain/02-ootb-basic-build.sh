@@ -5,17 +5,6 @@ TAP_VERSION=1.5.0
 VIEW_DOMAIN=view.tap.nycpivot.com
 GIT_CATALOG_REPOSITORY=tanzu-application-platform
 
-# 1. CAPTURE PIVNET SECRETS
-export PIVNET_USERNAME=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-username\")
-export PIVNET_PASSWORD=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-password\")
-export PIVNET_TOKEN=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"pivnet-token\")
-
-token=$(curl -X POST https://network.pivotal.io/api/v2/authentication/access_tokens -d '{"refresh_token":"'$PIVNET_TOKEN'"}')
-access_token=$(echo ${token} | jq -r .access_token)
-
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer $access_token" \
-  -X GET https://network.pivotal.io/api/v2/authentication
-
 acr_secret=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"acr-secret\")
 
 export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
