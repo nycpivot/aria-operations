@@ -1,5 +1,7 @@
 #!/bin/bash
 
+AWS_REGION=$(aws configure get region)
+
 tap_view=tap-view
 tap_build=tap-build
 tap_run=tap-run
@@ -36,8 +38,8 @@ aws iam delete-role --role-name $build_rolename
 aws iam delete-role --role-name $run_rolename
 aws iam delete-role --role-name $iterate_rolename
 
-aws cloudformation delete-stack --stack-name tap-multicluster-stack --region $AWS_REGION
-aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region $AWS_REGION
+aws cloudformation delete-stack --stack-name tap-multicluster-stack-${AWS_REGION} --region $AWS_REGION
+aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack-${AWS_REGION} --region $AWS_REGION
 
 rm .kube/config
 

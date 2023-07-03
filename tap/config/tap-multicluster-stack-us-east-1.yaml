@@ -110,18 +110,6 @@ Resources:
         SubnetIds:
           - !Ref PublicSubnetB
           - !Ref PublicSubnetC
-  EKSClusterIterate:
-    Type: AWS::EKS::Cluster
-    Properties:
-      Name: tap-iterate
-      Version: "1.25"
-      RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
-      ResourcesVpcConfig:
-        SecurityGroupIds:
-          - !Ref InstanceSecurityGroup
-        SubnetIds:
-          - !Ref PublicSubnetB
-          - !Ref PublicSubnetC
   EKSNodeGroupView:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterView
@@ -162,23 +150,6 @@ Resources:
     Properties:
       NodegroupName: tap-run-node-group
       ClusterName: tap-run
-      NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
-      InstanceTypes: 
-        - t3.xlarge
-      DiskSize: 80
-      ScalingConfig:
-        MinSize: 2
-        DesiredSize: 2
-        MaxSize: 3
-      Subnets:
-        - !Ref PublicSubnetB
-        - !Ref PublicSubnetC
-  EKSNodeGroupIterate:
-    Type: 'AWS::EKS::Nodegroup'
-    DependsOn: EKSClusterIterate
-    Properties:
-      NodegroupName: tap-iterate-node-group
-      ClusterName: tap-iterate
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 
         - t3.xlarge
