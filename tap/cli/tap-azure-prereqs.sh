@@ -23,7 +23,7 @@ export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
 
 group=aria-operations
 aks_region_code=eastus
-tap_run=tap-run-api
+tap_run=tap-run-aks
 
 # 1. CREATE CLUSTER
 echo
