@@ -54,7 +54,7 @@ echo
 sleep 5
 
 hosted_zone_id=$(aws route53 list-hosted-zones --query HostedZones[0].Id --output text | awk -F '/' '{print $3}')
-ingress=$(kubectl get svc envoy -n tanzu-system-ingress -o json | jq -r .status.loadBalancer.ingress[].hostname)
+ingress=$(kubectl get svc envoy -n tanzu-system-ingress -o json | jq -r .status.loadBalancer.ingress[].ip)
 
 echo $ingress
 echo
@@ -69,7 +69,7 @@ cat <<EOF | tee $change_batch_filename.json
             "Action": "UPSERT",
             "ResourceRecordSet": {
                 "Name": "*.$RUN_DOMAIN",
-                "Type": "CNAME",
+                "Type": "A",
                 "TTL": 60,
                 "ResourceRecords": [
                     {

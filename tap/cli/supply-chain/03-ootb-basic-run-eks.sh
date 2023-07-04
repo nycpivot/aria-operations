@@ -3,7 +3,7 @@
 
 TAP_VERSION=1.5.0
 VIEW_DOMAIN=view.tap.nycpivot.com
-RUN_DOMAIN=run-aks.tap.nycpivot.com
+RUN_DOMAIN=run-eks.tap.nycpivot.com
 
 tap_run=tap-run-eks
 
