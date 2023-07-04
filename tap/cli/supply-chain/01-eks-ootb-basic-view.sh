@@ -7,7 +7,8 @@ GIT_CATALOG_REPOSITORY=tanzu-application-platform
 
 tap_view=tap-view
 tap_build=tap-build
-tap_run=tap-run
+tap_run_eks=tap-run-eks
+tap_run_aks=tap-run-aks
 
 
 #RESET AN EXISTING INSTALLATION
@@ -153,7 +154,7 @@ EOF
 CLUSTER_URL_BUILD=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 CLUSTER_TOKEN_BUILD=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
 
-kubectl config use-context $tap_run
+kubectl config use-context $tap_run_eks
 kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 kubectl apply -f - <<EOF
@@ -167,8 +168,25 @@ metadata:
 type: kubernetes.io/service-account-token
 EOF
 
-CLUSTER_URL_RUN=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-CLUSTER_TOKEN_RUN=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
+CLUSTER_URL_RUN_EKS=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_TOKEN_RUN_EKS=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
+
+kubectl config use-context $tap_run_aks
+kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-gui-viewer
+  namespace: tap-gui
+  annotations:
+    kubernetes.io/service-account.name: tap-gui-viewer
+type: kubernetes.io/service-account-token
+EOF
+
+CLUSTER_URL_RUN_AKS=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+CLUSTER_TOKEN_RUN_AKS=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
 
 
 #INSTALL VIEW TAP PROFILE
@@ -204,10 +222,15 @@ tap_gui:
               authProvider: serviceAccount
               serviceAccountToken: $CLUSTER_TOKEN_BUILD
               skipTLSVerify: true
-            - url: $CLUSTER_URL_RUN
-              name: $tap_run
+            - url: $CLUSTER_URL_RUN_EKS
+              name: $tap_run_eks
               authProvider: serviceAccount
-              serviceAccountToken: $CLUSTER_TOKEN_RUN
+              serviceAccountToken: $CLUSTER_TOKEN_RUN_EKS
+              skipTLSVerify: true
+            - url: $CLUSTER_URL_RUN_AKS
+              name: $tap_run_aks
+              authProvider: serviceAccount
+              serviceAccountToken: $CLUSTER_TOKEN_RUN_AKS
               skipTLSVerify: true
 contour:
   infrastructure_provider: aws
