@@ -40,7 +40,7 @@ export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
 
 tap_view=tap-view
 tap_build=tap-build
-tap_run=tap-run-web
+tap_run=tap-run-eks
 #tap_iterate=tap-iterate
 
 VIEW_DOMAIN=view.tap.nycpivot.com

@@ -28,18 +28,18 @@ aws iam detach-role-policy \
     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
     --no-cli-pager
 
-aws iam detach-role-policy \
-    --role-name $iterate_rolename \
-    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-    --no-cli-pager
+# aws iam detach-role-policy \
+#     --role-name $iterate_rolename \
+#     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+#     --no-cli-pager
 
 aws iam delete-role --role-name $view_rolename
 aws iam delete-role --role-name $build_rolename
 aws iam delete-role --role-name $run_rolename
-aws iam delete-role --role-name $iterate_rolename
+#aws iam delete-role --role-name $iterate_rolename
 
-aws cloudformation delete-stack --stack-name tap-multicluster-stack-${AWS_REGION} --region $AWS_REGION
-aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack-${AWS_REGION} --region $AWS_REGION
+aws cloudformation delete-stack --stack-name tap-multicluster-stack --region $AWS_REGION
+aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region $AWS_REGION
 
 rm .kube/config
 

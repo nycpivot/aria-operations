@@ -101,7 +101,7 @@ Resources:
   EKSClusterRun:
     Type: AWS::EKS::Cluster
     Properties:
-      Name: tap-run
+      Name: tap-run-eks
       Version: "1.25"
       RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
       ResourcesVpcConfig:
@@ -148,8 +148,8 @@ Resources:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterRun
     Properties:
-      NodegroupName: tap-run-node-group
-      ClusterName: tap-run
+      NodegroupName: tap-run-eks-node-group
+      ClusterName: tap-run-eks
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 
         - t3.xlarge
