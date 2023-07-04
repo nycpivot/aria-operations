@@ -5,7 +5,7 @@ TAP_VERSION=1.5.0
 VIEW_DOMAIN=view.tap.nycpivot.com
 RUN_DOMAIN=run.tap.nycpivot.com
 
-tap_run=tap-run
+tap_run=tap-run-aks
 
 #INSTALL RUN TAP PROFILE
 echo
@@ -20,8 +20,6 @@ rm tap-values-run.yaml
 cat <<EOF | tee tap-values-run.yaml
 profile: run
 ceip_policy_disclosed: true
-shared:
-  ingress_domain: $RUN_DOMAIN
 supply_chain: basic
 contour:
   infrastructure_provider: aws

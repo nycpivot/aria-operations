@@ -5,7 +5,7 @@ TAP_VERSION=1.5.0
 VIEW_DOMAIN=view.tap.nycpivot.com
 RUN_DOMAIN=run.tap.nycpivot.com
 
-tap_run=tap-run
+tap_run=tap-run-eks
 
 #INSTALL RUN TAP PROFILE
 echo
