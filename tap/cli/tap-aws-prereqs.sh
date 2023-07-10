@@ -233,6 +233,10 @@ docker login $IMGPKG_REGISTRY_HOSTNAME_0 -u $IMGPKG_REGISTRY_USERNAME_0 -p $IMGP
 imgpkg copy --concurrency 1 -b $IMGPKG_REGISTRY_HOSTNAME_0/tanzu-application-platform/tap-packages:${TAP_VERSION} \
     --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/$INSTALL_REPO
 
+# imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/full-tbs-deps-package-repo:1.10.8 \
+#     --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/tbs-full-deps
+# tanzu package repository add tbs-full-deps-repository --url ${IMGPKG_REGISTRY_HOSTNAME_1}/tbs-full-deps:1.10.8 --namespace tap-install
+
 for cluster in "${clusters[@]}" ; do
 
     kubectl config use-context $cluster

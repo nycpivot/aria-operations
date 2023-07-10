@@ -7,6 +7,13 @@ RUN_DOMAIN=run-eks.tap.nycpivot.com
 
 tap_run=tap-run-eks
 
+acr_secret=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"acr-secret\")
+
+export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
+export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
+export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
+export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+
 #INSTALL RUN TAP PROFILE
 echo
 echo "<<< INSTALLING RUN TAP PROFILE >>>"
@@ -39,6 +46,67 @@ excluded_packages:
 EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-run.yaml -n tap-install
+
+# DEVELOPER NAMESPACE
+#https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.4/tap/scc-ootb-supply-chain-basic.html
+echo
+echo "<<< CREATING DEVELOPER NAMESPACE >>>"
+echo
+
+tanzu secret registry add registry-credentials \
+  --server $IMGPKG_REGISTRY_HOSTNAME_1 \
+  --username $IMGPKG_REGISTRY_USERNAME_1 \
+  --password $IMGPKG_REGISTRY_PASSWORD_1 \
+  --namespace default
+
+rm rbac-dev.yaml
+cat <<EOF | tee rbac-dev.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-registry
+  annotations:
+    secretgen.carvel.dev/image-pull-secret: ""
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: e30K
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+secrets:
+  - name: registry-credentials
+imagePullSecrets:
+  - name: registry-credentials
+  - name: tap-registry
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-permit-deliverable
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: deliverable
+subjects:
+  - kind: ServiceAccount
+    name: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-permit-workload
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: workload
+subjects:
+  - kind: ServiceAccount
+    name: default
+EOF
+
+kubectl apply -f rbac-dev.yaml
 
 #CONFIGURE DNS NAME WITH ELB IP
 echo

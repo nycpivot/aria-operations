@@ -4,14 +4,14 @@ AWS_REGION=$(aws configure get region)
 
 tap_view=tap-view
 tap_build=tap-build
-tap_run=tap-run
-tap_iterate=tap-iterate
+tap_run_eks=tap-run-eks
+#tap_iterate=tap-iterate
 
 #DELETE IAM CSI DRIVER ROLE
 view_rolename=$tap_view-csi-driver-role
 build_rolename=$tap_build-csi-driver-role
-run_rolename=$tap_run-csi-driver-role
-iterate_rolename=$tap_iterate-csi-driver-role
+run_eks_rolename=$tap_run_eks-csi-driver-role
+#iterate_rolename=$tap_iterate-csi-driver-role
 
 aws iam detach-role-policy \
     --role-name $view_rolename \
@@ -24,7 +24,7 @@ aws iam detach-role-policy \
     --no-cli-pager
 
 aws iam detach-role-policy \
-    --role-name $run_rolename \
+    --role-name $run_eks_rolename \
     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
     --no-cli-pager
 
@@ -35,7 +35,7 @@ aws iam detach-role-policy \
 
 aws iam delete-role --role-name $view_rolename
 aws iam delete-role --role-name $build_rolename
-aws iam delete-role --role-name $run_rolename
+aws iam delete-role --role-name $run_eks_rolename
 #aws iam delete-role --role-name $iterate_rolename
 
 aws cloudformation delete-stack --stack-name tap-multicluster-stack --region $AWS_REGION

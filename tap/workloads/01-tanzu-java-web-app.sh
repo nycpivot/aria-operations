@@ -94,4 +94,4 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.run.tap.nycpivot.com
+echo https://${app_name}.default.run-eks.tap.nycpivot.com
