@@ -5,7 +5,7 @@ TAP_VERSION=1.5.0
 VIEW_DOMAIN=view.tap.nycpivot.com
 GIT_CATALOG_REPOSITORY=tanzu-application-platform
 
-acr_secret=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"acr-secret\")
+acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
 
 export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
 export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
@@ -110,5 +110,5 @@ EOF
 kubectl apply -f rbac-dev.yaml
 
 echo
-echo "WOOT!! Ready to build some apps!"
+echo "HAPPY BUILDING!"
 echo

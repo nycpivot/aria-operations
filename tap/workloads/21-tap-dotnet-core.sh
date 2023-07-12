@@ -50,7 +50,7 @@ spec:
   build:
     env:
     - name: BP_DOTNET_PROJECT_PATH
-      value: "Tap.Dotnet.Core.Web.Mvc"
+      value: "src/Tap.Dotnet.Core.Web.Mvc"
   source:
     git:
       url: https://github.com/nycpivot/tap-dotnet-core

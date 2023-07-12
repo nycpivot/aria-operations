@@ -7,7 +7,7 @@ RUN_DOMAIN=run-eks.tap.nycpivot.com
 
 tap_run=tap-run-eks
 
-acr_secret=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"acr-secret\")
+acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
 
 export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
 export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
@@ -153,3 +153,7 @@ echo
 
 echo $change_batch_filename.json
 aws route53 change-resource-record-sets --hosted-zone-id $hosted_zone_id --change-batch file:///$HOME/$change_batch_filename.json
+
+echo
+echo "HAPPY RUNNING!"
+echo

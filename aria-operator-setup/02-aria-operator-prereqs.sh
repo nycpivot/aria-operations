@@ -58,7 +58,7 @@ export PATH=$PATH:$HOME/.istioctl/bin
 
 # TSM CLI
 # server_name=prod-2.nsxservicemesh.vmware.com
-# tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-workshop | jq -r .SecretString | jq -r .\"tsm-token\")
+# tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-token\")
 
 # #wget https://prod-2.nsxservicemesh.vmware.com/allspark-static/binaries/tsm-cli-linux.tgz
 # wget https://tsmcli.s3.us-west-2.amazonaws.com/tsm-cli-linux.tgz
@@ -83,7 +83,7 @@ sudo apt install pv #required for demo-magic
 # && sudo apt update \
 # && sudo apt install gh -y
 
-# git_token=$(aws secretsmanager get-secret-value --secret-id tap-workshop | jq -r .SecretString | jq -r .\"github-token\")
+# git_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"github-token\")
 
 # echo $git_token > git-token.txt
 
