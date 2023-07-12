@@ -64,11 +64,12 @@ pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb2}"
 sleep 10
 
 #DELETE STACK
-aws cloudformation delete-stack --stack-name tap-multicluster-stack --region ${AWS_REGION}
-aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region ${AWS_REGION}
+pei "aws cloudformation delete-stack --stack-name tap-multicluster-stack --region ${AWS_REGION}"
+pei "aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region ${AWS_REGION}"
 
 #rm .kube/config
 
-rm -rf $HOME/tanzu
-rm -rf $HOME/tanzu-cluster-essentials
-rm -rf $HOME/tanzu-java-web-app
+pei "rm -rf ${HOME}/tanzu"
+pei "rm -rf ${HOME}/tanzu-cluster-essentials"
+pei "rm -rf ${HOME}/tanzu-java-web-app"
+pei "rm change-batch-*"

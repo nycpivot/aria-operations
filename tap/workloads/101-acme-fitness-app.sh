@@ -15,7 +15,7 @@ kubectl config use-context ${kube_context}
 git_username=nycpivot
 git_password=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"github-token\")
 
-acme_payment=acme-payment-service
+app_name=acme-payment-service
 git_app_url=https://github.com/dillson/payment.git
 
 rm git-secret.yaml
@@ -37,5 +37,5 @@ kubectl apply -f git-secret.yaml
 kubectl patch serviceaccount default -p '{"secrets": [{"name": "git-secret"}]}'
 
 tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch master --type web \
-    --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --yes
-
+    --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} \
+    --param gitops_ssh_secret=git-secret --yes

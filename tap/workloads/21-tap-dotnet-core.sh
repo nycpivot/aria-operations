@@ -1,59 +1,113 @@
 #!/bin/bash
 
-app_name=example-app
-git_app_url=https://github.com/marlonajgayle/Net6WebApiTemplate
+########################
+# include the magic
+########################
+. demo-magic.sh
 
-tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web \
-    --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} \
-    --build-env BP_DOTNET_PROJECT_PATH=src/Content/src/Net6WebApiTemplate.Api --yes
+########################
+# Configure the options
+########################
 
-app_name=acme-fitness-web
+#
+# speed at which to simulate typing. bigger num = faster
+#
+TYPE_SPEED=15
 
-tanzu apps workload create $app_name --image gcr.io/vmwarecloudadvocacy/acmeshop-front-end:rel1 --type web \
-    --label app.kubernetes.io/part-of=${app_name}
+#
+# custom prompt
+#
+# see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html for escape sequences
+#
+#DEMO_PROMPT="${GREEN}➜ ${CYAN}\W "
 
-#gcr.io/vmwarecloudadvocacy/acmeshop-front-end:1.0.0 | 2.2.0
+# hide the evidence
+clear
 
-apiVersion: carto.run/v1alpha1
-kind: Workload
-metadata:
-  name: example-app
-  labels:
-    apps.tanzu.vmware.com/workload-type: web
-    apps.tanzu.vmware.com/has-tests:  "true"
-    app.kubernetes.io/part-of: sample-app
-    tanzu.app.live.view: "true"
-    tanzu.app.live.view.application.flavours: steeltoe
-    tanzu.app.live.view.application.name: steeltoe-weatherforecast
-spec:
-  build:
-    env:
-    - name: BP_DOTNET_PROJECT_PATH
-      value: "src/Content/src/Net6WebApiTemplate.Api"
-  source:
-    git:
-      url: https://github.com/marlonajgayle/Net6WebApiTemplate
-      ref:
-        branch: develop
-    # subPath: src/Content/src/Net6WebApiTemplate.Api/
+DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-apiVersion: carto.run/v1alpha1
-kind: Workload
-metadata:
-  name: tap-dotnet-core
-  labels:
-    apps.tanzu.vmware.com/workload-type: web
-    apps.tanzu.vmware.com/has-tests:  "true"
-    app.kubernetes.io/part-of: tap-dotnet-core
-    tanzu.app.live.view: "true"
-spec:
-  build:
-    env:
-    - name: BP_DOTNET_PROJECT_PATH
-      value: "src/Tap.Dotnet.Core.Web.Mvc"
-  source:
-    git:
-      url: https://github.com/nycpivot/tap-dotnet-core
-      ref:
-        branch: main
+echo "tap-dotnet-core-web-mvc"
+echo "tap-dotnet-core-api-weather"
+echo
 
+read -p "App Name: " app_name
+read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
+
+if [[ -z ${git_app_url} ]]
+then
+  git_app_url=https://github.com/nycpivot/tap-dotnet-core
+fi
+
+sub_path=
+if [[ ${app_name} = "tap-dotnet-core-web-mvc" ]]
+then
+  sub_path=Tap.Dotnet.Core.Web.Mvc
+elif [[ ${app_name} = "tap-dotnet-core-api-weather" ]]
+then
+  sub_path=Tap.Dotnet.Core.Api.Weather
+fi
+echo
+
+kubectl config get-contexts
+echo
+
+read -p "Select build context: " kube_context
+
+kubectl config use-context ${kube_context}
+echo
+
+pe "tanzu apps workload list"
+echo
+
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/${sub_path} --yes"
+
+pe "clear"
+
+pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
+echo
+
+pe "tanzu apps workload list"
+echo
+
+pe "tanzu apps workload get ${app_name}"
+echo
+
+pe "kubectl get configmaps"
+echo
+
+pe "rm ${app_name}-deliverable.yaml"
+echo
+
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
+#pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
+echo
+
+kubectl config get-contexts
+echo
+
+read -p "Select run context: " kube_context
+echo
+
+kubectl config use-context ${kube_context}
+echo
+
+pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
+
+pe "kubectl get deliverables"
+echo
+
+#pe "kubectl get httpproxy"
+#echo
+
+run_cluster=run-eks
+if [[ ${kube_context} = "tap-run-eks" ]]
+then
+  run_cluster=run-eks
+elif [[ ${kube_context} = "tap-run-aks" ]]
+then
+  run_cluster=run-aks
+fi
+
+echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo
