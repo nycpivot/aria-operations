@@ -95,6 +95,9 @@ echo
 kubectl config use-context ${kube_context}
 echo
 
+kubectl delete deliverable tap-dotnet-core-api-weather
+echo
+
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
 echo
 
