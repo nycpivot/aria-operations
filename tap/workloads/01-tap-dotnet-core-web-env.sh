@@ -26,13 +26,13 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-web-mvc): " app_name
+read -p "App Name (tap-dotnet-core-web-mvc-env): " app_name
 read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-web-mvc
+  app_name=tap-dotnet-core-web-mvc-env
 fi
 
 if [[ -z ${git_app_url} ]]
@@ -60,10 +60,16 @@ then
   run_cluster=run-aks
 fi
 
+workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
+if [[ ${workload_name} = ${app_name} ]]
+then
+  tanzu apps workload delete ${app_name}
+fi
+
 pe "tanzu apps workload list"
 echo
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --env WEATHER_API=https://tap-dotnet-core-web-mvc.default.${run_cluster}.tap.nycpivot.com --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
 
 pe "clear"
 
