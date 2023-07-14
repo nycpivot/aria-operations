@@ -91,6 +91,7 @@ pe "kubectl get configmaps"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
+  kubectl delete -f ${app_name}-deliverable.yaml
   rm ${app_name}-deliverable.yaml
   echo
 fi
@@ -106,12 +107,6 @@ read -p "Select run context: " kube_context
 echo
 
 kubectl config use-context ${kube_context}
-echo
-
-if test -f "${app_name}-deliverable.yaml"; then
-  kubectl delete -f ${app_name}-deliverable.yaml
-  rm ${app_name}-deliverable.yaml
-fi
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
