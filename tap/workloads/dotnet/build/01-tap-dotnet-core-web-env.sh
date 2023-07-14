@@ -86,3 +86,15 @@ echo
 
 pe "tanzu apps workload get ${app_name}"
 echo
+
+pe "kubectl get configmaps"
+echo
+
+if test -f "${app_name}-deliverable.yaml"; then
+  kubectl delete -f ${app_name}-deliverable.yaml
+  rm ${app_name}-deliverable.yaml
+  echo
+fi
+
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
+echo
