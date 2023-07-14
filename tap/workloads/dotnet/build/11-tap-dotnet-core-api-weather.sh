@@ -26,13 +26,13 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-web-mvc-env): " app_name
+read -p "App Name (tap-dotnet-core-api-weather): " app_name
 read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-web-mvc-env
+  app_name=tap-dotnet-core-api-weather
 fi
 
 if [[ -z ${git_app_url} ]]
@@ -60,21 +60,10 @@ then
   run_cluster=run-aks
 fi
 
-workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-claim\" not found" ]]
-then
-  workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
-  if [[ ${workload_name} = ${app_name} ]]
-  then
-    tanzu apps workload delete ${app_name}
-    echo
-  fi
-fi
-
 pe "tanzu apps workload list"
 echo
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
 
 pe "clear"
 
@@ -90,10 +79,8 @@ echo
 pe "kubectl get configmaps"
 echo
 
-if test -f "${app_name}-deliverable.yaml"; then
-  rm ${app_name}-deliverable.yaml
-  echo
-fi
+pe "rm ${app_name}-deliverable.yaml"
+echo
 
 pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
 #pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
@@ -108,10 +95,7 @@ echo
 kubectl config use-context ${kube_context}
 echo
 
-if test -f "${app_name}-deliverable.yaml"; then
-  kubectl delete -f ${app_name}-deliverable.yaml
-  rm ${app_name}-deliverable.yaml
-fi
+kubectl delete deliverable tap-dotnet-core-api-weather
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"

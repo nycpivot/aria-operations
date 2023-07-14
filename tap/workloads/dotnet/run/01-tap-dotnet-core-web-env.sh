@@ -40,17 +40,6 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-kubectl config get-contexts
-echo
-
-read -p "Select build context (Press Enter for current context): " kube_context
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
 run_cluster=run-eks
 if [[ ${kube_context} = "tap-run-eks" ]]
 then
@@ -59,33 +48,6 @@ elif [[ ${kube_context} = "tap-run-aks" ]]
 then
   run_cluster=run-aks
 fi
-
-workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-claim\" not found" ]]
-then
-  workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
-  if [[ ${workload_name} = ${app_name} ]]
-  then
-    tanzu apps workload delete ${app_name}
-    echo
-  fi
-fi
-
-pe "tanzu apps workload list"
-echo
-
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
-
-pe "clear"
-
-pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
-echo
-
-pe "tanzu apps workload list"
-echo
-
-pe "tanzu apps workload get ${app_name}"
-echo
 
 pe "kubectl get configmaps"
 echo
