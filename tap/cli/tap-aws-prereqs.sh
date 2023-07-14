@@ -77,6 +77,8 @@ clusters=( $tap_view $tap_build $tap_run )
 
 for cluster in "${clusters[@]}" ; do
 
+    eksctl utils associate-iam-oidc-provider --cluster $cluster --approve
+
     # 2. INSTALL CSI PLUGIN (REQUIRED FOR K8S 1.23+)
     echo
     echo "<<< INSTALLING CSI PLUGIN ($cluster) >>>"

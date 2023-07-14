@@ -44,6 +44,7 @@ kubectl config get-contexts
 echo
 
 read -p "Select build context (Press Enter for current context): " kube_context
+echo
 
 if [[ -n ${kube_context} ]]
 then
@@ -67,15 +68,17 @@ then
   if [[ ${workload_name} = ${app_name} ]]
   then
     tanzu apps workload delete ${app_name}
+    echo
   fi
 fi
 
 pe "tanzu apps workload list"
 echo
 
+api_weather_claim=api-weather-claim
 service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim}
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --service-ref ${service_ref}  --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --service-ref ${service_ref}  --yes"
 
 pe "clear"
 
@@ -125,9 +128,6 @@ stringData:
 EOF
 echo
 
-pe "cat ${api_weather_secret}.yaml"
-echo
-
 pe "kubectl apply -f ${api_weather_secret}.yaml"
 echo
 
@@ -154,18 +154,18 @@ rules:
   - list
   - watch
 EOF
-
-pe "cat ${stk_secret_reader}.yaml"
 echo
 
 pe "kubectl apply -f ${stk_secret_reader}.yaml"
 echo
 
-api_weather_claim=api-weather-claim
 pe "tanzu service resource-claim create ${api_weather_claim} --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"
+echo
+
+pe "tanzu services resource-claims get api-weather-claim"
 echo
 
 # api_weather_secret=api-weather-secret
