@@ -54,7 +54,6 @@ pe "kubectl get configmaps"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
-  kubectl delete -f ${app_name}-deliverable.yaml
   rm ${app_name}-deliverable.yaml
   echo
 fi
@@ -72,10 +71,13 @@ echo
 kubectl config use-context ${kube_context}
 echo
 
+kubectl delete deliverable ${app_name}-deliverable
+echo
+
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
 echo
 
-pe "kubectl get deliverables"
+pe "kubectl get deliverables -w"
 echo
 
 #pe "kubectl get httpproxy"
