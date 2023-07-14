@@ -66,7 +66,7 @@ then
   workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
   if [[ ${workload_name} = ${app_name} ]]
   then
-    tanzu apps workload delete ${app_name}
+    tanzu apps workload delete ${app_name} --yes
     echo
   fi
 fi
@@ -87,14 +87,5 @@ echo
 pe "tanzu apps workload get ${app_name}"
 echo
 
-pe "kubectl get configmaps"
-echo
-
-if test -f "${app_name}-deliverable.yaml"; then
-  kubectl delete -f ${app_name}-deliverable.yaml
-  rm ${app_name}-deliverable.yaml
-  echo
-fi
-
-pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
+echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/tap-build/default/${app_name}"
 echo

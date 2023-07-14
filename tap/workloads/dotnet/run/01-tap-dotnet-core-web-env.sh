@@ -43,6 +43,26 @@ then
   run_cluster=run-aks
 fi
 
+#REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
+pe "kubectl config use-context tap-build"
+echo
+
+pe "kubectl get workloads -w"
+echo
+
+pe "kubectl get configmaps"
+echo
+
+if test -f "${app_name}-deliverable.yaml"; then
+  kubectl delete -f ${app_name}-deliverable.yaml
+  rm ${app_name}-deliverable.yaml
+  echo
+fi
+
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
+echo
+
+#SWITCH TO RUN CLUSTER
 kubectl config get-contexts
 echo
 
