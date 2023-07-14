@@ -61,7 +61,7 @@ then
 fi
 
 workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-claim\" not found" ]]
+if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-env\" not found" ]]
 then
   workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
   if [[ ${workload_name} = ${app_name} ]]
