@@ -113,24 +113,24 @@ echo
 kubectl config use-context ${kube_context}
 echo
 
-api_weather_secret=api-weather-secret
-if test -f "${api_weather_secret}.yaml"; then
-  kubectl delete -f ${api_weather_secret}
-  rm ${api_weather_secret}.yaml
+api_weather_host_direct_secret=api-weather-host-direct-secret
+if test -f "${api_weather_host_direct_secret}.yaml"; then
+  kubectl delete -f ${api_weather_host_direct_secret}
+  rm ${api_weather_host_direct_secret}.yaml
 fi
 
-cat <<EOF | tee ${api_weather_secret}.yaml
+cat <<EOF | tee ${api_weather_host_direct_secret}.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ${api_weather_secret}
+  name: ${api_weather_host_direct_secret}
 type: Opaque
 stringData:
   host: https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com
 EOF
 echo
 
-pe "kubectl apply -f ${api_weather_secret}.yaml"
+pe "kubectl apply -f ${api_weather_host_direct_secret}.yaml"
 echo
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
@@ -162,7 +162,7 @@ echo
 pe "kubectl apply -f ${stk_secret_reader}.yaml"
 echo
 
-pe "tanzu service resource-claim create ${api_weather_claim} --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1"
+pe "tanzu service resource-claim create ${api_weather_claim} --resource-name ${api_weather_host_direct_secret} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"

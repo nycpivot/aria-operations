@@ -27,6 +27,22 @@ unzip terraform_0.13.0_linux_amd64.zip
 sudo mv terraform /usr/local/bin
 rm terraform_0.13.0_linux_amd64.zip
 
+#KREW
+(
+  set -x; cd "$(mktemp -d)" &&
+  OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+  ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+  KREW="krew-${OS}_${ARCH}" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+  tar zxvf "${KREW}.tar.gz" &&
+  ./"${KREW}" install krew
+)
+
+echo "export PATH='${KREW_ROOT:-$HOME/.krew}/bin:$PATH'" >> .bashrc
+
+kubectl krew install tree
+kubectl krew install lineage
+
 #AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
@@ -67,6 +83,7 @@ export PATH=$PATH:$HOME/.istioctl/bin
 
 # tsm login -s $server_name -t $tsm_token
 
+# EXTRAS, EXTRAS, EXTRAS
 
 #DEMO-MAGIC
 wget https://raw.githubusercontent.com/paxtonhare/demo-magic/master/demo-magic.sh
@@ -86,6 +103,9 @@ sudo apt install pv #required for demo-magic
 # git_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"github-token\")
 
 # echo $git_token > git-token.txt
+
+# https://external-secrets.io/v0.8.5/introduction/getting-started/
+helm repo add external-secrets https://charts.external-secrets.io
 
 echo
 echo "***REBOOTING***"

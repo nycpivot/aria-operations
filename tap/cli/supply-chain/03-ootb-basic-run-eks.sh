@@ -108,6 +108,7 @@ EOF
 
 kubectl apply -f rbac-dev.yaml
 
+
 #CONFIGURE DNS NAME WITH ELB IP
 echo
 echo "Press Ctrl+C when contour packages has successfully reconciled"

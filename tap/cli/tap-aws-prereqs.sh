@@ -157,59 +157,59 @@ EOF
     # 3. DOWNLOAD AND INSTALL TANZU CLI AND ESSENTIALS
     # https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.5/tap/install-tanzu-cli.html
     # https://network.tanzu.vmware.com/products/tanzu-application-platform#/releases/1287438/file_groups/12507
-    echo
-    echo "<<< INSTALLING TANZU CLI AND CLUSTER ESSENTIALS >>>"
-    echo
+    # echo
+    # echo "<<< INSTALLING TANZU CLI AND CLUSTER ESSENTIALS >>>"
+    # echo
 
-    sleep 5
+    # sleep 5
 
-    export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
-    export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
-    export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
-    export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
+    # export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
+    # export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
+    # export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
+    # export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
 
-    rm -rf $HOME/tanzu
-    mkdir $HOME/tanzu
+    # rm -rf $HOME/tanzu
+    # mkdir $HOME/tanzu
 
-    wget https://network.pivotal.io/api/v2/products/tanzu-application-platform/releases/1295414/product_files/1478717/download \
-        --header="Authorization: Bearer $access_token" -O $HOME/tanzu/$CLI_FILENAME
-    tar -xvf $HOME/tanzu/$CLI_FILENAME -C $HOME/tanzu
+    # wget https://network.pivotal.io/api/v2/products/tanzu-application-platform/releases/1295414/product_files/1478717/download \
+    #     --header="Authorization: Bearer $access_token" -O $HOME/tanzu/$CLI_FILENAME
+    # tar -xvf $HOME/tanzu/$CLI_FILENAME -C $HOME/tanzu
 
-    cd tanzu
+    # cd tanzu
 
-    sudo install cli/core/$TANZU_VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+    # sudo install cli/core/$TANZU_VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
 
-    tanzu plugin install --local cli all
+    # tanzu plugin install --local cli all
 
-    cd $HOME
+    # cd $HOME
 
     # 4. DOWNLOAD AND INSTALL CLUSTER ESSENTIALS
     # https://docs.vmware.com/en/Cluster-Essentials-for-VMware-Tanzu/1.5/cluster-essentials/deploy.html
     # https://network.tanzu.vmware.com/products/tanzu-cluster-essentials/
-    echo
-    echo "<<< INSTALLING TANZU CLUSTER ESSENTIALS >>>"
-    echo
+    # echo
+    # echo "<<< INSTALLING TANZU CLUSTER ESSENTIALS >>>"
+    # echo
 
-    sleep 5
+    # sleep 5
 
-    rm -rf $HOME/tanzu-cluster-essentials
-    mkdir $HOME/tanzu-cluster-essentials
+    # rm -rf $HOME/tanzu-cluster-essentials
+    # mkdir $HOME/tanzu-cluster-essentials
 
-    wget https://network.pivotal.io/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460876/download \
-        --header="Authorization: Bearer $access_token" -O $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
-    tar -xvf $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME -C $HOME/tanzu-cluster-essentials
+    # wget https://network.pivotal.io/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460876/download \
+    #     --header="Authorization: Bearer $access_token" -O $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
+    # tar -xvf $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME -C $HOME/tanzu-cluster-essentials
 
     cd $HOME/tanzu-cluster-essentials
 
     ./install.sh --yes
 
-    sudo cp $HOME/tanzu-cluster-essentials/kapp /usr/local/bin/kapp
-    sudo cp $HOME/tanzu-cluster-essentials/imgpkg /usr/local/bin/imgpkg
+    # sudo cp $HOME/tanzu-cluster-essentials/kapp /usr/local/bin/kapp
+    # sudo cp $HOME/tanzu-cluster-essentials/imgpkg /usr/local/bin/imgpkg
 
-    cd $HOME
+    # cd $HOME
 
-    rm $HOME/tanzu/$CLI_FILENAME
-    rm $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
+    # rm $HOME/tanzu/$CLI_FILENAME
+    # rm $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
 done
 
 
