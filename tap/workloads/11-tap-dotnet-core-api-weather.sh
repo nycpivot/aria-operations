@@ -165,10 +165,14 @@ spec:
     name: ${api_weather_eso_secret}
     creationPolicy: Owner
   data:
-  - secretKey: ${api_weather_eso_secret}-key
+  - secretKey: host
     remoteRef:
       key: aria-operations
       # version: provider-key-version
+      property: weather-bit-api-host
+  - secretKey: password
+    remoteRef:
+      key: aria-operations
       property: weather-bit-api-key
   # dataFrom:
   # - extract:

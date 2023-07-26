@@ -111,3 +111,14 @@ export TANZU_API_TOKEN=$tmc_token
 # CREATING A CONTEXT WILL AUTOMATICALLY INSTALL THE MISION CONTROL PLUGINS
 tanzu context create --name tmc-operations --endpoint customer0.tmc.cloud.vmware.com
 
+
+# INSTALL TANZU SERVICE MESH
+server_name=prod-2.nsxservicemesh.vmware.com
+tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-token\")
+
+#wget https://prod-2.nsxservicemesh.vmware.com/allspark-static/binaries/tsm-cli-linux.tgz
+wget https://tsmcli.s3.us-west-2.amazonaws.com/tsm-cli-linux.tgz
+
+sudo tar xf tsm-cli-linux.tgz -C /usr/local/bin/
+
+tsm login -s $server_name -t $tsm_token

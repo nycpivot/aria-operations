@@ -43,7 +43,9 @@ tap_build=tap-build
 tap_run=tap-run-eks
 #tap_iterate=tap-iterate
 
-VIEW_DOMAIN=view.tap.nycpivot.com
+#CLOUD FORMATION VPC
+#https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
+#--stack-name tap-multicluster-vpc-stack
 
 
 # 1. CREATE CLUSTERS
@@ -163,10 +165,10 @@ EOF
 
     # sleep 5
 
-    # export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
-    # export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
-    # export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
-    # export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
+    export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
+    export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
+    export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
+    export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
 
     # rm -rf $HOME/tanzu
     # mkdir $HOME/tanzu
@@ -234,10 +236,6 @@ docker login $IMGPKG_REGISTRY_HOSTNAME_0 -u $IMGPKG_REGISTRY_USERNAME_0 -p $IMGP
 
 imgpkg copy --concurrency 1 -b $IMGPKG_REGISTRY_HOSTNAME_0/tanzu-application-platform/tap-packages:${TAP_VERSION} \
     --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/$INSTALL_REPO
-
-# imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/full-tbs-deps-package-repo:1.10.8 \
-#     --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/tbs-full-deps
-# tanzu package repository add tbs-full-deps-repository --url ${IMGPKG_REGISTRY_HOSTNAME_1}/tbs-full-deps:1.10.8 --namespace tap-install
 
 for cluster in "${clusters[@]}" ; do
 
