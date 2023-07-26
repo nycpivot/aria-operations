@@ -10,7 +10,7 @@ then
     ssh ubuntu@ec2-54-158-33-27.compute-1.amazonaws.com -i aria-operator-setup/keys/aria-operator-keypair-${aws_region_code}.pem -L 8080:localhost:8080
 elif [[ $aws_region_code = "us-east-2" ]]
 then
-    ssh ubuntu@ec2-3-15-185-67.us-east-2.compute.amazonaws.com -i aria-operator-setup/keys/aria-operator-keypair-${aws_region_code}.pem
+    ssh ubuntu@ec2-18-191-95-174.us-east-2.compute.amazonaws.com -i aria-operator-setup/keys/aria-operator-keypair-${aws_region_code}.pem
 elif [[ $aws_region_code = "us-west-1" ]]
 then
     ssh ubuntu@ec2-13-56-227-32.us-west-1.compute.amazonaws.com -i aria-operator-setup/keys/aria-operator-keypair-${aws_region_code}.pem
