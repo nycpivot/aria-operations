@@ -45,3 +45,5 @@ tanzu mission-control clustergroup delete ${tmc_cluster_group}
 if test -f "${tmc_cluster_group}.yaml"; then
   rm ${tmc_cluster_group}.yaml
 fi
+
+curl #
