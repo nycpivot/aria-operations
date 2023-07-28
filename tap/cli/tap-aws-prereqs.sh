@@ -30,13 +30,7 @@ curl -i -H "Accept: application/json" \
     -H "Authorization: Bearer $access_token" \
     -X GET https://network.pivotal.io/api/v2/authentication
 
-#TANZU AND TAP
-export TANZU_CLI_NO_INIT=true
-export TANZU_VERSION=v0.28.1
-export TAP_VERSION=1.5.0
-
-export CLI_FILENAME=tanzu-framework-linux-amd64-v0.28.1.1.tar
-export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
+export TAP_VERSION=1.6.1
 
 tap_view=tap-view
 tap_build=tap-build
@@ -55,9 +49,9 @@ echo
 
 sleep 5
 
-  aws cloudformation create-stack --stack-name tap-multicluster-stack --region $AWS_REGION \
-      --template-body file:///home/ubuntu/aria-operations/tap/config/tap-multicluster-stack-${AWS_REGION}.yaml
-  aws cloudformation wait stack-create-complete --stack-name tap-multicluster-stack --region $AWS_REGION
+aws cloudformation create-stack --stack-name tap-multicluster-stack --region $AWS_REGION \
+    --template-body file:///home/ubuntu/aria-operations/tap/config/tap-multicluster-stack-${AWS_REGION}.yaml
+aws cloudformation wait stack-create-complete --stack-name tap-multicluster-stack --region $AWS_REGION
 
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 
@@ -79,6 +73,8 @@ clusters=( $tap_view $tap_build $tap_run )
 
 for cluster in "${clusters[@]}" ; do
 
+    kubectl config use-context $cluster
+
     eksctl utils associate-iam-oidc-provider --cluster $cluster --approve
 
     # 2. INSTALL CSI PLUGIN (REQUIRED FOR K8S 1.23+)
@@ -88,17 +84,16 @@ for cluster in "${clusters[@]}" ; do
 
     sleep 5
 
-    kubectl config use-context $cluster
-
     rolename=${cluster}-csi-driver-role
 
     aws eks create-addon \
       --cluster-name $cluster \
       --addon-name aws-ebs-csi-driver \
-      --service-account-role-arn "arn:aws:iam::$AWS_ACCOUNT_ID:role/$rolename"
+      --service-account-role-arn "arn:aws:iam::$AWS_ACCOUNT_ID:role/$rolename" \
+      --no-cli-pager
 
-    #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
-    aws eks describe-cluster --name $cluster --query "cluster.identity.oidc.issuer" --output text
+    # #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
+    # aws eks describe-cluster --name $cluster --query "cluster.identity.oidc.issuer" --output text
 
     #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
     oidc_id=$(aws eks describe-cluster --name $cluster --query "cluster.identity.oidc.issuer" --output text | awk -F '/' '{print $5}')
@@ -159,59 +154,20 @@ EOF
     # 3. DOWNLOAD AND INSTALL TANZU CLI AND ESSENTIALS
     # https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.5/tap/install-tanzu-cli.html
     # https://network.tanzu.vmware.com/products/tanzu-application-platform#/releases/1287438/file_groups/12507
-    # echo
-    # echo "<<< INSTALLING TANZU CLI AND CLUSTER ESSENTIALS >>>"
-    # echo
+    echo
+    echo "<<< INSTALLING TANZU CLI AND CLUSTER ESSENTIALS >>>"
+    echo
 
-    # sleep 5
+    sleep 5
 
     export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
     export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
     export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
-    export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
-
-    # rm -rf $HOME/tanzu
-    # mkdir $HOME/tanzu
-
-    # wget https://network.pivotal.io/api/v2/products/tanzu-application-platform/releases/1295414/product_files/1478717/download \
-    #     --header="Authorization: Bearer $access_token" -O $HOME/tanzu/$CLI_FILENAME
-    # tar -xvf $HOME/tanzu/$CLI_FILENAME -C $HOME/tanzu
-
-    # cd tanzu
-
-    # sudo install cli/core/$TANZU_VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
-
-    # tanzu plugin install --local cli all
-
-    # cd $HOME
-
-    # 4. DOWNLOAD AND INSTALL CLUSTER ESSENTIALS
-    # https://docs.vmware.com/en/Cluster-Essentials-for-VMware-Tanzu/1.5/cluster-essentials/deploy.html
-    # https://network.tanzu.vmware.com/products/tanzu-cluster-essentials/
-    # echo
-    # echo "<<< INSTALLING TANZU CLUSTER ESSENTIALS >>>"
-    # echo
-
-    # sleep 5
-
-    # rm -rf $HOME/tanzu-cluster-essentials
-    # mkdir $HOME/tanzu-cluster-essentials
-
-    # wget https://network.pivotal.io/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460876/download \
-    #     --header="Authorization: Bearer $access_token" -O $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
-    # tar -xvf $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME -C $HOME/tanzu-cluster-essentials
+    export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54e516b5d088198558d23cababb3f907cd8073892cacfb2496bb9d66886efe15
 
     cd $HOME/tanzu-cluster-essentials
 
     ./install.sh --yes
-
-    # sudo cp $HOME/tanzu-cluster-essentials/kapp /usr/local/bin/kapp
-    # sudo cp $HOME/tanzu-cluster-essentials/imgpkg /usr/local/bin/imgpkg
-
-    # cd $HOME
-
-    # rm $HOME/tanzu/$CLI_FILENAME
-    # rm $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
 done
 
 

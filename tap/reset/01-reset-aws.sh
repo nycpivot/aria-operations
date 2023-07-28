@@ -40,14 +40,28 @@ run_eks_rolename=${tap_run_eks}-eks-csi-driver-role
 #iterate_rolename=${tap_iterate}-csi-driver-role
 
 pei "aws iam detach-role-policy --role-name ${view_rolename} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --no-cli-pager"
+echo
+
 pei "aws iam detach-role-policy --role-name ${build_rolename} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --no-cli-pager"
+echo
+
 pei "aws iam detach-role-policy --role-name ${run_eks_rolename} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --no-cli-pager"
+echo
+
 #pei "aws iam detach-role-policy --role-name ${iterate_rolename} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --no-cli-pager"
+#echo
 
 pei "aws iam delete-role --role-name ${view_rolename}"
+echo
+
 pei "aws iam delete-role --role-name ${build_rolename}"
+echo
+
 pei "aws iam delete-role --role-name ${run_eks_rolename}"
+echo
+
 #pei "aws iam delete-role --role-name ${iterate_rolename}"
+#echo
 
 
 #DELETE ELBs
@@ -57,15 +71,23 @@ network_lb1=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[0].LoadBa
 network_lb2=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[1].LoadBalancerArn)
 
 pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb1}"
+echo
+
 pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb2}"
+echo
+
 pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb1}"
+echo
+
 pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb2}"
+echo
 
 sleep 10
 
 #DELETE STACK
 pei "aws cloudformation delete-stack --stack-name tap-multicluster-stack --region ${AWS_REGION}"
 pei "aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region ${AWS_REGION}"
+echo
 
 #rm .kube/config
 
