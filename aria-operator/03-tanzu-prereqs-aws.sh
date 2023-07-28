@@ -103,6 +103,22 @@ rm $HOME/tanzu-cluster-essentials/$ESSENTIALS_FILENAME
 cd $HOME
 
 
+#TMC CLI
+wget https://tanzustorage.blob.core.windows.net/tanzu/tmc -O tmc-cli
+sudo mv tmc-cli /usr/local/bin/tmc
+chmod +x /usr/local/bin/tmc
+
+tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
+
+#TMC_API_TOKEN=$(az keyvault secret show --name tanzu-cloud-services-token --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
+export TMC_API_TOKEN=${tmc_token}
+
+echo $TMC_API_TOKEN
+
+tmc login --name tmc-operations --no-configure
+echo
+
+
 # INSTALL MISSION-CONTROL PLUGIN
 echo
 echo "<<< INSTALLING TANZU MISSION CONTROL PLUGIN >>>"
@@ -110,9 +126,7 @@ echo
 
 sleep 5
 
-tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
-
-export TANZU_API_TOKEN=$tmc_token
+export TANZU_API_TOKEN=${tmc_token}
 
 # CREATING A CONTEXT WILL AUTOMATICALLY INSTALL THE MISION CONTROL PLUGINS
 tanzu context create --name tmc-operations --endpoint customer0.tmc.cloud.vmware.com
