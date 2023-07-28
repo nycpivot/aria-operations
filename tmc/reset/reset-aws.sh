@@ -46,4 +46,5 @@ if test -f "${tmc_cluster_group}.yaml"; then
   rm ${tmc_cluster_group}.yaml
 fi
 
+# DELETE EKS CLUSTER(S)
 curl #
