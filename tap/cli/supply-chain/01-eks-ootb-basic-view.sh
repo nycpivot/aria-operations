@@ -1,7 +1,7 @@
 #!/bin/bash
 #https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.3/tap/GUID-multicluster-reference-tap-values-view-sample.html
 
-TAP_VERSION=1.5.0
+TAP_VERSION=1.6.1
 VIEW_DOMAIN=view.tap.nycpivot.com
 GIT_CATALOG_REPOSITORY=tanzu-application-platform
 
@@ -207,6 +207,8 @@ shared:
 tap_gui:
   service_type: ClusterIP
   app_config:
+    auth:
+      allowGuestAccess: true
     catalog:
       locations:
         - type: url

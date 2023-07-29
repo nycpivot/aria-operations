@@ -21,6 +21,19 @@ export TAP_VERSION=1.6.1
 export CLI_FILENAME=tanzu-framework-linux-amd64-v0.28.1.1.tar
 export ESSENTIALS_FILENAME=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
 
+export INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
+export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
+export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
+export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54e516b5d088198558d23cababb3f907cd8073892cacfb2496bb9d66886efe15
+
+acr_secret=$(az keyvault secret show --name acr-secret --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
+
+export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
+export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
+export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+
+export INSTALL_REPO=tanzu-application-platform/tap-packages
+
 group=aria-operations
 aks_region_code=eastus
 tap_run=tap-run-aks
@@ -43,6 +56,11 @@ az aks get-credentials --name $tap_run --resource-group $group
 
 kubectl config use-context $tap_run
 
+cd $HOME/tanzu-cluster-essentials
+
+./install.sh --yes
+
+# CREATE DEVELOPER NAMESPACE
 kubectl create ns tap-install
 
 tanzu secret registry add tap-registry \
