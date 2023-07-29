@@ -113,8 +113,6 @@ tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq
 #TMC_API_TOKEN=$(az keyvault secret show --name tanzu-cloud-services-token --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
 export TMC_API_TOKEN=${tmc_token}
 
-echo $TMC_API_TOKEN
-
 tmc login --name tmc-operations --no-configure
 echo
 
