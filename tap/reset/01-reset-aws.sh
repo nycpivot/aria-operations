@@ -26,6 +26,7 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
 tap_view=tap-view
@@ -91,7 +92,20 @@ echo
 
 #rm .kube/config
 
-pei "rm -rf ${HOME}/tanzu"
-pei "rm -rf ${HOME}/tanzu-cluster-essentials"
-pei "rm -rf ${HOME}/tanzu-java-web-app"
+kubectl config delete-context tap-run-eks
+kubectl config delete-context tap-build
+kubectl config delete-context tap-view
+
+arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
+kubectl config delete-cluster ${arn}/${tap_run_eks}
+kubectl config delete-cluster ${arn}/${tap_build}
+kubectl config delete-cluster ${arn}/${tap_view}
+
+kubectl config delete-user ${arn}/${tap_run_eks}
+kubectl config delete-user ${arn}/${tap_build}
+kubectl config delete-user ${arn}/${tap_view}
+
 pei "rm change-batch-*"
+# pei "rm -rf ${HOME}/tanzu"
+# pei "rm -rf ${HOME}/tanzu-cluster-essentials"
+# pei "rm -rf ${HOME}/tanzu-java-web-app"
