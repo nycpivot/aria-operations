@@ -26,8 +26,12 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name: " app_name
+read -p "App Name (tanzu-java-web-app): " app_name
 echo
+
+if [[ -z ${app_name} ]]; then
+    app_name=tanzu-java-web-app
+fi
 
 kubectl config get-contexts
 echo

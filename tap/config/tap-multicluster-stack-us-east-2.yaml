@@ -118,12 +118,12 @@ Resources:
       ClusterName: tap-view
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 
-        - t3.xlarge
+        - t3.2xlarge
       DiskSize: 80
       ScalingConfig:
         MinSize: 2
-        DesiredSize: 2
-        MaxSize: 3
+        DesiredSize: 3
+        MaxSize: 5
       Subnets:
         - !Ref PublicSubnetB
         - !Ref PublicSubnetC
@@ -135,12 +135,12 @@ Resources:
       ClusterName: tap-build
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 
-        - t3.xlarge
+        - t3.2xlarge
       DiskSize: 80
       ScalingConfig:
         MinSize: 2
-        DesiredSize: 2
-        MaxSize: 3
+        DesiredSize: 3
+        MaxSize: 5
       Subnets:
         - !Ref PublicSubnetB
         - !Ref PublicSubnetC
@@ -152,12 +152,12 @@ Resources:
       ClusterName: tap-run-eks
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 
-        - t3.xlarge
+        - t3.2xlarge
       DiskSize: 80
       ScalingConfig:
         MinSize: 2
-        DesiredSize: 2
-        MaxSize: 3
+        DesiredSize: 3
+        MaxSize: 5
       Subnets:
         - !Ref PublicSubnetB
         - !Ref PublicSubnetC

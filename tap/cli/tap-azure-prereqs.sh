@@ -56,11 +56,11 @@ az aks get-credentials --name $tap_run --resource-group $group
 
 kubectl config use-context $tap_run
 
+# INSTALL CLUSTER ESSENTIALS
 cd $HOME/tanzu-cluster-essentials
 
 ./install.sh --yes
 
-# CREATE DEVELOPER NAMESPACE
 kubectl create ns tap-install
 
 tanzu secret registry add tap-registry \
