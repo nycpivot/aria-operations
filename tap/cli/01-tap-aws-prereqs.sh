@@ -23,10 +23,6 @@ tap_build=tap-build
 tap_run=tap-run-eks
 #tap_iterate=tap-iterate
 
-#CLOUD FORMATION VPC
-#https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
-#--stack-name tap-multicluster-vpc-stack
-
 
 # 1. CREATE CLUSTERS
 echo
