@@ -35,10 +35,10 @@ tap_run_eks=tap-run-eks
 #tap_iterate=tap-iterate
 
 #DELETE IAM CSI DRIVER ROLES
-view_rolename=${tap_view}-csi-driver-role
-build_rolename=${tap_build}-csi-driver-role
-run_eks_rolename=${tap_run_eks}-csi-driver-role
-#iterate_rolename=${tap_iterate}-csi-driver-role
+view_rolename=${tap_view}-csi-driver-role-${AWS_REGION}
+build_rolename=${tap_build}-csi-driver-role-${AWS_REGION}
+run_eks_rolename=${tap_run_eks}-csi-driver-role-${AWS_REGION}
+#iterate_rolename=${tap_iterate}-csi-driver-role-${AWS_REGION}
 
 pei "aws iam detach-role-policy --role-name ${view_rolename} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --no-cli-pager"
 echo
