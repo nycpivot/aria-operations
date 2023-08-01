@@ -1,79 +1,18 @@
 Description: "Custom VPC for TAP multi-profile installation"
+Parameters:
+  VpcId:
+    Type: String
+  SubnetId1:
+    Type: String
+  SubnetId2:
+    Type: String
+  SubnetId3:
+    Type: String
+  SubnetId4:
+    Type: String
+  SecurityGroupId:
+    Type: String
 Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: tap-workshop-multicluster-vpc
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      VpcId: !Ref VpcId
-      GroupDescription: "Enables SSH access to nodes."
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
-  InternetGatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VpcId
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: tap-multicluster-igw
-  PublicSubnetB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VpcId
-      AvailabilityZone: us-east-1b
-      CidrBlock: 10.0.0.0/24
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: tap-public-subnet-b
-  PublicSubnetC:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VpcId
-      AvailabilityZone: us-east-1c
-      CidrBlock: 10.0.1.0/24
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: tap-public-subnet-c
-  PublicSubnetBRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      SubnetId: !Ref PublicSubnetB
-  PublicSubnetCRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      SubnetId: !Ref PublicSubnetC
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VpcId
-      Tags:
-        - Key: Name
-          Value: tap-public-route-table
-  DefaultPublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      GatewayId: !Ref InternetGateway
-      DestinationCidrBlock: 0.0.0.0/0
   EKSClusterView:
     Type: AWS::EKS::Cluster
     Properties:
@@ -82,10 +21,12 @@ Resources:
       RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
       ResourcesVpcConfig:
         SecurityGroupIds:
-          - !Ref InstanceSecurityGroup
+          - !Ref SecurityGroupId
         SubnetIds:
-          - !Ref PublicSubnetB
-          - !Ref PublicSubnetC
+          - !Ref SubnetId1
+          - !Ref SubnetId2
+          - !Ref SubnetId3
+          - !Ref SubnetId4
   EKSClusterBuild:
     Type: AWS::EKS::Cluster
     Properties:
@@ -94,10 +35,12 @@ Resources:
       RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
       ResourcesVpcConfig:
         SecurityGroupIds:
-          - !Ref InstanceSecurityGroup
+          - !Ref SecurityGroupId
         SubnetIds:
-          - !Ref PublicSubnetB
-          - !Ref PublicSubnetC
+          - !Ref SubnetId1
+          - !Ref SubnetId2
+          - !Ref SubnetId3
+          - !Ref SubnetId4
   EKSClusterRun:
     Type: AWS::EKS::Cluster
     Properties:
@@ -106,10 +49,12 @@ Resources:
       RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
       ResourcesVpcConfig:
         SecurityGroupIds:
-          - !Ref InstanceSecurityGroup
+          - !Ref SecurityGroupId
         SubnetIds:
-          - !Ref PublicSubnetB
-          - !Ref PublicSubnetC
+          - !Ref SubnetId1
+          - !Ref SubnetId2
+          - !Ref SubnetId3
+          - !Ref SubnetId4
   EKSNodeGroupView:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterView
@@ -125,8 +70,10 @@ Resources:
         DesiredSize: 3
         MaxSize: 5
       Subnets:
-        - !Ref PublicSubnetB
-        - !Ref PublicSubnetC
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+        - !Ref SubnetId3
+        - !Ref SubnetId4
   EKSNodeGroupBuild:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterBuild
@@ -142,8 +89,10 @@ Resources:
         DesiredSize: 3
         MaxSize: 5
       Subnets:
-        - !Ref PublicSubnetB
-        - !Ref PublicSubnetC
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+        - !Ref SubnetId3
+        - !Ref SubnetId4
   EKSNodeGroupRun:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterRun
@@ -159,5 +108,7 @@ Resources:
         DesiredSize: 3
         MaxSize: 5
       Subnets:
-        - !Ref PublicSubnetB
-        - !Ref PublicSubnetC
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+        - !Ref SubnetId3
+        - !Ref SubnetId4

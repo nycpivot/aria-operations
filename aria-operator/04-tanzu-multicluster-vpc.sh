@@ -16,6 +16,23 @@ vpcId=$(aws cloudformation describe-stacks \
     --region ${AWS_REGION} \
     --output text)
 
+subnetIds=$(aws cloudformation describe-stacks \
+    --stack-name ${stackname} \
+    --query "Stacks[0].Outputs[?OutputKey=='SubnetIds'].OutputValue" \
+    --region ${AWS_REGION} \
+    --output text)
+
+subnetId1=$(echo $subnetIds | awk -F ',' '{print $1}')
+subnetId2=$(echo $subnetIds | awk -F ',' '{print $2}')
+subnetId3=$(echo $subnetIds | awk -F ',' '{print $3}')
+subnetId4=$(echo $subnetIds | awk -F ',' '{print $4}')
+
+sgId=$(aws cloudformation describe-stacks \
+    --stack-name ${stackname} \
+    --query "Stacks[0].Outputs[?OutputKey=='SecurityGroups'].OutputValue" \
+    --region ${AWS_REGION} \
+    --output text)
+
 if test -f "vpc-params.json"; then
   rm vpc-params.json
 fi
@@ -24,7 +41,27 @@ cat <<EOF | tee vpc-params.json
 [
     {
         "ParameterKey": "VpcId",
-        "ParameterValue": "${vpcId}
+        "ParameterValue": "${vpcId}"
+    },
+    {
+        "ParameterKey": "SubnetId1",
+        "ParameterValue": "${subnetId1}"
+    },
+    {
+        "ParameterKey": "SubnetId2",
+        "ParameterValue": "${subnetId2}"
+    },
+    {
+        "ParameterKey": "SubnetId3",
+        "ParameterValue": "${subnetId3}"
+    },
+    {
+        "ParameterKey": "SubnetId4",
+        "ParameterValue": "${subnetId4}"
+    },
+    {
+        "ParameterKey": "SecurityGroupId",
+        "ParameterValue": "${sgId}"
     }
 ]
 EOF
