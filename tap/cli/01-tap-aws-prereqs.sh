@@ -31,7 +31,9 @@ echo
 
 sleep 5
 
+
 aws cloudformation create-stack --stack-name tap-multicluster-stack --region $AWS_REGION \
+    --parameters vpc-params.json \
     --template-body file:///home/ubuntu/aria-operations/tap/config/tap-multicluster-stack-${AWS_REGION}.yaml
 aws cloudformation wait stack-create-complete --stack-name tap-multicluster-stack --region $AWS_REGION
 

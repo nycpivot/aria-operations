@@ -12,7 +12,7 @@ Resources:
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       GroupDescription: "Enables SSH access to nodes."
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -23,7 +23,7 @@ Resources:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -33,7 +33,7 @@ Resources:
   PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       AvailabilityZone: us-east-2b
       CidrBlock: 10.0.0.0/24
       MapPublicIpOnLaunch: true
@@ -43,7 +43,7 @@ Resources:
   PublicSubnetC:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       AvailabilityZone: us-east-2c
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
@@ -63,7 +63,7 @@ Resources:
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       Tags:
         - Key: Name
           Value: tap-public-route-table
