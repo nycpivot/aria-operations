@@ -127,7 +127,7 @@ sleep 5
 export TANZU_API_TOKEN=${tmc_token}
 
 # CREATING A CONTEXT WILL AUTOMATICALLY INSTALL THE MISION CONTROL PLUGINS
-tanzu context create --name tmc-operations --endpoint customer0.tmc.cloud.vmware.com
+tanzu context create tmc-operations --endpoint customer0.tmc.cloud.vmware.com
 
 
 # INSTALL TANZU SERVICE MESH

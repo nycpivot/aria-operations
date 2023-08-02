@@ -234,7 +234,16 @@ tap_gui:
         bg: "black"
         link: https://youtube.com
     auth:
-      allowGuestAccess: true
+      environment: dev
+      providers:
+        auth0:
+          development:
+            clientId: 4tyUBFYjFOo9iDv1LGptK9otLkDRoVGk
+            clientSecret: fM2YaTEIaicPJivmy6h3ZxQHUmLKQT7ZeIi3hJ4FrzuIK6AgFGwFT25Y9Cs2ph7v
+            domain: tanzu.us.auth0.com
+            #audience:
+            #connection:
+            #connectionScope:
     catalog:
       locations:
         - type: url
