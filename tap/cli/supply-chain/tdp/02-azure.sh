@@ -199,9 +199,8 @@ sleep 5
 
 kubectl config use-context $tap_view
 
-auth0_client_id=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tdp-auth0-client-id\")
-auth0_client_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tdp-auth0-client-secret\")
-session_secret=$(uuidgen)
+ad_client_id=$(az keyvault secret show --name tdp-azure-ad-client-id --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
+ad_client_secret=$(az keyvault secret show --name tdp-azure-ad-client-secret --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
 
 rm tap-values-view.yaml
 cat <<EOF | tee tap-values-view.yaml
@@ -240,16 +239,11 @@ tap_gui:
     auth:
       environment: development
       providers:
-        auth0:
+        microsoft:
           development:
-            clientId: ${auth0_client_id}
-            clientSecret: ${auth0_client_secret}
-            domain: tanzu.us.auth0.com
-            #audience:
-            #connection:
-            #connectionScope:
-      session:
-        secret: "${session_secret}"
+            clientId: ${ad_client_id}
+            clientSecret: ${ad_client_secret}
+            tenantId: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
     catalog:
       locations:
         - type: url
