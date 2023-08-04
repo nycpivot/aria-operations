@@ -15,6 +15,7 @@ sudo snap install jq
 sudo snap install tree
 sudo snap install helm --classic
 sudo apt install unzip
+#sudo apt install npm
 
 sudo apt install python-is-python3
 alias python=python3

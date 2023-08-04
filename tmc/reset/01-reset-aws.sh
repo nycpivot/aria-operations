@@ -1,17 +1,25 @@
 #!/bin/bash
 
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
 aws_account_credential=aws-account-credential
 
-# DELETE EKS CLUSTER FROM TMC
-eks_cluster_name=tap-dotnet-core-web-mvc
+# DELETE EKS CLUSTERS FROM TMC
+tap_view=tap-view
+tap_build=tap-build
+tap_run_eks=tap-run-eks
 
-if test -f "${eks_cluster_name}.yaml"; then
-  rm ${eks_cluster_name}.yaml
+clusters=( $tap_view $tap_build $tap_run_eks )
+
+for cluster in "${clusters[@]}" ; do
+
+if test -f "${cluster}.yaml"; then
+  rm ${cluster}.yaml
 fi
 
-tmc ekscluster delete ${eks_cluster_name} --credential-name ${aws_account_credential} --region ${AWS_REGION}
+tmc ekscluster delete ${cluster} --credential-name ${aws_account_credential} --region ${AWS_REGION}
+done
 
 sleep 2000 # 30+ mins
 
@@ -46,5 +54,16 @@ if test -f "${tmc_cluster_group}.yaml"; then
   rm ${tmc_cluster_group}.yaml
 fi
 
-# DELETE EKS CLUSTER(S)
-curl #
+# REMOVE KUBECONFIGS
+for cluster in "${clusters[@]}" ; do
+kubectl config delete-context ${cluster}
+
+arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
+kubectl config delete-cluster ${arn}/${cluster}
+
+kubectl config delete-user ${arn}/${cluster}
+done
+
+rm .kube/${tap_view}-kubeconfig
+rm .kube/${tap_build}-kubeconfig
+rm .kube/${tap_run_eks}-kubeconfig

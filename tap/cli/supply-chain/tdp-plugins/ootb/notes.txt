@@ -1,0 +1,1 @@
+Login to Auth0 with GitHub account credentials.

@@ -155,5 +155,5 @@ echo $change_batch_filename.json
 aws route53 change-resource-record-sets --hosted-zone-id $hosted_zone_id --change-batch file:///$HOME/$change_batch_filename.json
 
 echo
-echo "HAPPY RUNNING!"
+echo "HAPPY TAP'ING!"
 echo

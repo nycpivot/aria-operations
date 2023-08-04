@@ -116,5 +116,5 @@ EOF
 kubectl apply -f rbac-dev.yaml
 
 echo
-echo "HAPPY BUILDING!"
+echo "HAPPY TAP'ING!"
 echo
