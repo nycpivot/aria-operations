@@ -24,10 +24,10 @@ done
 sleep 2000 # 30+ mins
 
 # DELETE AWS VPC STACK
-tap_vpc_stack_name=tap-multicluster-vpc-stack
+tanzu_stack_name=tanzu-multicluster-vpc-stack
 
-aws cloudformation delete-stack --stack-name ${tap_vpc_stack_name} --region ${AWS_REGION}
-aws cloudformation wait stack-delete-complete --stack-name ${tap_vpc_stack_name} --region ${AWS_REGION}
+aws cloudformation delete-stack --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
+aws cloudformation wait stack-delete-complete --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
 
 
 # DELETE TMC ACCOUNT CREDENTIAL

@@ -5,7 +5,7 @@ AWS_REGION=$(aws configure get region)
 
 generated_template_stack_id=13637809161061075293
 full_tmc_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
-tap_vpc_stack_name=tap-multicluster-vpc-stack
+tanzu_vpc_stack_name=tanzu-multicluster-vpc-stack
 tmc_org=3be385a3-d15d-4f70-b779-5e69b8b2a2cc
 tmc_account_id=630260974543
 
@@ -17,11 +17,11 @@ aws cloudformation create-stack --stack-name ${full_tmc_stack_name} \
   --capabilities CAPABILITY_NAMED_IAM
 
 aws cloudformation create-stack \
-  --stack-name ${tap_vpc_stack_name} \
+  --stack-name ${tanzu_vpc_stack_name} \
   --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
 
 aws cloudformation wait stack-create-complete --stack-name ${full_tmc_stack_name} --region ${AWS_REGION}
-aws cloudformation wait stack-create-complete --stack-name ${tap_vpc_stack_name} --region ${AWS_REGION}
+aws cloudformation wait stack-create-complete --stack-name ${tanzu_vpc_stack_name} --region ${AWS_REGION}
 
 output=$(aws cloudformation describe-stacks \
     --stack-name ${full_tmc_stack_name} \
@@ -108,7 +108,7 @@ sleep 900
 # *********************************************************************************
 
 # 4. CREATE VPC
-vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='tap-multicluster-vpc-stack-VPC']].VpcId" --output text)
+vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='tanzu-multicluster-vpc-stack-VPC']].VpcId" --output text)
 subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
 
 subnet1=$(echo $subnets | awk -F ' ' '{print $1}')
@@ -131,7 +131,7 @@ if test -f ${cluster}.json; then
 fi
 
 cat <<EOF | tee ${cluster}.json
-'{
+{
   "eksCluster": {
     "fullName": {
       "orgId": "${tmc_org}",
@@ -160,7 +160,7 @@ cat <<EOF | tee ${cluster}.json
       }
     }
   }
-}'
+}
 EOF
 
 cluster_data=$(cat ${cluster}.json | jq -c .)
@@ -208,203 +208,34 @@ curl -X POST https://customer0.tmc.cloud.vmware.com/v1alpha1/eksclusters/${clust
   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
   -H "Authorization: Bearer ${access_token}" \
   -d ${cluster_nodepool_data}
-
-
-# # TAP-BUILD
-# tap_build=tap-build
-
-# if test -f ${tap_build}.json; then
-#   rm ${tap_build}.json
-# fi
-
-# cat <<EOF | tee ${tap_build}.json
-# {
-#   "eksCluster": {
-#     "fullName": {
-#       "orgId": "${tmc_org}",
-#       "credentialName": "${aws_account_credential}",
-#       "region": "${AWS_REGION}",
-#       "name": "${tap_build}"
-#     },
-#     "spec": {
-#       "clusterGroupName": "${tmc_cluster_group}",
-#       "config": {
-#         "version": "1.25",
-#         "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/control-plane.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
-#         "vpc": {
-#           "enablePrivateAccess": true,
-#           "enablePublicAccess": true,
-#           "publicAccessCidrs": [
-#             "0.0.0.0/0"
-#           ],
-#           "subnetIds": [
-#             "${subnet1}",
-#             "${subnet2}",
-#             "${subnet3}",
-#             "${subnet4}"
-#           ]
-#         }
-#       }
-#     }
-#   }
-# }
-# EOF
-
-# tap_build_data=$(cat ${tap_build}.json | jq -c .)
-
-# curl -X POST https://customer0.tmc.cloud.vmware.com/v1alpha1/eksclusters \
-#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-#   -H "Authorization: Bearer ${access_token}" \
-#   -d ${tap_build_data}
-
-# sleep 60
-
-# # TAP-BUILD-NODE-POOL
-# tap_build_nodepool=${tap_build}-nodepool
-
-# if test -f ${tap_build_nodepool}.json; then
-#   rm ${tap_build_nodepool}.json
-# fi
-
-# cat <<EOF | tee ${tap_build_nodepool}.json
-# {
-#   "nodepool": {
-#     "fullName": {
-#       "orgId": "${tmc_org}",
-#       "credentialName": "${aws_account_credential}",
-#       "region": "${AWS_REGION}",
-#       "eksClusterName": "${tap_build}",
-#       "name": "${tap_build_nodepool}"
-#     },
-#     "spec": {
-#       "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/worker.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
-#       "subnetIds": [
-#         "${subnet1}",
-#         "${subnet2}",
-#         "${subnet3}",
-#         "${subnet4}"
-#       ]
-#     }
-#   }
-# }
-# EOF
-
-# tap_build_nodepool_data=$(cat ${tap_build_nodepool}.json | jq -c .)
-
-# curl -X POST https://customer0.tmc.cloud.vmware.com/v1alpha1/eksclusters/${tap_build}/nodepools \
-#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-#   -H "Authorization: Bearer ${access_token}" \
-#   -d ${tap_build_nodepool_data}
-
-
-# # TAP-RUN-EKS
-# tap_run_eks=tap-run-eks
-
-# if test -f ${tap_run_eks}.json; then
-#   rm ${tap_run_eks}.json
-# fi
-
-# cat <<EOF | tee ${tap_run_eks}.json
-# {
-#   "eksCluster": {
-#     "fullName": {
-#       "orgId": "${tmc_org}",
-#       "credentialName": "${aws_account_credential}",
-#       "region": "${AWS_REGION}",
-#       "name": "${tap_run_eks}"
-#     },
-#     "spec": {
-#       "clusterGroupName": "${tmc_cluster_group}",
-#       "config": {
-#         "version": "1.25",
-#         "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/control-plane.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
-#         "vpc": {
-#           "enablePrivateAccess": true,
-#           "enablePublicAccess": true,
-#           "publicAccessCidrs": [
-#             "0.0.0.0/0"
-#           ],
-#           "subnetIds": [
-#             "${subnet1}",
-#             "${subnet2}",
-#             "${subnet3}",
-#             "${subnet4}"
-#           ]
-#         }
-#       }
-#     }
-#   }
-# }
-# EOF
-
-# tap_run_eks_data=$(cat ${tap_run_eks}.json | jq -c .)
-
-# curl -X POST https://customer0.tmc.cloud.vmware.com/v1alpha1/eksclusters \
-#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-#   -H "Authorization: Bearer ${access_token}" \
-#   -d ${tap_run_eks_data}
-
-# sleep 60
-
-# # TAP-RUN-EKS-NODE-POOL
-# tap_run_eks_nodepool=${tap_run_eks}-nodepool
-
-# if test -f ${tap_run_eks_nodepool}.json; then
-#   rm ${tap_run_eks_nodepool}.json
-# fi
-
-# cat <<EOF | tee ${tap_run_eks_nodepool}.json
-# {
-#   "nodepool": {
-#     "fullName": {
-#       "orgId": "${tmc_org}",
-#       "credentialName": "${aws_account_credential}",
-#       "region": "${AWS_REGION}",
-#       "eksClusterName": "${tap_run_eks}",
-#       "name": "${tap_run_eks_nodepool}"
-#     },
-#     "spec": {
-#       "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/worker.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
-#       "subnetIds": [
-#         "${subnet1}",
-#         "${subnet2}",
-#         "${subnet3}",
-#         "${subnet4}"
-#       ]
-#     }
-#   }
-# }
-# EOF
-
-# tap_run_eks_nodepool_data=$(cat ${tap_run_eks_nodepool}.json | jq -c .)
-
-# curl -X POST https://customer0.tmc.cloud.vmware.com/v1alpha1/eksclusters/${tap_run_eks}/nodepools \
-#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-#   -H "Authorization: Bearer ${access_token}" \
-#   -d ${tap_run_eks_nodepool_data}
 done
 
 sleep 1200 # give 20 minutes for all clusters to be created
 
-echo
-echo "<<< DOWNLOAD the KUBECONFIG OF EACH CLUSTER >>>"
-echo
 
+# UPDATE EKS KUBECONFIGS
+aws eks update-kubeconfig --name ${tap_view} --region $AWS_REGION
+aws eks update-kubeconfig --name ${tap_build} --region $AWS_REGION
+aws eks update-kubeconfig --name ${tap_run_eks} --region $AWS_REGION
 
-
-
-
-
+arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
+kubectl config rename-context ${arn}/${tap_view} ${tap_view}
+kubectl config rename-context ${arn}/${tap_build} ${tap_build}
+kubectl config rename-context ${arn}/${tap_run_eks} ${tap_run_eks}
 
 
 # DOWNLOAD TMC KUBE CONFIGS (CLIs DON'T WORK, AGAIN)
+tap_view_config=$(tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-1.tap-view --management-cluster-name eks --provisioner-name eks)
+tap_build_config=$(tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-1.tap-build --management-cluster-name eks --provisioner-name eks)
+tap_run_eks_config=$(tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-1.tap-run-eks --management-cluster-name eks --provisioner-name eks)
+
 tap_view_kubeconfig=${tap_view}-kubeconfig
 tap_build_kubeconfig=${tap_build}-kubeconfig
 tap_run_eks_kubeconfig=${tap_run_eks}-kubeconfig
 
-vim .kube/${tap_view_kubeconfig}
-vim .kube/${tap_build_kubeconfig}
-vim .kube/${tap_run_eks_kubeconfig}
+echo ${tap_view_config} >> .kube/${tap_view_kubeconfig}
+echo ${tap_build_config} >> .kube/${tap_build_kubeconfig}
+echo ${tap_run_eks_config} >> .kube/${tap_run_eks_kubeconfig}
 
 # OPEN THE AWS-AUTH CONFIG MAP (CONTAINS THE TMC USER WITH PERMISSIONS)
 # https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/services/tanzumc-using/GUID-EF3A426A-6880-4CE3-95AD-83D4B244CB60.html
@@ -437,16 +268,6 @@ EOF
 
 kubectl edit cm aws-auth -n kube-system --kubeconfig=.kube/${tap_view_kubeconfig}
 
-
-# UPDATE REGULAR CONFIG
-aws eks update-kubeconfig --name ${tap_view} --region $AWS_REGION
-aws eks update-kubeconfig --name ${tap_build} --region $AWS_REGION
-aws eks update-kubeconfig --name ${tap_run_eks} --region $AWS_REGION
-
-arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
-kubectl config rename-context ${arn}/${tap_view} ${tap_view}
-kubectl config rename-context ${arn}/${tap_build} ${tap_build}
-kubectl config rename-context ${arn}/${tap_run_eks} ${tap_run_eks}
 
 
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # AWS CONFIGURE
-read -p "AWS Access Key: " aws_access_key
-read -p "AWS Secret Access Key: " aws_secret_access_key
+# read -p "AWS Access Key: " aws_access_key
+# read -p "AWS Secret Access Key: " aws_secret_access_key
 read -p "AWS Default Region (us-east-1): " aws_region_code
 
 if [[ -z $aws_region_code ]]
@@ -10,8 +10,8 @@ then
     aws_region_code=us-east-1
 fi
 
-aws configure set aws_access_key_id $aws_access_key
-aws configure set aws_secret_access_key $aws_secret_access_key
+# aws configure set aws_access_key_id $aws_access_key
+# aws configure set aws_secret_access_key $aws_secret_access_key
 aws configure set default.region $aws_region_code
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
