@@ -4,27 +4,27 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
 generated_template_stack_id=13637809161061075293
-full_tmc_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
+tmc_iam_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
 tanzu_vpc_stack_name=tanzu-multicluster-vpc-stack
 tmc_org=3be385a3-d15d-4f70-b779-5e69b8b2a2cc
 tmc_account_id=630260974543
 
 
 # 1. CREATE IAM ROLES (THIS IS STEP 2 IN TMC CONSOLE)
-aws cloudformation create-stack --stack-name ${full_tmc_stack_name} \
+aws cloudformation create-stack --stack-name ${tmc_iam_stack_name} \
   --template-url https://tmc-mkp.s3.us-west-2.amazonaws.com/tmc_eks.template \
   --parameters ParameterKey=CredentialName,ParameterValue=aws-account-credential ParameterKey=AccountID,ParameterValue=${tmc_account_id} ParameterKey=OrgID,ParameterValue=3be385a3-d15d-4f70-b779-5e69b8b2a2cc ParameterKey=RoleName,ParameterValue=main/mkp ParameterKey=ExternalID,ParameterValue=50ed8bef-c8c6-5ba2-8501-992e94a0fedc ParameterKey=GeneratedTemplateID,ParameterValue=${generated_template_stack_id} \
   --capabilities CAPABILITY_NAMED_IAM
 
-aws cloudformation create-stack \
-  --stack-name ${tanzu_vpc_stack_name} \
-  --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
+# aws cloudformation create-stack \
+#   --stack-name ${tanzu_vpc_stack_name} \
+#   --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
 
-aws cloudformation wait stack-create-complete --stack-name ${full_tmc_stack_name} --region ${AWS_REGION}
-aws cloudformation wait stack-create-complete --stack-name ${tanzu_vpc_stack_name} --region ${AWS_REGION}
+aws cloudformation wait stack-create-complete --stack-name ${tmc_iam_stack_name} --region ${AWS_REGION}
+# aws cloudformation wait stack-create-complete --stack-name ${tanzu_vpc_stack_name} --region ${AWS_REGION}
 
 output=$(aws cloudformation describe-stacks \
-    --stack-name ${full_tmc_stack_name} \
+    --stack-name ${tmc_iam_stack_name} \
     --query "Stacks[0].Outputs[?OutputKey=='Message'].OutputValue" \
     --region ${AWS_REGION} \
     --output text)
