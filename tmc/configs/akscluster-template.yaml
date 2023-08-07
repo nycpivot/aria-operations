@@ -1,0 +1,154 @@
+type:
+  kind: Template
+  package: vmware.tanzu.manage.v1alpha1.akscluster
+  version: v1alpha1
+fullName:
+  name: default
+meta:
+  description: "A default AksCluster object."
+engine: GO_TEXT
+data: |
+  type:
+    kind: AksCluster
+    package: vmware.tanzu.manage.v1alpha1.akscluster
+    version: v1alpha1
+  fullName:
+    credentialName: "{{ .CredentialName }}"
+    resourceGroupName: "{{ .ResourceGroup }}"
+    subscriptionId: "{{ .SubscriptionId }}"
+    name: "{{ .Name }}"
+  meta:
+    description: "{{ .Description }}"
+    labels:
+    {{- range $k, $v := .Labels }}
+        "{{ $k }}": "{{ $v }}"
+    {{- end }}
+  spec:
+    clusterGroupName: "{{ .ClusterGroup }}"
+    config:
+      tags:
+        {{- range $k, $v := .Tags }}
+            "{{ $k }}": "{{ $v }}"
+        {{- end }}
+      version: "{{ .Version }}"
+      location: {{ .Location }}
+      sku:
+        name: BASIC
+        tier: "{{ .SkuTier }}"
+      network_config:
+          dns_prefix: {{ .DnsPrefix }}
+          network_plugin: {{ .NetworkPlugin }}
+          network_policy: {{ .NetworkPolicy }}
+          {{- if .PodsCidrBlocks }}
+          pod_cidrs:
+          {{- range $i, $value := .PodsCidrBlocks }}
+          - "{{ $value }}"
+          {{- end }}
+          {{- end }}
+          {{- if .ServiceCidrBlocks }}
+          service_cidrs:
+          {{- range $i, $value := .ServiceCidrBlocks }}
+          - "{{ $value }}"
+          {{- end }}
+          {{- end }}
+      {{- if .AdminUsername }}
+      linux_config:
+          admin_username: {{ .AdminUsername }}
+          ssh_keys:
+          - {{ .SshKey }}
+      {{- end }}
+    {{- if ne .ProxyName "" }}
+    proxyName: "{{ .ProxyName }}"
+    {{- end }}
+input:
+  - field: SubscriptionId
+    schema:
+      type: string
+    description: Name of the subscription id.
+    required: true
+  - field: CredentialName
+    schema:
+      type: string
+    description: Name of the credential.
+    required: true
+  - field: Name
+    schema:
+      type: string
+    description: Name of this cluster.
+  - field: ResourceGroup
+    schema:
+      type: string
+    description: Name of the resource group.
+  - field: Description
+    schema:
+      type: string
+    description: Description of the resource.
+  - field: Labels
+    schema:
+      type: map
+      items:
+        type: string
+    description: Labels to apply to the object.
+  - field: ClusterGroup
+    schema:
+      type: string
+    description: Name of the cluster group to which this cluster belongs.
+  - field: Tags
+    schema:
+      type: map
+      items:
+        type: string
+    description: The metadata to apply to the cluster to assist with categorization
+      and organization.
+  - field: Version
+    schema:
+      type: string
+    description: Kubernetes version of the cluster.
+  - field: Location
+    schema:
+      type: string
+    description: The location where the cluster will be created.
+  - field: SkuTier
+    schema:
+      type: string
+    description: The sku tier of the cluster.
+    default: FREE
+  - field: DnsPrefix
+    schema:
+      type: string
+    description: The DNS prefix to use with hosted Kubernetes API server FQDN.
+    required: true
+  - field: NetworkPlugin
+    schema:
+      type: string
+    description: The network plugin used for building Kubernetes network.
+  - field: NetworkPolicy
+    schema:
+      type: string
+    description: The network policy used for building Kubernetes network.
+  - field: PodsCidrBlocks
+    schema:
+      type: list
+      items:
+        type: string
+    description: Collection of IP addresses as a list of range.
+  - field: ServiceCidrBlocks
+    schema:
+      type: list
+      items:
+        type: string
+    description: Collection of IP addresses as a list of ranges.
+  - field: AdminUsername
+    schema:
+      type: string
+    description: The admin username used to access the cluster nodes.
+  - field: SshKey
+    schema:
+      type: string
+    description: The SSH public key used to access the cluster nodes.
+  - field: ProxyName
+    schema:
+      type: string
+    description: |-
+      Optional proxy name is the name of the Proxy Config
+      to be used for the cluster.

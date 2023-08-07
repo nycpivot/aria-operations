@@ -1,0 +1,215 @@
+type:
+  kind: Template
+  package: vmware.tanzu.manage.v1alpha1.ekscluster.nodepool
+  version: v1alpha1
+fullName:
+  name: default
+meta:
+  description: "A default EksCluster Nodepool object."
+engine: GO_TEXT
+data: |
+  fullName:
+    credentialName: "{{ .CredentialName }}"
+    eksClusterName: "{{ .EksClusterName }}"
+    name: "{{ .Name }}"
+    region: "{{ .Region }}"
+  meta:
+    description: "{{ .Description }}"
+    labels:
+      {{- range $k, $v := .Labels }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+  spec:
+    {{- if ne .AmiType "" }}
+    amiType: "{{ .AmiType }}"
+    {{- end }}
+    {{- if ne .CapacityType "" }}
+    capacityType: "{{ .CapacityType }}"
+    {{- end }}
+    instanceTypes:
+      {{- range $i, $value := .InstanceTypes }}
+      - "{{ $value }}"
+      {{- end }}
+    nodeLabels:
+      {{- range $k, $v := .NodeLabels }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+    {{- if ne .LaunchTemplateId "" }}
+    launchTemplate:
+      id: "{{ .LaunchTemplateId }}"
+      name: "{{ .LaunchTemplateName }}"
+      version: "{{ .LaunchTemplateVersion }}"
+    {{- else }}
+    rootDiskSize: {{ .RootDiskSize }}
+    {{- if ne .SshKey "" }}
+    remoteAccess:
+      securityGroups:
+        {{- range $i, $value := .SecurityGroups }}
+        - "{{ $value }}"
+        {{- end }}
+      sshKey: "{{ .SshKey }}"
+    {{- end }}
+    {{- end }}
+    roleArn: "{{ .RoleArn }}"
+    scalingConfig:
+      desiredSize: {{ .DesiredSize }}
+      maxSize: {{ .MaxSize }}
+      minSize: {{ .MinSize }}
+    subnetIds:
+      {{- range $i, $value := .SubnetIds }}
+      - "{{ $value }}"
+      {{- end }}
+    tags:
+      {{- range $k, $v := .Tags }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+    {{- if ne .TaintsEffect "" }}
+    taints:
+    - effect: "{{ .TaintsEffect }}"
+      key: "{{ .TaintsKey }}"
+      value: "{{ .TaintsValue }}"
+    {{- end }}
+    updateConfig:
+      {{- if gt .MaxUnavailablePercentage 0.0 }}
+      maxUnavailablePercentage: {{ .MaxUnavailablePercentage }}
+      {{- else }}
+      maxUnavailableNodes: {{ .MaxUnavailableNodes }}
+      {{- end }}
+input:
+- field: CredentialName
+  schema:
+    type: string
+  description: Name of the credential.
+- field: EksClusterName
+  schema:
+    type: string
+  description: Name of the eks cluster.
+- field: Name
+  schema:
+    type: string
+  description: Name of the nodepool.
+- field: Region
+  schema:
+    type: string
+  description: Region of the eks cluster.
+- field: Description
+  schema:
+    type: string
+  description: Description of the resource.
+- field: Labels
+  schema:
+    type: map
+    items:
+      type: string
+  description: Labels to apply to the object.
+- field: AmiType
+  schema:
+    type: string
+  description: AMI type.
+- field: CapacityType
+  schema:
+    type: string
+  description: Capacity type.
+- field: InstanceTypes
+  schema:
+    type: list
+    items:
+      type: string
+  description: |-
+    Nodepool instance types.
+    The potential values could be found using cluster:options api.
+- field: LaunchTemplateId
+  schema:
+    type: string
+  description: The ID of the launch template.
+- field: LaunchTemplateName
+  schema:
+    type: string
+  description: The name of the launch template.
+- field: LaunchTemplateVersion
+  schema:
+    type: string
+  description: The version of the launch template to use. If no version is specified,
+    then the template's default version is used.
+- field: NodeLabels
+  schema:
+    type: map
+    items:
+      type: string
+  description: Kubernetes node labels.
+- field: SecurityGroups
+  schema:
+    type: list
+    items:
+      type: string
+  description: Security groups for the cluster VMs.
+- field: SshKey
+  schema:
+    type: string
+  description: SSH key for the nodepool VMs.
+- field: RoleArn
+  schema:
+    type: string
+  description: ARN of the IAM role that provides permissions for the Kubernetes nodepool
+    to make calls to AWS API operations.
+- field: RootDiskSize
+  default: 20
+  schema:
+    type: number
+  description: Root disk size in GiB. Defaults to 20 GiB.
+- field: DesiredSize
+  default: 2
+  schema:
+    type: number
+  description: Desired size of nodepool.
+- field: MaxSize
+  default: 2
+  schema:
+    type: number
+  description: Maximum size of nodepool.
+- field: MinSize
+  default: 1
+  schema:
+    type: number
+  description: Minimum size of nodepool.
+- field: SubnetIds
+  schema:
+    type: list
+    items:
+      type: string
+  description: Subnets required for the nodepool.
+- field: Tags
+  schema:
+    type: map
+    items:
+      type: string
+  description: EKS specific tags.
+- field: TaintsEffect
+  schema:
+    type: string
+  description: |-
+    The effect of the taint on pods
+    that do not tolerate the taint.
+    Valid effects are NoSchedule, NoExecute, PreferNoSchedule and EffectUnspecified.
+
+     - EFFECT_UNSPECIFIED: Unspecified effect.
+     - NO_SCHEDULE: Pods that do not tolerate this taint are not scheduled on the node.
+     - NO_EXECUTE: Pods are evicted from the node if are already running on the node.
+     - PREFER_NO_SCHEDULE: Avoids scheduling Pods that do not tolerate this taint onto the node.
+- field: TaintsKey
+  schema:
+    type: string
+  description: The taint key to be applied to a node.
+- field: TaintsValue
+  schema:
+    type: string
+  description: The taint value corresponding to the taint key.
+- field: MaxUnavailableNodes
+  default: 1
+  schema:
+    type: number
+  description: Maximum number of nodes unavailable at once during a version update.
+- field: MaxUnavailablePercentage
+  schema:
+    type: number
+  description: Maximum percentage of nodes unavailable during a version update.

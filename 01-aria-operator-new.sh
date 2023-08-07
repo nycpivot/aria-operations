@@ -24,17 +24,17 @@ aws cloudformation create-stack \
     --stack-name ${stack_name} \
     --region ${aws_region_code} \
     --parameters ParameterKey=OperatorName,ParameterValue=${operator_name} \
-    --template-body file://config/aria-operator-stack-${aws_region_code}.yaml
+    --template-body file://aria-operator/config/aria-operator-stack-${aws_region_code}.yaml
 
 aws cloudformation wait stack-create-complete --stack-name ${stack_name} --region ${aws_region_code}
 
 key_id=$(aws ec2 describe-key-pairs --filters Name=key-name,Values=operator-keypair --query KeyPairs[*].KeyPairId --output text --region ${aws_region_code})
 
-rm keys/aria-operator-keypair-${aws_region_code}.pem
+rm aria-operator/keys/aria-operator-keypair-${aws_region_code}.pem
 
 aws ssm get-parameter --name " /ec2/keypair/${key_id}" --with-decryption \
     --query Parameter.Value --region ${aws_region_code} \
-    --output text > keys/aria-operator-keypair-${aws_region_code}.pem
+    --output text > aria-operator/keys/aria-operator-keypair-${aws_region_code}.pem
 
 echo
 

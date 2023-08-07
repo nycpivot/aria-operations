@@ -1,0 +1,160 @@
+type:
+  kind: Template
+  package: vmware.tanzu.manage.v1alpha1.ekscluster
+  version: v1alpha1
+fullName:
+  name: default
+meta:
+  description: "A default EksCluster object."
+engine: GO_TEXT
+data: |
+  type:
+    kind: EksCluster
+    package: vmware.tanzu.manage.v1alpha1.ekscluster
+    version: v1alpha1
+  fullName:
+    credentialName: "{{ .CredentialName }}"
+    region: "{{ .Region }}"
+    name: "{{ .Name }}"
+  meta:
+    description: "{{ .Description }}"
+    labels:
+    {{- range $k, $v := .Labels }}
+        "{{ $k }}": "{{ $v }}"
+    {{- end }}
+  spec:
+    clusterGroupName: "{{ .ClusterGroup }}"
+    config:
+      {{- if ne .ServiceCidr "" }}
+      kubernetesNetworkConfig:
+        serviceCidr: "{{ .ServiceCidr }}"
+      {{- end }}
+      logging:
+        apiServer: {{ .LoggingApiServer }}
+        audit: {{ .LoggingAudit }}
+        authenticator: {{ .LoggingAuthenticator }}
+        controllerManager: {{ .LoggingControllerManager }}
+        scheduler: {{ .LoggingScheduler }}
+      roleArn: "{{.ControlplaneRoleArn }}"
+      tags:
+        {{- range $k, $v := .Tags }}
+            "{{ $k }}": "{{ $v }}"
+        {{- end }}
+      version: "{{ .Version }}"
+      vpc:
+        enablePrivateAccess: {{ .EnablePrivateAccess }}
+        enablePublicAccess: {{ .EnablePublicAccess }}
+        publicAccessCidrs:
+          {{- range $i, $value := .PublicAccessCidrs }}
+          - "{{ $value }}"
+          {{- end }}
+        securityGroups:
+          {{- range $i, $value := .SecurityGroups }}
+          - "{{ $value }}"
+          {{- end }}
+        subnetIds:
+          {{- range $i, $value := .SubnetIds }}
+          - "{{ $value }}"
+          {{- end }}
+    {{- if ne .ProxyName "" }}
+    proxyName: "{{ .ProxyName }}"
+    {{- end }}
+input:
+  - field: CredentialName
+    schema:
+      type: string
+    description: Name of the credential.
+  - field: Name
+    schema:
+      type: string
+    description: Name of this cluster.
+  - field: Region
+    schema:
+      type: string
+    description: Name of the region.
+  - field: Description
+    schema:
+      type: string
+    description: Description of the resource.
+  - field: Labels
+    schema:
+      type: map
+      items:
+        type: string
+    description: Labels to apply to the object.
+  - field: ClusterGroup
+    schema:
+      type: string
+    description: Name of the cluster group to which this cluster belongs.
+  - field: ServiceCidr
+    schema:
+      type: string
+    description: Service CIDR for Kubernetes services.
+  - field: LoggingApiServer
+    schema:
+      type: bool
+    description: Enable API server logs.
+  - field: LoggingAudit
+    schema:
+      type: bool
+    description: Enable audit logs.
+  - field: LoggingAuthenticator
+    schema:
+      type: bool
+    description: Enable authenticator logs.
+  - field: LoggingControllerManager
+    schema:
+      type: bool
+    description: Enable controller manager logs.
+  - field: LoggingScheduler
+    schema:
+      type: bool
+    description: Enable scheduler logs.
+  - field: ControlplaneRoleArn
+    schema:
+      type: string
+    description: ARN of the IAM role that provides permissions for the Kubernetes control
+      plane to make calls to AWS API operations.
+  - field: Tags
+    schema:
+      type: map
+      items:
+        type: string
+    description: The metadata to apply to the cluster to assist with categorization
+      and organization.
+  - field: Version
+    schema:
+      type: string
+    description: Kubernetes version of the cluster.
+  - field: EnablePrivateAccess
+    schema:
+      type: bool
+    description: Enable private access on the cluster.
+  - field: EnablePublicAccess
+    schema:
+      type: bool
+    description: Enable public access on the cluster.
+  - field: PublicAccessCidrs
+    schema:
+      type: list
+      items:
+        type: string
+    description: Public access cidrs.
+  - field: SecurityGroups
+    schema:
+      type: list
+      items:
+        type: string
+    description: Security groups for the cluster VMs.
+  - field: SubnetIds
+    schema:
+      type: list
+      items:
+        type: string
+    description: Subnet ids used by the cluster.
+  - field: ProxyName
+    schema:
+      type: string
+    description: |-
+      Optional proxy name is the name of the Proxy Config
+      to be used for the cluster.

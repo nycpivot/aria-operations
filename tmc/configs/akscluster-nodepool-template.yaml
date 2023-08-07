@@ -1,0 +1,178 @@
+type:
+  kind: Template
+  package: vmware.tanzu.manage.v1alpha1.akscluster.nodepool
+  version: v1alpha1
+fullName:
+  name: default
+meta:
+  description: "A default AksCluster Nodepool object."
+engine: GO_TEXT
+data: |
+  fullName:
+    credentialName: "{{ .CredentialName }}"
+    aksClusterName: "{{ .AksClusterName }}"
+    resourceGroupName: "{{ .ResourceGroup }}"
+    name: "{{ .Name }}"
+  meta:
+    description: "{{ .Description }}"
+    labels:
+      {{- range $k, $v := .Labels }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+  spec:
+    mode: "{{ .Mode }}"
+    type: "{{ .Type }}"
+    count: {{ .Count }}
+    auto_scaling:
+      {{- if .MinCount }}
+      min_count: {{ .MinCount }}
+      {{- end }}
+      {{- if .MaxCount }}
+      max_count: {{ .MaxCount }}
+      {{- end }}
+      enabled: {{ .AutoScalingEnabled }}
+    vm_size: {{ .VmSize }}
+    os_type: "{{ .OsType }}"
+    {{- if .OsDiskType }}
+    os_disk_type: "{{ .OsDiskType }}"
+    {{- end }}
+    os_disk_size_gb: {{ .OsDiskSize }}
+    max_pods: {{ .MaxPods }}
+    enable_node_public_ip: {{ .EnablePublicIp }}
+    node_labels:
+      {{- range $k, $v := .NodeLabels }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+    vnet_subnet_id:
+      {{- range $i, $value := .SubnetIds }}
+      - "{{ $value }}"
+      {{- end }}
+    tags:
+      {{- range $k, $v := .Tags }}
+      "{{ $k }}": "{{ $v }}"
+      {{- end }}
+    {{- if ne .TaintsEffect "" }}
+    node_taints:
+    - taint_effect: "{{ .TaintsEffect }}"
+      taint_key: "{{ .TaintsKey }}"
+      taint_value: "{{ .TaintsValue }}"
+    {{- end }}
+input:
+- field: CredentialName
+  schema:
+    type: string
+  description: Name of the credential.
+- field: AksClusterName
+  schema:
+    type: string
+  description: Name of the aks cluster.
+- field: Name
+  schema:
+    type: string
+  description: Name of the nodepool.
+- field: ResourceGroup
+  schema:
+    type: string
+  description: Name of the resource group.
+- field: Description
+  schema:
+    type: string
+  description: Description of the resource.
+- field: Labels
+  schema:
+    type: map
+    items:
+      type: string
+  description: Labels to apply to the object.
+- field: Mode
+  schema:
+    type: string
+  description: Mode of the nodepool.
+  default: SYSTEM
+- field: Type
+  schema:
+    type: string
+  description: Nodepool type.
+  default: VIRTUAL_MACHINE_SCALE_SETS
+- field: Count
+  schema:
+    type: number
+  description: Number of nodes in the nodepool.
+  default: 1
+- field: MinCount
+  schema:
+    type: number
+  description: Minimum number of nodes in the nodepool.
+- field: MaxCount
+  schema:
+    type: number
+  description: Maximum number of nodes in the nodepool.
+- field: AutoScalingEnabled
+  schema:
+    type: bool
+  description: Whether auto scaling is enabled.
+- field: VmSize
+  schema:
+    type: string
+  description: Size of the VM.
+  default: Standard_DS2_v2
+- field: OsType
+  schema:
+    type: string
+  description: OS type.
+  default: LINUX
+- field: OsDiskType
+  schema:
+    type: string
+  description: OS disk type.
+- field: OsDiskSize
+  schema:
+    type: number
+  description: OS disk size in GB.
+  default: 30
+- field: MaxPods
+  schema:
+    type: number
+  description: Maximum number of pods.
+- field: EnablePublicIp
+  schema:
+    type: bool
+  description: Whether to enable public IP.
+- field: NodeLabels
+  schema:
+    type: map
+    items:
+      type: string
+  description: Labels to apply to the nodes.
+- field: SubnetIds
+  schema:
+    type: list
+    items:
+      type: string
+  description: Subnets required for the nodepool.
+- field: Tags
+  schema:
+    type: map
+    items:
+      type: string
+  description: AKS specific tags.
+- field: TaintsEffect
+  schema:
+    type: string
+  description: |-
+    The effect of the taint on pods
+    that do not tolerate the taint.
+    Valid effects are NoSchedule, NoExecute, PreferNoSchedule and EffectUnspecified.
+
+     - EFFECT_UNSPECIFIED: Unspecified effect.
+     - NO_SCHEDULE: Pods that do not tolerate this taint are not scheduled on the node.
+     - NO_EXECUTE: Pods are evicted from the node if are already running on the node.
+     - PREFER_NO_SCHEDULE: Avoids scheduling Pods that do not tolerate this taint onto the node.
+- field: TaintsKey
+  schema:
+    type: string
+  description: The taint key to be applied to a node.
+- field: TaintsValue
+  schema:
+    type: string
+  description: The taint value corresponding to the taint key.

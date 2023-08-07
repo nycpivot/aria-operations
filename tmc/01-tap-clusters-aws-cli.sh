@@ -41,16 +41,19 @@ echo
 # GET REFRESH TOKEN, EXCHANGE IT FOR AN ACCESS TOKEN FOR THE REMAINDER
 tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
 
-if test -f tmc-token.json; then
-  rm tmc-token.json
-fi
+export TMC_API_TOKEN=${tmc_token}
+export TANZU_API_TOKEN=${tmc_token}
 
-curl -X POST https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize \
-  -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "refresh_token=${tmc_token}" \
-  -o tmc-token.json
+# if test -f tmc-token.json; then
+#   rm tmc-token.json
+# fi
 
-access_token=$(cat tmc-token.json | jq .access_token -r)
+# curl -X POST https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize \
+#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
+#   -d "refresh_token=${tmc_token}" \
+#   -o tmc-token.json
+
+# access_token=$(cat tmc-token.json | jq .access_token -r)
 
 
 # 2. CREATE A TMC CLUSTER GROUP
@@ -62,8 +65,6 @@ fullName:
 EOF
 
 tanzu mission-control clustergroup create -f ${tmc_cluster_group}.yaml
-
-sleep 30
 
 
 # 3. CREATE TMC AWS ACCOUNT CREDENTIAL (THIS IS STEP 1 IN TMC CONSOLE)
@@ -80,26 +81,33 @@ cat <<EOF | tee ${aws_account_credential}.yaml # TMC CLI VERSION (THIS WORKS)
 fullName:
   name: ${aws_account_credential}
   orgId: 3be385a3-d15d-4f70-b779-5e69b8b2a2cc
-meta:
-  annotations:
-    GeneratedTemplateID: "${generated_template_stack_id}"
-    x-customer-domain: customer0.tmc.cloud.vmware.com
-  labels:
-    tmc.cloud.vmware.com/cred-cloudformation-key: "${generated_template_stack_id}"
-  resourceVersion: "1"
+# meta:
+#   annotations:
+#     GeneratedTemplateID: "${generated_template_stack_id}"
+#     x-customer-domain: customer0.tmc.cloud.vmware.com
+#   labels:
+#     tmc.cloud.vmware.com/cred-cloudformation-key: "${generated_template_stack_id}"
+#   resourceVersion: "1"
 spec:
   capability: MANAGED_K8S_PROVIDER
   data:
     awsCredential:
+      # accountId: "${AWS_ACCOUNT_ID}" only relevant with tanzu mission-control
       iamRole:
         arn: ${role_arn}
   meta:
     provider: AWS_EKS
+    # temporaryCredentialSupport: false only relevant with tanzu mission-control
 EOF
 
 tmc account credential create -f ${aws_account_credential}.yaml
 
-sleep 900
+echo
+intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "Waiting ${interval} minutes for account credential to be created and available..."
+sleep 60 # give 20 minutes for all clusters to be created
+done
 
 
 # *********************************************************************************
@@ -196,7 +204,37 @@ EOF
 tanzu mission-control ekscluster nodepool create -f ${cluster_nodepool}.json
 done
 
-sleep 1200 # give 20 minutes for all clusters to be created
+echo
+intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "Waiting ${interval} minutes for account credential to be created and available..."
+sleep 60 # give 20 minutes for all clusters to be created
+done
+
+
+# CREATE A MODIFIED AWS-AUTH CONFIG MAP TO BE APPLIED IN THE FOLLOWING LOOP
+if test -f aws-auth-config-map.yaml; then
+  rm aws-auth-config-map.yaml
+fi
+
+cat <<EOF | tee aws-auth-config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::964978768106:role/worker.13637809161061075293.eks.tmc.cloud.vmware.com
+      username: system:node:{{EC2PrivateDNSName}}
+    - groups:
+      - system:masters
+      rolearn: arn:aws:iam::964978768106:role/PowerUser
+      username: PowerUser/cloudgate@mijames
+EOF
 
 # GET KUBECONFIGS AND UPDATE AWS-AUTH CONFIG MAP TO ADD PERMISSIONS TO CURRENT AWS USER
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
@@ -212,70 +250,7 @@ tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-
 
 kubectl config use-context ${cluster}
 
-# kubectl delete configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig
+kubectl delete configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig
 
-cat <<EOF | kubectl --kubeconfig .kube/${cluster}-kubeconfig apply -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: aws-auth
-  namespace: kube-system
-data:
-  mapRoles: |
-    - groups:
-      - system:bootstrappers
-      - system:nodes
-      rolearn: arn:aws:iam::964978768106:role/worker.13637809161061075293.eks.tmc.cloud.vmware.com
-      username: system:node:{{EC2PrivateDNSName}}
-    - groups:
-      - system:masters
-      rolearn: arn:aws:iam::964978768106:role/tmc-cluster-access
-      username: system:node:{{EC2PrivateDNSName}}
-EOF
+kubectl apply -f aws-auth-config-map.yaml --kubeconfig .kube/${cluster}-kubeconfig
 done
-
-
-# OPEN THE AWS-AUTH CONFIG MAP (CONTAINS THE TMC USER WITH PERMISSIONS)
-# https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/services/tanzumc-using/GUID-EF3A426A-6880-4CE3-95AD-83D4B244CB60.html
-# https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html - USE EKSCTL INSTEAD OF MANUAL
-# kubectl create clusterrolebinding tmc-clusterrole-binding \
-#   --clusterrole=cluster-admin --group=tmc-cluster-access --kubeconfig .kube/tmc-config
-
-# # ADD AWS USER TO AWS-AUTH CONFIG MAP OF EACH CLUSTER
-# kubectl config use-context ${tap_view}
-
-# cat <<EOF | kubectl apply -f -
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: aws-auth
-#   namespace: kube-system
-# data:
-#   mapRoles: |
-#     - groups:
-#       - system:bootstrappers
-#       - system:nodes
-#       rolearn: arn:aws:iam::964978768106:role/worker.13637809161061075293.eks.tmc.cloud.vmware.com
-#       username: system:node:{{EC2PrivateDNSName}}
-    - groups:
-      - system:masters
-      rolearn: arn:aws:iam::964978768106:role/PowerUser
-      username: PowerUser/cloudgate@mijames
-# EOF
-
-# kubectl edit cm aws-auth -n kube-system --kubeconfig=.kube/${tap_view_kubeconfig}
-
-
-
-
-# # THE FOLLOWING IS FOR SHOWING EVERYTHING IN THE CONSOLE THAT TMC ACCOUNT DID 
-# curl -o eks-console-full-access.yaml https://amazon-eks.s3.us-west-2.amazonaws.com/docs/eks-console-full-access.yaml
-# kubectl apply -f eks-console-full-access.yaml
-
-# # FIRST, FETCH THE KUBE CONFIG FROM THE TMC SO OPERATIONS CAN BE PERFORMED ON THE CLUSTER
-# # THE FOLLOWING IS TO UPDATE THE AWS-AUTH TO GIVE MYSELF KUBECTL ACCESS TO THE CLUSTERS CREATED BY TMC
-# curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/eks-connector/manifests/eks-connector-console-roles/eks-connector-clusterrole.yaml
-
-# vim eks-connector-clusterrole.yaml
-
-# kubectl apply -f eks-connector-clusterrole.yaml
