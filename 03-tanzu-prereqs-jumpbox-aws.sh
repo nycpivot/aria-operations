@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo
+read -p "<<< PASTE AWS CREDENTIALS >>>"
+
 # AWS CONFIGURE
 # read -p "AWS Access Key: " aws_access_key
 # read -p "AWS Secret Access Key: " aws_secret_access_key
