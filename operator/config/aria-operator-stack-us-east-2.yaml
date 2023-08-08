@@ -24,7 +24,7 @@ Resources:
   OperatorKeyPair:
     Type: 'AWS::EC2::KeyPair'
     Properties:
-      KeyName: operator-keypair
+      KeyName: aria-operator-keypair
   OperatorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

@@ -28,7 +28,7 @@ aws cloudformation create-stack \
 
 aws cloudformation wait stack-create-complete --stack-name ${stack_name} --region ${aws_region_code}
 
-key_id=$(aws ec2 describe-key-pairs --filters Name=key-name,Values=operator-keypair --query KeyPairs[*].KeyPairId --output text --region ${aws_region_code})
+key_id=$(aws ec2 describe-key-pairs --filters Name=key-name,Values=aria-operator-keypair --query KeyPairs[*].KeyPairId --output text --region ${aws_region_code})
 
 rm operator/keys/aria-operator-keypair-${aws_region_code}.pem
 
