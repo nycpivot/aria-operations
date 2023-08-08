@@ -3,8 +3,8 @@
 
 TAP_VERSION=1.6.1
 VIEW_DOMAIN=view.tap.nycpivot.com
-#GIT_CATALOG_REPOSITORY=tanzu-application-platform
-GIT_CATALOG_REPOSITORY=tap-yelb-catalog
+GIT_CATALOG_REPOSITORY=tanzu-application-platform
+#GIT_CATALOG_REPOSITORY=tap-yelb-catalog
 
 tap_view=tap-view
 tap_build=tap-build

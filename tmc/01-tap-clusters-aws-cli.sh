@@ -105,7 +105,7 @@ tmc account credential create -f ${aws_account_credential}.yaml
 echo
 intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "Waiting ${interval} minutes for account credential to be created and available..."
+echo "${interval} minutes and counting..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 
@@ -116,7 +116,7 @@ done
 # *********************************************************************************
 
 # 4. GET EXISTING VPC AND SUBNETS
-vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='tanzu-multicluster-vpc-stack-VPC']].VpcId" --output text)
+vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='${tanzu_vpc_stack_name}-VPC']].VpcId" --output text)
 subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
 
 subnet1=$(echo $subnets | awk -F ' ' '{print $1}')
@@ -207,7 +207,7 @@ done
 echo
 intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "Waiting ${interval} minutes for account credential to be created and available..."
+echo "${interval} minutes and counting..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 
@@ -240,17 +240,16 @@ EOF
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 
 for cluster in "${clusters[@]}" ; do
+  aws eks update-kubeconfig --name ${cluster} --region $AWS_REGION
 
-aws eks update-kubeconfig --name ${cluster} --region $AWS_REGION
+  kubectl config rename-context ${arn}/${cluster} ${cluster}
 
-kubectl config rename-context ${arn}/${cluster} ${cluster}
+  tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-1.${cluster} \
+    --management-cluster-name eks --provisioner-name eks >> .kube/${cluster}-kubeconfig
 
-tanzu mission-control cluster kubeconfig get eks.aws-account-credential.us-east-1.${cluster} \
-  --management-cluster-name eks --provisioner-name eks >> .kube/${cluster}-kubeconfig
+  kubectl config use-context ${cluster}
 
-kubectl config use-context ${cluster}
+  kubectl delete configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig
 
-kubectl delete configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig
-
-kubectl apply -f aws-auth-config-map.yaml --kubeconfig .kube/${cluster}-kubeconfig
+  kubectl apply -f aws-auth-config-map.yaml --kubeconfig .kube/${cluster}-kubeconfig
 done

@@ -24,7 +24,7 @@ done
 echo
 intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "Waiting ${interval} minutes for account credential to be created and available..."
+echo "${interval} minutes and counting..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 

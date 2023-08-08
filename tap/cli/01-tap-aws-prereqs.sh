@@ -48,9 +48,6 @@ sleep 5
 # kubectl config rename-context ${arn}/$tap_run $tap_run
 # #kubectl config rename-context ${arn}/$tap_iterate $tap_iterate
 
-kubectl config use-context $tap_view
-
-
 #CONFIGURE CLUSTERS
 clusters=( $tap_view $tap_build $tap_run )
 

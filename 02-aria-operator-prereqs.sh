@@ -15,7 +15,6 @@ sudo snap install jq
 sudo snap install tree
 sudo snap install helm --classic
 sudo apt install unzip
-#sudo apt install npm
 
 sudo apt install python-is-python3
 alias python=python3
@@ -27,6 +26,12 @@ wget https://releases.hashicorp.com/terraform/0.13.0/terraform_0.13.0_linux_amd6
 unzip terraform_0.13.0_linux_amd64.zip
 sudo mv terraform /usr/local/bin
 rm terraform_0.13.0_linux_amd64.zip
+
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+
+nvm install node
+sudo apt install yarn
+sudo npm install --global verdaccio
 
 #KREW
 (
