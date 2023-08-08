@@ -29,7 +29,7 @@ rm terraform_0.13.0_linux_amd64.zip
 
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
-nvm install node
+yes | nvm install node
 sudo apt install yarn
 sudo npm install --global verdaccio
 
