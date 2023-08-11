@@ -138,9 +138,11 @@ package_overlays:
   - name: tpb-app-image-overlay-secret
 EOF
 
-cat ${tap_gui_overlay}.yaml >> tap-values-view.yaml
+rm tap-values-view-overlay.yaml
+cp tap-values-view.yaml tap-values-view-overlay.yaml
+cat ${tap_gui_overlay}.yaml >> tap-values-view-overlay.yaml
 
-tanzu package installed update tap --values-file tap-values-view.yaml -n tap-install
+tanzu package installed update tap --values-file tap-values-view-overlay.yaml -n tap-install
 
 echo
 echo "TAP-GUI: " https://tap-gui.${VIEW_DOMAIN}

@@ -143,3 +143,9 @@ wget https://tsmcli.s3.us-west-2.amazonaws.com/tsm-cli-linux.tgz
 sudo tar xf tsm-cli-linux.tgz -C /usr/local/bin/
 
 tsm login -s $server_name -t $tsm_token
+
+echo
+echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/04-tanzu-multicluster-vpc.sh"
+echo

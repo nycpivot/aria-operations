@@ -206,10 +206,8 @@ kubectl config use-context $tap_view
 rm -rf tanzu-java-web-app
 git clone https://github.com/nycpivot/tanzu-java-web-app
 
-
-#INSTALL OOTB SUPPLY CHAIN - BASIC
-#bash $HOME/tap-workshop-aws-any/multi-profile/cli/supply-chain/01-ootb-basic-view.sh
-#bash $HOME/tap-workshop-aws-any/multi-profile/cli/supply-chain/01-ootb-basic-build.sh
-#bash $HOME/tap-workshop-aws-any/multi-profile/cli/supply-chain/01-ootb-basic-run.sh
-#bash $HOME/tap-workshop-aws-any/multi-profile/cli/supply-chain/01-ootb-basic-iterate.sh
-
+echo
+echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-tap-aws-prereqs.sh"
+echo

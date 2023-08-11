@@ -9,8 +9,6 @@ GIT_CATALOG_REPOSITORY=tanzu-application-platform
 tap_view=tap-view
 tap_build=tap-build
 tap_run_eks=tap-run-eks
-tap_run_aks=tap-run-aks
-
 
 #RESET AN EXISTING INSTALLATION
 tanzu package installed delete ootb-supply-chain-testing-scanning -n tap-install --yes
@@ -172,23 +170,6 @@ EOF
 CLUSTER_URL_RUN_EKS=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 CLUSTER_TOKEN_RUN_EKS=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
 
-kubectl config use-context $tap_run_aks
-kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
-
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: tap-gui-viewer
-  namespace: tap-gui
-  annotations:
-    kubernetes.io/service-account.name: tap-gui-viewer
-type: kubernetes.io/service-account-token
-EOF
-
-CLUSTER_URL_RUN_AKS=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-CLUSTER_TOKEN_RUN_AKS=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json | jq -r '.data["token"]' | base64 --decode)
-
 
 #INSTALL VIEW TAP PROFILE
 echo
@@ -255,11 +236,6 @@ tap_gui:
               authProvider: serviceAccount
               serviceAccountToken: $CLUSTER_TOKEN_RUN_EKS
               skipTLSVerify: true
-            - url: $CLUSTER_URL_RUN_AKS
-              name: $tap_run_aks
-              authProvider: serviceAccount
-              serviceAccountToken: $CLUSTER_TOKEN_RUN_AKS
-              skipTLSVerify: true
 contour:
   infrastructure_provider: aws
   envoy:
@@ -321,6 +297,8 @@ aws route53 change-resource-record-sets --hosted-zone-id $hosted_zone_id --chang
 
 echo
 echo "TAP-GUI: " https://tap-gui.${VIEW_DOMAIN}
+echo
+echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view.sh"
 echo
 echo "HAPPY TAP'ING!"
 echo

@@ -253,3 +253,9 @@ for cluster in "${clusters[@]}" ; do
 
   kubectl apply -f aws-auth-config-map.yaml --kubeconfig .kube/${cluster}-kubeconfig
 done
+
+echo
+echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view.sh"
+echo

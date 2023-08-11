@@ -1,5 +1,32 @@
 #!/bin/bash
 
+
+echo
+echo "<<< INSTALLING TYPESCRIPT"
+npm install --global typescript
+echo
+
+
+
+echo "<<< INSTALLING BACKSTAGE CLI >>>"
+echo
+npm install --global @backstage/cli
+echo
+
+
+
+yarn add tsc #typescript compiler
+yarn add build
+
+
+
+
+
+
+
+
+
+
 # INSTALL
 echo "<<< INSTALLING NVM >>>"
 echo

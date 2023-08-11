@@ -65,3 +65,9 @@ cat <<EOF | tee vpc-params.json
     }
 ]
 EOF
+
+echo
+echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/tmc/01-tap-clusters-aws-cli.sh"
+echo
