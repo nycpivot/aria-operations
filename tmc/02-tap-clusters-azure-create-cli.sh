@@ -50,7 +50,7 @@ tmc account credential create -f ${azure_account_credential}.yaml
 echo
 intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "${interval} minutes and counting..."
+echo "${interval} minutes remaining..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 

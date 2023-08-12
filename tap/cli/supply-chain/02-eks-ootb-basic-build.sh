@@ -48,12 +48,6 @@ EOF
 
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-build.yaml -n tap-install
 
-echo
-echo "Press Ctrl+C when contour packages has successfully reconciled"
-echo
-
-kubectl get pkgi -n tap-install -w | grep contour
-
 
 # 3. CREATE DEVELOPER NAMESPACE
 echo

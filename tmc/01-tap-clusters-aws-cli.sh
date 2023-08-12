@@ -105,7 +105,7 @@ tmc account credential create -f ${aws_account_credential}.yaml
 echo
 intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "${interval} minutes and counting..."
+echo "${interval} minutes remaining..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 
@@ -207,7 +207,7 @@ done
 echo
 intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
-echo "${interval} minutes and counting..."
+echo "${interval} minutes remaining..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
 
@@ -257,5 +257,5 @@ done
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view.sh"
+echo "NEXT -> ~/aria-operations/tap/cli/01-tap-aws-prereqs.sh"
 echo

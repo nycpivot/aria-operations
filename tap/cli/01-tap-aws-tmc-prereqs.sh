@@ -209,5 +209,6 @@ git clone https://github.com/nycpivot/tanzu-java-web-app
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-tap-aws-prereqs.sh"
+echo "1) NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-one-run.sh"
+echo "2) NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-two-run.sh"
 echo
