@@ -18,7 +18,11 @@ aws ssm get-parameter --name " /ec2/keypair/${key_id}" --with-decryption \
 
 echo
 
-aws cloudformation describe-stacks \
-    --stack-name ${stack_name} \
-    --region ${aws_region_code} \
-    --query "Stacks[0].Outputs[?OutputKey=='PublicDnsName'].OutputValue" --output text
+jumpbox_dns=$(aws cloudformation describe-stacks --stack-name ${stack_name} --region ${aws_region_code} --query "Stacks[0].Outputs[?OutputKey=='PublicDnsName'].OutputValue" --output text)
+
+rm tpb-operator.sh
+cat <<EOF | tee tpb-operator.sh
+ssh ubuntu@${jumpbox_dns} -i operator/keys/tpb-operator-keypair.pem -L 3000:localhost:3000
+EOF
+
+sh tpb-operator.sh

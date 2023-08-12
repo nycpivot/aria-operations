@@ -1,0 +1,48 @@
+Description: "Custom VPC for TAP multi-profile installation"
+Parameters:
+  VpcId:
+    Type: String
+  SubnetId1:
+    Type: String
+  SubnetId2:
+    Type: String
+  SubnetId3:
+    Type: String
+  SubnetId4:
+    Type: String
+  SecurityGroupId:
+    Type: String
+Resources:
+  EKSClusterBuild:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: tpb-build
+      Version: "1.25"
+      RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupId
+        SubnetIds:
+          - !Ref SubnetId1
+          - !Ref SubnetId2
+          - !Ref SubnetId3
+          - !Ref SubnetId4
+  EKSNodeGroupBuild:
+    Type: 'AWS::EKS::Nodegroup'
+    DependsOn: EKSClusterBuild
+    Properties:
+      NodegroupName: tpb-build-node-group
+      ClusterName: tap-build
+      NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
+      InstanceTypes: 
+        - t3.2xlarge
+      DiskSize: 80
+      ScalingConfig:
+        MinSize: 2
+        DesiredSize: 3
+        MaxSize: 5
+      Subnets:
+        - !Ref SubnetId1
+        - !Ref SubnetId2
+        - !Ref SubnetId3
+        - !Ref SubnetId4

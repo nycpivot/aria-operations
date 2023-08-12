@@ -1,3 +1,5 @@
+#!/bin/bash
+
 read -p "AWS Region Code (us-east-1): " aws_region_code
 
 if [[ -z $aws_region_code ]]

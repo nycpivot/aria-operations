@@ -14,7 +14,6 @@ export INSTALL_REPO=tanzu-application-platform/tap-packages
 docker login $IMGPKG_REGISTRY_HOSTNAME_1 -u $IMGPKG_REGISTRY_USERNAME_1 -p $IMGPKG_REGISTRY_PASSWORD_1
 
 backstage_app=backstage
-tap_view=tap-view
 tap_build=tap-build
 
 kubectl config use-context $tap_build
