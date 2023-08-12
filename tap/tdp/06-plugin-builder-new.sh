@@ -2,6 +2,10 @@
 # https://docs.google.com/document/d/11Th-4M9uT-7_byv4-wGqtjJ2mIcUG0hCdcRNm7sURWg/edit
 # https://github.com/mstergianis/docs-tap/blob/5268f85d3e381597f4af22b4cce39c1c58f8c811/tap-gui/configurator/external-plugins.hbs.md
 
+nvm install --lts
+npm install --global make
+npm install --global yarn
+
 VIEW_DOMAIN=view.tap.nycpivot.com
 
 acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
