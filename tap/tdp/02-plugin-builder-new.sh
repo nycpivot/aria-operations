@@ -4,6 +4,16 @@
 
 VIEW_DOMAIN=view.tap.nycpivot.com
 
+acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
+
+export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
+export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
+export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+export INSTALL_REPO=tanzu-application-platform/tap-packages
+
+docker login $IMGPKG_REGISTRY_HOSTNAME_1 -u $IMGPKG_REGISTRY_USERNAME_1 -p $IMGPKG_REGISTRY_PASSWORD_1
+
+backstage_app=backstage
 tap_view=tap-view
 tap_build=tap-build
 
@@ -21,7 +31,233 @@ imgpkg pull -b ${tpb_package} -o tpb-package
 configurator_image=$(yq -r ".images[0].image" <tpb-package/.imgpkg/images.yml)
 
 # download the configurator
-imgpkg -i ${configurator_image} -o builder
+imgpkg pull -i ${configurator_image} -o builder
+
+# a workaround is needed to adjust the parameters 
+# of the verdaccio offline_config.yaml in order 
+# to fetch recently published packages
+rm ~/builder/builder/registry/offline_config.yaml
+cat <<EOF | tee ~/builder/builder/registry/offline_config.yaml
+storage: ./storage
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    maxage: 2m
+    cache: true
+packages:
+  '@tpb/*':
+    access: $all
+  '**':
+    access: $all
+    proxy: npmjs
+log: { type: stdout, format: pretty, level: http }
+EOF
+
+cd ~/builder/builder/registry
+
+# this particular curl doesn't recognize --retry-all-errors
+rm start_offline.sh
+cat <<EOF | tee start_offline.sh
+#!/usr/bin/env bash
+set -eou pipefail
+
+echo "---> Starting Verdaccio..."
+
+./node_modules/forever/bin/forever start node_modules/verdaccio/bin/verdaccio --config offline_config.yaml
+if ! curl --connect-timeout 5 \
+    --max-time 10 \
+    --retry 5 \
+    --retry-delay 0 \
+    --retry-max-time 40 \
+    http://localhost:4873/-/ping > /dev/null 2>&1; then
+        echo "ERROR: Failed to start internal npm registry"
+        exit 1
+fi
+
+echo "Verdaccio started"
+EOF
+
+./start_offline.sh
+# ./node_modules/verdaccio/bin/verdaccio --config offline_config.yaml
+
+# run the following to stop the forever server
+# ./node_modules/forever/bin/forever stop node_modules/verdaccio/bin/verdaccio
+
+# return to home and create backstage folder
+cd ~
+npx @backstage/create-app@latest --skip-install
+
+cd ~/${backstage_app}
+echo 'registry "http://localhost:4873"' > .yarnrc
+
+# remove the packages directory, which contains a scaffolded backstage app and backend
+rm -rf ~/${backstage_app}/packages/
+
+# remove packages from workspaces section
+rm ~/${backstage_app}/package.json
+cat <<EOF | tee ~/${backstage_app}/package.json
+{
+  "name": "root",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "16 || 18"
+  },
+  "scripts": {
+    "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
+    "start": "yarn workspace app start",
+    "start-backend": "yarn workspace backend start",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "backstage-cli repo build --all",
+    "build-image": "yarn workspace backend build-image",
+    "tsc": "tsc",
+    "tsc:full": "tsc --skipLibCheck false --incremental false",
+    "clean": "backstage-cli repo clean",
+    "test": "backstage-cli repo test",
+    "test:all": "backstage-cli repo test --coverage",
+    "lint": "backstage-cli repo lint --since origin/master",
+    "lint:all": "backstage-cli repo lint",
+    "prettier:check": "prettier --check .",
+    "new": "backstage-cli new --scope internal"
+  },
+  "workspaces": {
+    "packages": [
+      "plugins/*"
+    ]
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.22.9",
+    "@spotify/prettier-config": "^12.0.0",
+    "concurrently": "^6.0.0",
+    "lerna": "^4.0.0",
+    "node-gyp": "^9.0.0",
+    "prettier": "^2.3.2",
+    "typescript": "~5.0.0"
+  },
+  "resolutions": {
+    "@types/react": "^17",
+    "@types/react-dom": "^17"
+  },
+  "prettier": "@spotify/prettier-config",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}
+EOF
+
+yarn install
+
+yarn backstage-cli new
+
+# When asked "What do you want to create?" select "plugin - A new frontend plugin".
+# When asked for "... the ID of the plugin [required]" enter "tech-insights-wrapper"
+
+cd plugins/tech-insights-wrapper
+
+rm package.json
+cat <<EOF | tee package.json
+{
+  "name": "@nycpivot/tech-insights-wrapper",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.esm.js",
+    "types": "dist/index.d.ts"
+  },
+  "backstage": {
+    "role": "frontend-plugin"
+  },
+  "scripts": {
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "backstage-cli package lint",
+    "test": "backstage-cli package test",
+    "clean": "backstage-cli package clean",
+    "prepack": "backstage-cli package prepack",
+    "postpack": "backstage-cli package postpack"
+  },
+  "dependencies": {
+    "@backstage/plugin-catalog": "1.11.2",
+    "@backstage/plugin-tech-insights": "0.3.11",
+    "@tpb/core-common": "1.6.0-release-1.6.x.1",
+    "@tpb/core-frontend": "1.6.0-release-1.6.x.1",
+    "@tpb/plugin-catalog": "1.6.0-release-1.6.x.1"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router": "6.0.0-beta.0",
+    "react-router-dom": "6.0.0-beta.0"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.22.6",
+    "@types/react": "^16.14.0",
+    "@types/react-dom": "^16.9.16",
+    "eslint": "^8.16.0",
+    "typescript": "~4.6.4"
+  },
+  "files": [
+    "dist"
+  ]
+}
+EOF
+
+rm -rf dev/ src/ && mkdir src
+cd src/
+
+cat <<EOF | tee index.ts
+export { TechInsightsFrontendPlugin as plugin } from './TechInsightsFrontendPlugin';
+EOF
+
+cat <<EOF | tee TechInsightsFrontendPlugin.tsx
+import { EntityLayout } from '@backstage/plugin-catalog';
+import { EntityTechInsightsScorecardContent } from '@backstage/plugin-tech-insights';
+import { AppPluginInterface, AppRouteSurface } from '@tpb/core-frontend';
+import { SurfaceStoreInterface } from '@tpb/core-common';
+import { EntityPageSurface } from '@tpb/plugin-catalog';
+import React from 'react';
+
+export const TechInsightsFrontendPlugin: AppPluginInterface =
+  () => (context: SurfaceStoreInterface) => {
+    context.applyWithDependency(
+      AppRouteSurface,
+      EntityPageSurface,
+      (_appRouteSurface, entityPageSurface) => {
+        entityPageSurface.servicePage.addTab(
+          <EntityLayout.Route path="/techinsights" title="TechInsights">
+            <EntityTechInsightsScorecardContent
+              title="TechInsights Scorecard."
+              description="TechInsight's default fact-checkers"
+            />
+          </EntityLayout.Route>,
+        );
+      },
+    );
+  };
+EOF
+
+yarn install && yarn tsc && yarn build
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

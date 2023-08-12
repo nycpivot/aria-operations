@@ -155,5 +155,7 @@ echo $change_batch_filename.json
 aws route53 change-resource-record-sets --hosted-zone-id $hosted_zone_id --change-batch file:///$HOME/$change_batch_filename.json
 
 echo
+echo "NEXT -> ~/aria-operations/tap/cli/workloads/tanzu-java-web-app.sh"
+echo
 echo "HAPPY TAP'ING!"
 echo

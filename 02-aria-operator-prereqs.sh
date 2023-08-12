@@ -110,6 +110,10 @@ sudo apt install pv #required for demo-magic
 helm repo add external-secrets https://charts.external-secrets.io
 
 echo
+echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/03-tanzu-prereqs-jumpbox-aws.sh"
+echo
 echo "***REBOOTING***"
 echo
 

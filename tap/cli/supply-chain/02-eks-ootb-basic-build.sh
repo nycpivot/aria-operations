@@ -110,5 +110,7 @@ EOF
 kubectl apply -f rbac-dev.yaml
 
 echo
+echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/03-ootb-basic-run-eks.sh"
+echo
 echo "HAPPY TAP'ING!"
 echo

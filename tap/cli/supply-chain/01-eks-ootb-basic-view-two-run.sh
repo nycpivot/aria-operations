@@ -322,7 +322,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $hosted_zone_id --chang
 echo
 echo "TAP-GUI: " https://tap-gui.${VIEW_DOMAIN}
 echo
-echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view.sh"
+echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/02-eks-ootb-basic-build.sh"
 echo
 echo "HAPPY TAP'ING!"
 echo
