@@ -18,7 +18,7 @@ curl -i -H "Accept: application/json" \
 
 export TAP_VERSION=1.6.1
 
-tap_build=tdp-build
+tdp_build=tdp-build
 
 
 # 1. CREATE CLUSTERS
@@ -28,20 +28,20 @@ echo
 
 sleep 5
 
-aws cloudformation create-stack --stack-name tdp-build-stack --region $AWS_REGION \
-    --template-body file:///home/ubuntu/aria-operations/tap/tdp/config/tdp-build-stack-${AWS_REGION}.yaml \
+aws cloudformation create-stack --stack-name ${tdp_build}-stack --region $AWS_REGION \
+    --template-body file:///home/ubuntu/aria-operations/tap/tdp/config/${tdp_build}-stack-${AWS_REGION}.yaml \
     --parameters file://vpc-params.json
     
-aws cloudformation wait stack-create-complete --stack-name tdp-multicluster-stack --region $AWS_REGION
+aws cloudformation wait stack-create-complete --stack-name tdp-build-stack --region $AWS_REGION
 
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 
-aws eks update-kubeconfig --name $tap_build --region $AWS_REGION
+aws eks update-kubeconfig --name $tdp_build --region $AWS_REGION
 
-kubectl config rename-context ${arn}/$tap_build $tap_build
+kubectl config rename-context ${arn}/$tdp_build $tdp_build
 
 #CONFIGURE CLUSTERS
-cluster=$tap_build
+cluster=$tdp_build
 
 kubectl config use-context $cluster
 

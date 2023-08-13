@@ -12,7 +12,7 @@ export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
 export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
 export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
 
-tap_build=tap-build
+tdp_build=tdp-build
 
 # 2. INSTALL BUILD TAP PROFILE
 echo
@@ -21,7 +21,7 @@ echo
 
 sleep 5
 
-kubectl config use-context $tap_build
+kubectl config use-context $tdp_build
 
 rm tap-values-build.yaml
 cat <<EOF | tee tap-values-build.yaml
