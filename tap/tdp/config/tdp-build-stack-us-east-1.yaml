@@ -16,7 +16,7 @@ Resources:
   EKSClusterBuild:
     Type: AWS::EKS::Cluster
     Properties:
-      Name: tpb-build
+      Name: tdp-build
       Version: "1.25"
       RoleArn: "arn:aws:iam::964978768106:role/vmware-eks-role"
       ResourcesVpcConfig:
@@ -31,7 +31,7 @@ Resources:
     Type: 'AWS::EKS::Nodegroup'
     DependsOn: EKSClusterBuild
     Properties:
-      NodegroupName: tpb-build-node-group
+      NodegroupName: tdp-build-node-group
       ClusterName: tap-build
       NodeRole: 'arn:aws:iam::964978768106:role/vmware-nodegroup-role'
       InstanceTypes: 

@@ -10,6 +10,8 @@ sudo systemctl start docker
 
 sudo usermod -aG docker $USER
 
+#MISC
+sudo snap install jq
 sudo apt install unzip
 
 #AWS CLI

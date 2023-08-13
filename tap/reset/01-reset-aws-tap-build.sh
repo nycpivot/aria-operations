@@ -29,7 +29,7 @@ DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
-tap_build=tpb-build
+tap_build=tdp-build
 
 #DELETE IAM CSI DRIVER ROLES
 build_rolename=${tap_build}-csi-driver-role-${AWS_REGION}
@@ -67,7 +67,7 @@ echo
 
 #rm .kube/config
 
-kubectl config delete-context tpb-build
+kubectl config delete-context tdp-build
 
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 kubectl config delete-cluster ${arn}/${tap_build}

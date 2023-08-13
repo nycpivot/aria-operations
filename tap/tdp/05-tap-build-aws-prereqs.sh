@@ -18,7 +18,7 @@ curl -i -H "Accept: application/json" \
 
 export TAP_VERSION=1.6.1
 
-tap_build=tpb-build
+tap_build=tdp-build
 
 
 # 1. CREATE CLUSTERS
@@ -28,11 +28,11 @@ echo
 
 sleep 5
 
-aws cloudformation create-stack --stack-name tap-build-stack --region $AWS_REGION \
-    --template-body file:///home/ubuntu/aria-operations/tap/config/tap-build-stack-${AWS_REGION}.yaml \
+aws cloudformation create-stack --stack-name tdp-build-stack --region $AWS_REGION \
+    --template-body file:///home/ubuntu/aria-operations/tap/tdp/config/tdp-build-stack-${AWS_REGION}.yaml \
     --parameters file://vpc-params.json
     
-aws cloudformation wait stack-create-complete --stack-name tap-multicluster-stack --region $AWS_REGION
+aws cloudformation wait stack-create-complete --stack-name tdp-multicluster-stack --region $AWS_REGION
 
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 
@@ -186,4 +186,6 @@ tanzu package repository get tanzu-tap-repository --namespace tap-install
 
 echo
 echo "***DONE***"
+echo
+echo "NEXT -> ~/aria-operations/tap/tdp/06-eks-ootb-basic-build.sh"
 echo
