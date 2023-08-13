@@ -18,9 +18,9 @@ export INSTALL_REPO=tanzu-application-platform/tap-packages
 docker login $IMGPKG_REGISTRY_HOSTNAME_1 -u $IMGPKG_REGISTRY_USERNAME_1 -p $IMGPKG_REGISTRY_PASSWORD_1
 
 backstage_app=backstage
-tap_build=tap-build
+tdp_build=tdp-build
 
-kubectl config use-context $tap_build
+kubectl config use-context $tdp_build
 
 # Find the location of the builder image by querying your TAP cluster
 tpb_package=$(kubectl get package tpb.tanzu.vmware.com.0.1.2 -n tap-install -o "jsonpath={.spec.template.spec.fetch[0].imgpkgBundle.image}")
@@ -42,6 +42,9 @@ imgpkg pull -i ${configurator_image} -o builder
 rm ~/builder/builder/registry/offline_config.yaml
 cat <<EOF | tee ~/builder/builder/registry/offline_config.yaml
 storage: ./storage
+auth:
+  htpasswd:
+    file: ./htpasswd
 uplinks:
   npmjs:
     url: https://registry.npmjs.org/
@@ -49,9 +52,9 @@ uplinks:
     cache: true
 packages:
   '@tpb/*':
-    access: $all
+    access: \$all
   '**':
-    access: $all
+    access: \$all
     proxy: npmjs
 log: { type: stdout, format: pretty, level: http }
 EOF
@@ -80,7 +83,15 @@ fi
 echo "Verdaccio started"
 EOF
 
+chmod +x start_offline.sh
+sleep 30 # the next command will fail if attempted too soon
+
+# run a couple times cuz it doesn't always start the first time
+# ERROR: Failed to start internal npm registry
 ./start_offline.sh
+./start_offline.sh
+
+# alternatively, to show output, run this...
 # ./node_modules/verdaccio/bin/verdaccio --config offline_config.yaml
 
 # run the following to stop the forever server
@@ -154,7 +165,7 @@ cat <<EOF | tee ~/${backstage_app}/package.json
 }
 EOF
 
-yarn install
+yarn install # KEEP GETTING 500 ERRORS
 
 yarn backstage-cli new
 

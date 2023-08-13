@@ -7,7 +7,7 @@ Resources:
   OperatorKeyPair:
     Type: 'AWS::EC2::KeyPair'
     Properties:
-      KeyName: tpb-operator-keypair
+      KeyName: tdp-operator-keypair
   OperatorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -39,7 +39,7 @@ Resources:
         - !Ref OperatorSecurityGroup
       Tags:
         - Key: "Name"
-          Value: "tpb-operator"
+          Value: "tdp-operator"
 Outputs:
   InstanceId:
     Value: !Ref OperatorInstance

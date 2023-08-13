@@ -14,6 +14,12 @@ sudo usermod -aG docker $USER
 sudo snap install jq
 sudo apt install unzip
 
+sudo apt install python-is-python3
+alias python=python3
+
+yes | sudo apt install python3-pip
+pip3 install yq
+
 #AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
