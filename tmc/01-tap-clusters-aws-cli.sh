@@ -3,17 +3,18 @@
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
-generated_template_stack_id=13637809161061075293
+generated_template_stack_id=17533195724431227713 # 13637809161061075293 # <- this is customer0
+external_id=1cd13c5a-9b6a-53ef-b938-c687989bf70b # 50ed8bef-c8c6-5ba2-8501-992e94a0fedc # <- this is customer0
 tmc_iam_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
 tanzu_vpc_stack_name=tanzu-vpc-stack
-tmc_org=3be385a3-d15d-4f70-b779-5e69b8b2a2cc
+tmc_org=86514df0-46a7-4b33-857d-954ba2970773 # 3be385a3-d15d-4f70-b779-5e69b8b2a2cc # <- this is customer0
 tmc_account_id=630260974543
 
 
 # 1. CREATE IAM ROLES (THIS IS STEP 2 IN TMC CONSOLE)
 aws cloudformation create-stack --stack-name ${tmc_iam_stack_name} \
   --template-url https://tmc-mkp.s3.us-west-2.amazonaws.com/tmc_eks.template \
-  --parameters ParameterKey=CredentialName,ParameterValue=aws-account-credential ParameterKey=AccountID,ParameterValue=${tmc_account_id} ParameterKey=OrgID,ParameterValue=3be385a3-d15d-4f70-b779-5e69b8b2a2cc ParameterKey=RoleName,ParameterValue=main/mkp ParameterKey=ExternalID,ParameterValue=50ed8bef-c8c6-5ba2-8501-992e94a0fedc ParameterKey=GeneratedTemplateID,ParameterValue=${generated_template_stack_id} \
+  --parameters ParameterKey=CredentialName,ParameterValue=aws-account-credential ParameterKey=AccountID,ParameterValue=${tmc_account_id} ParameterKey=OrgID,ParameterValue=${tmc_org} ParameterKey=RoleName,ParameterValue=main/mkp ParameterKey=ExternalID,ParameterValue=${external_id} ParameterKey=GeneratedTemplateID,ParameterValue=${generated_template_stack_id} \
   --capabilities CAPABILITY_NAMED_IAM
 
 # aws cloudformation create-stack \
@@ -80,7 +81,7 @@ fi
 cat <<EOF | tee ${aws_account_credential}.yaml # TMC CLI VERSION (THIS WORKS)
 fullName:
   name: ${aws_account_credential}
-  orgId: 3be385a3-d15d-4f70-b779-5e69b8b2a2cc
+  orgId: ${tmc_org}
 # meta:
 #   annotations:
 #     GeneratedTemplateID: "${generated_template_stack_id}"
@@ -228,11 +229,11 @@ data:
     - groups:
       - system:bootstrappers
       - system:nodes
-      rolearn: arn:aws:iam::964978768106:role/worker.13637809161061075293.eks.tmc.cloud.vmware.com
+      rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/worker.${generated_template_stack_id}.eks.tmc.cloud.vmware.com
       username: system:node:{{EC2PrivateDNSName}}
     - groups:
       - system:masters
-      rolearn: arn:aws:iam::964978768106:role/PowerUser
+      rolearn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/PowerUser
       username: PowerUser/cloudgate@mijames
 EOF
 

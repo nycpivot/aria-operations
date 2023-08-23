@@ -33,11 +33,11 @@ export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
 export INSTALL_REPO=tanzu-application-platform/tap-packages
 
 #GET TPB PACKAGE TO GET THE CONFIGURATOR IMAGE NEEDED IN THE WORKLOAD
-acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
+registry_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"registry-secret\")
 
 export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
 export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
-export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+export IMGPKG_REGISTRY_PASSWORD_1=$registry_secret
 
 docker login $IMGPKG_REGISTRY_HOSTNAME_1 -u $IMGPKG_REGISTRY_USERNAME_1 -p $IMGPKG_REGISTRY_PASSWORD_1
 

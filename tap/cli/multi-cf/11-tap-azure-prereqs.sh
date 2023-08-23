@@ -26,11 +26,11 @@ export INSTALL_REGISTRY_USERNAME=$PIVNET_USERNAME
 export INSTALL_REGISTRY_PASSWORD=$PIVNET_PASSWORD
 export INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54e516b5d088198558d23cababb3f907cd8073892cacfb2496bb9d66886efe15
 
-acr_secret=$(az keyvault secret show --name acr-secret --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
+registry_secret=$(az keyvault secret show --name registry-secret --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
 
 export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
 export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
-export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+export IMGPKG_REGISTRY_PASSWORD_1=$registry_secret
 
 export INSTALL_REPO=tanzu-application-platform/tap-packages
 

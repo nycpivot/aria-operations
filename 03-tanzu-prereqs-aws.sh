@@ -1,12 +1,10 @@
 #!/bin/bash
 
-echo
-read -p "<<< PASTE AWS CREDENTIALS >>>"
-
 # AWS CONFIGURE
 # read -p "AWS Access Key: " aws_access_key
 # read -p "AWS Secret Access Key: " aws_secret_access_key
 read -p "AWS Default Region (us-east-1): " aws_region_code
+read -p "Aria Organization: " aria_org
 
 if [[ -z $aws_region_code ]]
 then
@@ -130,7 +128,7 @@ sleep 5
 export TANZU_API_TOKEN=${tmc_token}
 
 # CREATING A CONTEXT WILL AUTOMATICALLY INSTALL THE MISION CONTROL PLUGINS
-tanzu context create tmc-operations --endpoint customer0.tmc.cloud.vmware.com
+tanzu context create tmc-operations --endpoint ${aria_org}.tmc.cloud.vmware.com
 
 
 # INSTALL TANZU SERVICE MESH

@@ -199,14 +199,14 @@ echo
 
 sleep 5
 
-acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")
+registry_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"registry-secret\")
 
 export IMGPKG_REGISTRY_HOSTNAME_0=registry.tanzu.vmware.com
 export IMGPKG_REGISTRY_USERNAME_0=$PIVNET_USERNAME
 export IMGPKG_REGISTRY_PASSWORD_0=$PIVNET_PASSWORD
 export IMGPKG_REGISTRY_HOSTNAME_1=tanzuapplicationregistry.azurecr.io
 export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
-export IMGPKG_REGISTRY_PASSWORD_1=$acr_secret
+export IMGPKG_REGISTRY_PASSWORD_1=$registry_secret
 export INSTALL_REPO=tanzu-application-platform/tap-packages
 
 docker login $IMGPKG_REGISTRY_HOSTNAME_0 -u $IMGPKG_REGISTRY_USERNAME_0 -p $IMGPKG_REGISTRY_PASSWORD_0

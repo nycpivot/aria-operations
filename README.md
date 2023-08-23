@@ -14,41 +14,59 @@ This repository was built for running two TAP Run clusters, one for a .NET Core 
 
 The following diagram illustrates the full architecture of the system.
 
-
-
-
-
-VMware Tanzu Application Platform (TAP) is a complete end-to-end supply chain capable of monitoring a source code repository for changes, compiling and building executable binaries packaged into OCI-conformant containers, deployed to any Kubernetes cluster running on-premises or a public cloud provider. This requires several different components with different responsibilities communicating with one another.
-
-This repository offers application developers and operators practical examples for getting started with TAP (Tanzu Application Platform) on AWS with any Container Registry, except Elastic Container Registry (ECR). To run a workshop using ECR, refer to that [repository](https://github.com/nycpivot/tap-workshop-aws-ecr).
+(https://github.com/nycpivot/aria-operations/tree/v1.6.1/refs/aria-tanzu.png)
 
 ## Getting Started
 
 ### Optional
 
-The following is optional if you want to create a clean jumpbox and install all the required tools.
+1) The following is optional if you want to create a clean jumpbox and run a script to install all the required tools. First, clone this repository to your local machine and run the following script from within the cloned aria-operations folder. This script will generate the private SSH key and download it into the operator/keys folder. It will create the folder if it doesn't already exist. If you fork the repository, it is advised to include keys/ in the .gitignore file so you don't mistakenly push private keys to a public repository.
 
-* [01-aria-operator-new.sh](01-aria-operator-new.sh), this script will execute an AWS *CloudFormation stack that will create an EC2 instance in the default network.
+    * [01-aria-operator-new.sh](01-aria-operator-new.sh), this script will execute an AWS CloudFormation stack from the operator/config folder, that will create an EC2 instance in the specified region and the default network.
 
-The two scripts in the root directory can be run to bootstrap an Ubuntu Linux jumpbox in the target environment and install all prerequisites needed to run the workshop.
+If successful, the script will out the DNS name of the new jumpbox. Copy and paste this into the aria-operator.sh file and overwrite the existing DNS name for the respective region. This file can be used for hosts created in other regions
 
+2) Run sh aria-operator.sh. Once logged in, clone this same repository again, and specify the branch v1.6.1.
 
-* [02-tanzu-operator-prereqs.sh](02-tanzu-operator-prereqs.sh), this script installs all the prerequisites necessary for the workshop. You will need your AWS Access Key and Secret.
+    git clone https://github.com/nycpivot/aria-operations -b v1.6.1
 
-If you prefer to operate the cluster on your local machine, the following prerequisites will be required.
+    * [02-tanzu-operator-prereqs.sh](02-tanzu-operator-prereqs.sh), this script installs all the prerequisites necessary for the workshop. You will need your AWS Access Key and Secret.
 
-*NOTE: The CloudFormation stack expects an existing Security Group and Key Pair.
+On the jumpbox, it is recommended to run these from the directory above the cloned repository, as some scripts might include relative path references.
+
+    bash aria-operations/02-operator-prereqs.sh
 
 ## Prerequisites
 
-* Docker
-* AWS CLI
-* kubectl
-* helm, jq, etc...
+All subsequent scripts retrieve secrets from AWS Secrets Manager. Or, you can edit the files and set these variables manually.
 
-This setup on AWS relies on secrets stored in AWS Secrets Manager. It's very easy to set this up, or you can modify the scripts to set these secrets as in code. The secrets required are as follows.
+* pivnet-username
+* pivnet-password
+* pivnet-token
+* tmc-token
+* tsm-token
+* registry-secret (any container registry that requires a username and password/secret to login)
+* github-token (GitOps only)
 
-* 
+
+03-tanzu-prereqs-aws.sh
+04-tanzu-vpc-stack.sh
+
+Follow the steps here to provision clusters in TMC.
+Follow the steps here to install and configure the TAP clusters.
+
+Now we are ready to provision our TAP clusters with TMC.
+
+aria-operations/tmc/01-tap-clusters-aws-cli.sh
+aria-operations/tap/cli/multi-cf/11-tap-azure-prereqs.sh # creates the AKS cluster to attach
+aria-operations/tmc/03-tap-clusters-azure-attach-cli.sh # attach AKS cluster
+
+TAP
+aria-operations/tap/cli/multi-tmc/01-tap-multi-aws-tmc-prereqs.sh
+aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-two-run.sh # for two run clusters (EKS, AKS)
+
+
+
 
 Once these prerequisites have been met, the operator has the following options for the TAP installation.
 

@@ -30,7 +30,14 @@ aws cloudformation wait stack-create-complete --stack-name ${stack_name} --regio
 
 key_id=$(aws ec2 describe-key-pairs --filters Name=key-name,Values=aria-operator-keypair --query KeyPairs[*].KeyPairId --output text --region ${aws_region_code})
 
-rm operator/keys/aria-operator-keypair-${aws_region_code}.pem
+if [ ! -d "operator/keys" ]
+then
+  mkdir operator/keys
+fi
+
+if test -f operator/keys/aria-operator-keypair-${aws_region_code}.pem; then
+  rm operator/keys/aria-operator-keypair-${aws_region_code}.pem
+fi
 
 aws ssm get-parameter --name " /ec2/keypair/${key_id}" --with-decryption \
     --query Parameter.Value --region ${aws_region_code} \
