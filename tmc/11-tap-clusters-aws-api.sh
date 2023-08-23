@@ -5,7 +5,7 @@ AWS_REGION=$(aws configure get region)
 
 generated_template_stack_id=13637809161061075293
 full_tmc_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
-tanzu_vpc_stack_name=tanzu-multicluster-vpc-stack
+tanzu_vpc_stack_name=tanzu-vpc-stack
 tmc_org=3be385a3-d15d-4f70-b779-5e69b8b2a2cc
 tmc_account_id=630260974543
 
@@ -108,7 +108,7 @@ sleep 900
 # *********************************************************************************
 
 # 4. CREATE VPC
-vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='tanzu-multicluster-vpc-stack-VPC']].VpcId" --output text)
+vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='tanzu-vpc-stack-VPC']].VpcId" --output text)
 subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
 
 subnet1=$(echo $subnets | awk -F ' ' '{print $1}')

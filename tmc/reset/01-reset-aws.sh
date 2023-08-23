@@ -55,7 +55,7 @@ aws iam delete-role --role-name ${build_rolename}
 aws iam delete-role --role-name ${run_eks_rolename}
 
 # DELETE AWS VPC STACK
-tanzu_stack_name=tanzu-multicluster-vpc-stack
+tanzu_stack_name=tanzu-vpc-stack
 
 echo
 echo "Deleting ${tanzu_stack_name}..."

@@ -108,5 +108,5 @@ cd $HOME
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tap/tdp/04-tanzu-multicluster-vpc.sh"
+echo "NEXT -> ~/aria-operations/tap/tdp/04-tanzu-vpc-stack.sh"
 echo

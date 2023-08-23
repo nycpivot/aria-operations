@@ -147,5 +147,5 @@ tsm login -s $server_name -t $tsm_token
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/04-tanzu-multicluster-vpc.sh"
+echo "NEXT -> ~/aria-operations/04-tanzu-vpc-stack.sh"
 echo

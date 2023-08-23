@@ -6,6 +6,34 @@ nvm install --lts
 npm install --global make
 npm install --global yarn
 
+# KIND
+# [ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+# # For ARM64
+# [ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-arm64
+# chmod +x ./kind
+# sudo mv ./kind /usr/local/bin/kind
+# kind create cluster
+
+# MINIKUBE
+# curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+# sudo dpkg -i minikube_latest_amd64.deb
+# minikube start
+
+# https://breaking.computer/blog/deploying-a-backstage-app-on-kubernetes#:~:text=You'll%20need%20a%20DNS,certificate%20in%20a%20production%20deployment.
+# from the app folder, i ran
+# yarn workspace backend link
+# yarn workspace app link
+# yarn workspace backend link app
+
+# docker login
+isvengtapfull
+3NMGMGZbwLJFlg5B/cxoztZErrC6cr1DI48Bw9U1Vc+ACRDt81wI
+
+# kubectl create secret generic regcred --from-file=.dockerconfigjson=.docker/config.json --type=kubernetes.io/dockerconfigjson -n backstage
+
+# THIS COMMAND WILL START THE PORT-FORWARDING WITHOUT NEEDING TO KNOW THE PORT BEING USED ON LOCALHOST
+# kubectl port-forward service/backstage -n backstage :80
+
 VIEW_DOMAIN=view.tap.nycpivot.com
 
 acr_secret=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"acr-secret\")

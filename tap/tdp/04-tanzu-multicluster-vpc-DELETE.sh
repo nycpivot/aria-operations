@@ -3,7 +3,7 @@
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
-stackname=tanzu-multicluster-vpc-stack
+stackname=tanzu-vpc-stack
 
 aws cloudformation create-stack --stack-name ${stackname} --region $AWS_REGION \
     --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
