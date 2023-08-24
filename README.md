@@ -64,8 +64,7 @@ Follow the steps here to install and configure the TAP clusters.
 Now we are ready to provision our TAP clusters with TMC.
 
 aria-operations/tmc/01-tap-clusters-aws-cli.sh
-aria-operations/tap/cli/multi-cf/11-tap-azure-prereqs.sh # creates the AKS cluster to attach
-aria-operations/tmc/03-tap-clusters-azure-attach-cli.sh # attach AKS cluster
+aria-operations/tmc/03-tap-clusters-azure-create-and-attach-cli.sh # creates the AKS cluster to attach
 
 TAP
 aria-operations/tap/cli/multi-tmc/01-tap-multi-aws-tmc-prereqs.sh

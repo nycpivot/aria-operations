@@ -36,7 +36,7 @@ export INSTALL_REPO=tanzu-application-platform/tap-packages
 
 group=aria-operations
 aks_region_code=eastus
-tap_run=tap-run-aks
+tap_run_aks=tap-run-aks
 
 # 1. CREATE CLUSTER
 echo
@@ -47,14 +47,14 @@ sleep 5
 
 az group create --name $group --location $aks_region_code
 
-az aks create --name $tap_run --resource-group $group \
+az aks create --name $tap_run_aks --resource-group $group \
     --node-count 2 --node-vm-size Standard_B4ms --kubernetes-version 1.25.6 \
     --enable-managed-identity --enable-addons monitoring --enable-msi-auth-for-monitoring --generate-ssh-keys 
 
 #configure kubeconfig
-az aks get-credentials --name $tap_run --resource-group $group
+az aks get-credentials --name $tap_run_aks --resource-group $group
 
-kubectl config use-context $tap_run
+kubectl config use-context $tap_run_aks
 
 # INSTALL CLUSTER ESSENTIALS
 cd $HOME/tanzu-cluster-essentials
