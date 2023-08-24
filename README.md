@@ -1,20 +1,24 @@
 # Aria Tanzu Operations
 
-This repository will demonstrate the automated deployment of a simple microservices application deployed across different platforms and cloud environments with the following VMware Aria and Tanzu products and services.
+This repository will demonstrate the automated deployment of a simple microservices application deployed on Kubernetes clusters across different cloud environments with the following VMware Aria and Tanzu products and services.
 
-* Tanzu Application Platform (TAP), a multicluster installation consisting of a 1) View Cluster (tap-view), a portal for developers to monitor, manage, and discover organization resources in a single location, a 2) Build Cluster (tap-build), a complete end-to-end automated supply chain for compiling and building source code into an OCI-compliant container image ready for deployment, and 3) Run Cluster(s), where the application and its dependent services are run and accessed by users.
+* Tanzu Application Platform (TAP), a multicluster installation consisting of a 1) View Cluster (tap-view), hosts a portal for developers to manage, monitor, and discover organizational resources in a single dashboard, a 2) Build Cluster (tap-build), hosts a complete end-to-end automated supply chain for compiling and building source code into OCI-compliant container images pushed to a registry and ready for deployment, and 3) Run Cluster(s), where the application and its dependent services are run and accessed by users.
 
-This repository was built for running two TAP Run clusters, one for a .NET Core Web MVC application hosted on an AWS EKS cluster (tap-run-eks), and a second .NET Core WebAPI application hosted on an Azure AKS cluster (tap-run-aks), which can be accessed by the Web MVC application.
+* [Tanzu Mission Control](https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/index.html), will be used to provision the multicluster TAP environment.
 
-* Tanzu Mission Control (TMC), will be used to provision a multicluster TAP environment hosting a developer portal on a View cluster,
+* [Tanzu Service Mesh](https://docs.vmware.com/en/VMware-Tanzu-Service-Mesh/index.html), where all of our applications and services hosted on TAP Run clusters will be encapsulated in a Global Namespace (GNS).
 
-* Tanzu Service Mesh (TSM), all of our applications and services hosted on TAP Run clusters will be encapsulated in a Global Namespace (GNS).
+* [Aria Operations for Applications](https://docs.wavefront.com/), for monitoring resources and traces of both applications, services, and clusters across cloud environments.
 
-* Tanzu Observability (TO/TOS), we will monitor resources and traces of both applications across cloud environments.
+* [VMware Application Catalog](https://docs.vmware.com/en/VMware-Application-Catalog/index.html), the repository hosting open-source software to support the application.
 
-The following diagram illustrates the full architecture of the system.
+* [Tanzu Data Services](https://docs.vmware.com/en/Data-Management-for-VMware-Tanzu/index.html), will provide the database and caching services for the application.
 
-![Aria-Tanzu Architecture](https://github.com/nycpivot/aria-operations/tree/v1.6.1/refs/aria-tanzu.png)
+* [Aria Operations for Logs](https://docs.vmware.com/en/VMware-Aria-Operations-for-Logs/index.html)
+
+## System Architecture
+
+![](refs/aria-tanzu.png "Reference Architecture")
 
 ## Getting Started
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo
+read -p "Now would be a good time to input your AWS CloudGate credentials! Press Ctrl+C to leave this script."
+
 # AWS CONFIGURE
 # read -p "AWS Access Key: " aws_access_key
 # read -p "AWS Secret Access Key: " aws_secret_access_key
@@ -147,6 +150,7 @@ sudo tar xf tsm-cli-linux.tgz -C /usr/local/bin/
 
 tsm login -s $server_name -t $tsm_token
 
+echo
 echo
 echo "***DONE***"
 echo

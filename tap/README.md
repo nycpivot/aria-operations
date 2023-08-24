@@ -1,0 +1,1 @@
+This repository was built for running two TAP Run clusters, one for a .NET Core Web MVC application hosted on an AWS EKS cluster (tap-run-eks), and a second .NET Core WebAPI application hosted on an Azure AKS cluster (tap-run-aks), which can be accessed by the Web MVC application.
