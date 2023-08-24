@@ -83,16 +83,16 @@ tmc account credential create -f ${aws_account_credential}.yaml
 # NONE OF THE CLIs (OLD/NEW) WORK FOR THE FOLLOWING OBJECTS (EKSCLUSTER & NODEPOOL)
 # BUT THE APIs SEEM TO WORK OK - THESE WILL BE REPLACED WHEN THE CLI WORKS
 # *********************************************************************************
-tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
+tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-${aria_org}-token\")
 
-rm tmc-token.json
+rm tmc-${aria_org}-token.json
 
 curl -X POST https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize \
   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
   -d "refresh_token=${tmc_token}" \
-  -o tmc-token.json
+  -o tmc-${aria_org}-token.json
 
-access_token=$(cat tmc-token.json | jq .access_token -r)
+access_token=$(cat tmc-${aria_org}-token.json | jq .access_token -r)
 
 
 # 4. CREATE NEW EKS CLUSTER

@@ -51,26 +51,22 @@ role_arn=$(sed '3q;d' <<< $output)
 echo ${role_arn}
 echo
 
-read -p "Enter to continue..."
-echo
-
-
 # GET REFRESH TOKEN, EXCHANGE IT FOR AN ACCESS TOKEN FOR THE REMAINDER
-tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
+tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-${aria_org}-token\")
 
 export TMC_API_TOKEN=${tmc_token}
 export TANZU_API_TOKEN=${tmc_token}
 
-# if test -f tmc-token.json; then
-#   rm tmc-token.json
+# if test -f tmc-${aria_org}-token.json; then
+#   rm tmc-${aria_org}-token.json
 # fi
 
 # curl -X POST https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize \
 #   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
 #   -d "refresh_token=${tmc_token}" \
-#   -o tmc-token.json
+#   -o tmc-${aria_org}-token.json
 
-# access_token=$(cat tmc-token.json | jq .access_token -r)
+# access_token=$(cat tmc-${aria_org}-token.json | jq .access_token -r)
 
 
 # 2. CREATE A TMC CLUSTER GROUP
@@ -101,7 +97,7 @@ fullName:
 # meta:
 #   annotations:
 #     GeneratedTemplateID: "${generated_template_stack_id}"
-#     x-customer-domain: customer0.tmc.cloud.vmware.com
+#     x-customer-domain: ${aria_org}.tmc.cloud.vmware.com
 #   labels:
 #     tmc.cloud.vmware.com/cred-cloudformation-key: "${generated_template_stack_id}"
 #   resourceVersion: "1"

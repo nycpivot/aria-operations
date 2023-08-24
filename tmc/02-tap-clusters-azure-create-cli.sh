@@ -12,7 +12,7 @@ tenant_id=$(echo $service_principal | jq -r .tenant)
 file_cert_and_key=$(echo $service_principal | jq -r .fileWithCertAndPrivateKey)
 
 # GET REFRESH TOKEN, EXCHANGE IT FOR AN ACCESS TOKEN FOR THE REMAINDER
-tmc_token=$(az keyvault secret show --name tmc-token --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
+tmc_token=$(az keyvault secret show --name tmc-${aria_org}-token --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
 
 export TMC_API_TOKEN=${tmc_token}
 export TANZU_API_TOKEN=${tmc_token}

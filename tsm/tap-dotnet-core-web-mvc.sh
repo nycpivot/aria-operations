@@ -1,5 +1,12 @@
 #!/bin/bash
 
+read -p "Aria Organization (customer0): " aria_org
+
+if [[ -z ${aria_org} ]]
+then
+  aria_org=customer0
+fi
+
 # APPLY TSM K8S COMPONENTS
 echo
 echo "<<< APPLY TSM K8S COMPONENTS >>>"
@@ -11,7 +18,7 @@ cluster_name=tap-run-eks
 
 kubectl config use-context ${cluster_name}
 
-tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-token\")
+tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-${aria_org}-token\")
 vmware_token=$(curl "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize" -H "authority: console.cloud.vmware.com" -H "pragma: no-cache" -H "cache-control: no-cache" -H "accept: application/json, text/plain, */*" --data-raw "refresh_token=${tsm_token}")
 access_token=$(echo ${vmware_token} | jq -r .access_token)
 
@@ -46,7 +53,7 @@ kubectl label namespace default istio-injection=enabled
 # CREATE GNS
 server_name=prod-2.nsxservicemesh.vmware.com
 
-tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-workshop | jq -r .SecretString | jq -r .\"tsm-token\")
+tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-workshop | jq -r .SecretString | jq -r .\"tsm-${aria_org}-token\")
 vmware_token=$(curl "https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize" -H "authority: console.cloud.vmware.com" -H "pragma: no-cache" -H "cache-control: no-cache" -H "accept: application/json, text/plain, */*" --data-raw "refresh_token=${tsm_token}")
 access_token=$(echo ${vmware_token} | jq -r .access_token)
 

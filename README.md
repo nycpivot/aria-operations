@@ -14,7 +14,7 @@ This repository will demonstrate the automated deployment of a simple microservi
 
 * [Tanzu Data Services](https://docs.vmware.com/en/Data-Management-for-VMware-Tanzu/index.html), will provide the database and caching services for the application.
 
-* [Aria Operations for Logs](https://docs.vmware.com/en/VMware-Aria-Operations-for-Logs/index.html)
+* [Aria Operations for Logs](https://docs.vmware.com/en/VMware-Aria-Operations-for-Logs/index.html), will capture and store log data for each of the aforementioned services.
 
 ## System Architecture
 
@@ -44,13 +44,15 @@ On the jumpbox, it is recommended to run these from the directory above the clon
 
 All subsequent scripts retrieve secrets from AWS Secrets Manager. Or, you can edit the files and set these variables manually.
 
-* pivnet-username
-* pivnet-password
-* pivnet-token
-* tmc-token
-* tsm-token
-* registry-secret (any container registry that requires a username and password/secret to login)
-* github-token (GitOps only)
+* pivnet-username, the username with access to network.pivotal.io or network.tanzu.vmware.com.
+* pivnet-password, the password with access to network.pivotal.io or network.tanzu.vmware.com.
+* pivnet-token, the refresh token created in network.pivotal.io or network.tanzu.vmware.com.
+* tmc-[org-name]-token, the org-name in Aria Cloud Services for which the token applies.
+* tsm-[org-name]-token, the org-name in Aria Cloud Services for which the token applies.
+* registry-secret, any container registry that requires a username and password/secret to login.
+* weather-bit-api-host, the url of the backend API for the frontend MVC app. You'll want to change the domain to match the domain of your EKS run cluster. For example, https://tap-dotnet-core-api-weather.default.run-eks.tap.nycpivot.com.
+* weather-bit-api-key, the key to use for an external weather API service (optional).
+* github-token, GitOps only.
 
 
 03-tanzu-prereqs-aws.sh
