@@ -26,7 +26,9 @@ This repository will demonstrate the automated deployment of a simple microservi
 
 1) The following is optional if you want to create a clean jumpbox and run a script to install all the required tools. First, clone this repository to your local machine and run the following script from within the cloned aria-operations folder. This script will generate the private SSH key and download it into the operator/keys folder. It will create the folder if it doesn't already exist. If you fork the repository, it is advised to include keys/ in the .gitignore file so you don't mistakenly push private keys to a public repository.
 
-    * [01-aria-operator-new.sh](01-aria-operator-new.sh), this script will execute an AWS CloudFormation stack from the operator/config folder, that will create an EC2 instance in the specified region and the default network.
+    [01-aria-operator-new.sh](01-aria-operator-new.sh)
+    
+This script will execute an AWS CloudFormation stack from the operator/config folder, that will create an EC2 instance in the specified region and the default network.
 
 If successful, the script will out the DNS name of the new jumpbox. Copy and paste this into the aria-operator.sh file and overwrite the existing DNS name for the respective region. This file can be used for hosts created in other regions
 
@@ -68,6 +70,8 @@ aria-operations/tmc/03-tap-clusters-azure-create-and-attach-cli.sh # creates the
 
 TAP
 aria-operations/tap/cli/multi-tmc/01-tap-multi-aws-tmc-prereqs.sh
+aria-operations/tap/cli/multi-tmc/02-tap-multi-azure-tmc-prereqs.sh
+
 aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-two-run.sh # for two run clusters (EKS, AKS)
 
 

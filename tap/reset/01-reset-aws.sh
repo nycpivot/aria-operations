@@ -86,8 +86,8 @@ echo
 sleep 10
 
 #DELETE STACK
-pei "aws cloudformation delete-stack --stack-name tap-multicluster-stack --region ${AWS_REGION}"
-pei "aws cloudformation wait stack-delete-complete --stack-name tap-multicluster-stack --region ${AWS_REGION}"
+pei "aws cloudformation delete-stack --stack-name tap-vpc-stack --region ${AWS_REGION}"
+pei "aws cloudformation wait stack-delete-complete --stack-name tap-vpc-stack --region ${AWS_REGION}"
 echo
 
 #rm .kube/config

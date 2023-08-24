@@ -1,5 +1,20 @@
 #!/bin/bash
 
+read -p "Aria Organization (customer0): " aria_org
+
+if [[ -z ${aria_org} ]]
+then
+  aria_org=customer0
+fi
+
+# nycpivot aria_org defaults
+generated_template_stack_id=17533195724431227713
+
+if [[ ${aria_org} == "customer0" ]]
+then
+  generated_template_stack_id=13637809161061075293
+fi
+
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
@@ -22,10 +37,10 @@ tmc ekscluster delete ${cluster} --credential-name ${aws_account_credential} --r
 done
 
 echo
-intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+intervals=( 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
-sleep 60 # give 20 minutes for all clusters to be created
+sleep 60 # give 30 minutes for all clusters to be created
 done
 
 
@@ -35,24 +50,53 @@ build_rolename=${tap_build}-csi-driver-role-${AWS_REGION}
 run_eks_rolename=${tap_run_eks}-csi-driver-role-${AWS_REGION}
 #iterate_rolename=${tap_iterate}-csi-driver-role-${AWS_REGION}
 
-aws iam detach-role-policy \
-  --role-name ${view_rolename} \
-  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-  --no-cli-pager
+# aws iam detach-role-policy \
+#   --role-name ${view_rolename} \
+#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+#   --no-cli-pager
 
-aws iam detach-role-policy \
-  --role-name ${build_rolename} \
-  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-  --no-cli-pager
+# aws iam detach-role-policy \
+#   --role-name ${build_rolename} \
+#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+#   --no-cli-pager
 
-aws iam detach-role-policy \
-  --role-name ${run_eks_rolename} \
-  --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-  --no-cli-pager
+# aws iam detach-role-policy \
+#   --role-name ${run_eks_rolename} \
+#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
+#   --no-cli-pager
 
-aws iam delete-role --role-name ${view_rolename}
-aws iam delete-role --role-name ${build_rolename}
-aws iam delete-role --role-name ${run_eks_rolename}
+# aws iam delete-role --role-name ${view_rolename}
+# aws iam delete-role --role-name ${build_rolename}
+# aws iam delete-role --role-name ${run_eks_rolename}
+
+#DELETE ELBs (some of these might not exist, that's fine - ignore errors)
+classic_lb1=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[0].LoadBalancerName)
+classic_lb2=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[1].LoadBalancerName)
+classic_lb3=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[2].LoadBalancerName)
+network_lb1=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[0].LoadBalancerArn)
+network_lb2=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[1].LoadBalancerArn)
+network_lb3=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[2].LoadBalancerArn)
+
+pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb1}"
+echo
+
+pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb2}"
+echo
+
+pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb3}"
+echo
+
+pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb1}"
+echo
+
+pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb2}"
+echo
+
+pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb3}"
+echo
+
+sleep 10
+
 
 # DELETE AWS VPC STACK
 tanzu_stack_name=tanzu-vpc-stack
@@ -74,7 +118,6 @@ fi
 
 
 # DELETE THE CF STACK THAT CREATES THE ROLES FOR THE TMC CREDENTIAL
-generated_template_stack_id=13637809161061075293
 full_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
 
 echo

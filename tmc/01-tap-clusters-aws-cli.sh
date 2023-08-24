@@ -204,6 +204,9 @@ cat <<EOF | tee ${cluster_nodepool}.json
   },
   "spec": {
     "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/worker.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
+    "instanceTypes": [
+      "t3.2xlarge"
+    ],
     "subnetIds": [
       "${subnet1}",
       "${subnet2}",
