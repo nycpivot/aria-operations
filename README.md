@@ -14,7 +14,7 @@ This repository was built for running two TAP Run clusters, one for a .NET Core 
 
 The following diagram illustrates the full architecture of the system.
 
-(https://github.com/nycpivot/aria-operations/tree/v1.6.1/refs/aria-tanzu.png)
+![Aria-Tanzu Architecture](https://github.com/nycpivot/aria-operations/tree/v1.6.1/refs/aria-tanzu.png)
 
 ## Getting Started
 

@@ -4,11 +4,16 @@
 # read -p "AWS Access Key: " aws_access_key
 # read -p "AWS Secret Access Key: " aws_secret_access_key
 read -p "AWS Default Region (us-east-1): " aws_region_code
-read -p "Aria Organization: " aria_org
+read -p "Aria Organization (customer0): " aria_org
 
-if [[ -z $aws_region_code ]]
+if [[ -z ${aws_region_code} ]]
 then
     aws_region_code=us-east-1
+fi
+
+if [[ -z ${aria_org} ]]
+then
+  aria_org=customer0
 fi
 
 # aws configure set aws_access_key_id $aws_access_key
@@ -109,7 +114,7 @@ wget https://tanzustorage.blob.core.windows.net/tanzu/tmc -O tmc-cli
 sudo mv tmc-cli /usr/local/bin/tmc
 chmod +x /usr/local/bin/tmc
 
-tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-token\")
+tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tmc-${aria_org}-token\")
 
 #TMC_API_TOKEN=$(az keyvault secret show --name tanzu-cloud-services-token --subscription nycpivot --vault-name tanzuvault --query value --output tsv)
 export TMC_API_TOKEN=${tmc_token}
