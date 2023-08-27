@@ -102,7 +102,7 @@ helm repo add external-secrets https://charts.external-secrets.io
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/03-tanzu-prereqs-aws.sh"
+echo "***NEXT -> ~/aria-operations/operator/aws/01-tanzu-prereqs-aws.sh"
 echo
 echo "***REBOOTING***"
 echo

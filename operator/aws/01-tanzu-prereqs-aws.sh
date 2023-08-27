@@ -141,7 +141,7 @@ tanzu context create tmc-operations --endpoint ${aria_org}.tmc.cloud.vmware.com
 
 # INSTALL TANZU SERVICE MESH
 server_name=prod-2.nsxservicemesh.vmware.com
-tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-${aria_org}-token\")
+tsm_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"tsm-customer0-token\")
 
 #wget https://prod-2.nsxservicemesh.vmware.com/allspark-static/binaries/tsm-cli-linux.tgz
 wget https://tsmcli.s3.us-west-2.amazonaws.com/tsm-cli-linux.tgz
@@ -154,5 +154,5 @@ echo
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/04-tanzu-vpc-stack.sh"
+echo "***NEXT -> ~/aria-operations/operator/aws/02-tanzu-vpc-stack.sh"
 echo

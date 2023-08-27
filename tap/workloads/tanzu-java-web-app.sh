@@ -33,14 +33,13 @@ if [[ -z ${app_name} ]]; then
     app_name=tanzu-java-web-app
 fi
 
-kubectl config get-contexts
-echo
-
-read -p "Select build context: " kube_context
+tap_build=tap-build
+tap_run_eks=tap-run-eks
+tap_run_aks=tap-run-aks
 
 git_app_url=https://github.com/nycpivot/${app_name}
 
-kubectl config use-context $kube_context
+kubectl config use-context $tap_build
 echo
 
 #pe "tanzu apps workload delete --all --yes"
@@ -83,10 +82,7 @@ pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.delive
 #pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
 echo
 
-kubectl config get-contexts
-read -p "Select run context: " kube_context
-
-kubectl config use-context $kube_context
+kubectl config use-context $tap_run_eks
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"

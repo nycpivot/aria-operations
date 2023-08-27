@@ -210,5 +210,8 @@ echo
 echo "***DONE***"
 echo
 echo "1) NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-one-run.sh"
+echo
+echo "OR"
+echo
 echo "2) NEXT -> ~/aria-operations/tap/cli/supply-chain/01-eks-ootb-basic-view-two-run.sh"
 echo

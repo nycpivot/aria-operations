@@ -204,6 +204,11 @@ cat <<EOF | tee ${cluster_nodepool}.json
   },
   "spec": {
     "roleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/worker.${generated_template_stack_id}.eks.tmc.cloud.vmware.com",
+    "scalingConfig": {
+      "desiredSize": 2,
+      "maxSize": 2,
+      "minSize: 2
+    },
     "instanceTypes": [
       "t3.2xlarge"
     ],
@@ -273,5 +278,5 @@ done
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tap/cli/01-tap-aws-prereqs.sh"
+echo "***NEXT -> ~/aria-operations/tmc/attach/01-tap-clusters-azure-create-and-attach-cli.sh"
 echo

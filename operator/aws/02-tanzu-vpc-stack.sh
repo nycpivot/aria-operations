@@ -69,5 +69,5 @@ EOF
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tmc/01-tap-clusters-aws-cli.sh"
+echo "***NEXT -> ~/aria-operations/tmc/create/01-tap-clusters-aws-cli.sh"
 echo

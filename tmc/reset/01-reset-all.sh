@@ -44,58 +44,33 @@ sleep 60 # give 30 minutes for all clusters to be created
 done
 
 
-# DELETE IAM CSI DRIVER ROLES
-view_rolename=${tap_view}-csi-driver-role-${AWS_REGION}
-build_rolename=${tap_build}-csi-driver-role-${AWS_REGION}
-run_eks_rolename=${tap_run_eks}-csi-driver-role-${AWS_REGION}
-#iterate_rolename=${tap_iterate}-csi-driver-role-${AWS_REGION}
-
-# aws iam detach-role-policy \
-#   --role-name ${view_rolename} \
-#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-#   --no-cli-pager
-
-# aws iam detach-role-policy \
-#   --role-name ${build_rolename} \
-#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-#   --no-cli-pager
-
-# aws iam detach-role-policy \
-#   --role-name ${run_eks_rolename} \
-#   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-#   --no-cli-pager
-
-# aws iam delete-role --role-name ${view_rolename}
-# aws iam delete-role --role-name ${build_rolename}
-# aws iam delete-role --role-name ${run_eks_rolename}
-
 #DELETE ELBs (some of these might not exist, that's fine - ignore errors)
-classic_lb1=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[0].LoadBalancerName)
-classic_lb2=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[1].LoadBalancerName)
-classic_lb3=$(aws elb describe-load-balancers | jq -r .LoadBalancerDescriptions[2].LoadBalancerName)
-network_lb1=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[0].LoadBalancerArn)
-network_lb2=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[1].LoadBalancerArn)
-network_lb3=$(aws elbv2 describe-load-balancers | jq -r .LoadBalancers[2].LoadBalancerArn)
+tanzu_vpc_stack_name=tanzu-vpc-stack
 
-pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb1}"
+vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='${tanzu_vpc_stack_name}-VPC']].VpcId" --output text)
+
+classic_lbs=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='${vpc_id}'].LoadBalancerName")
+network_lbs=$(aws elbv2 describe-load-balancers --query "LoadBalancers[?VpcId=='${vpc_id}'].LoadBalancerArn")
+
+echo $classic_lbs | jq -c -r '.[]' | while read elb; do
+  aws elb delete-load-balancer --load-balancer-name ${elb}
+done
+
+echo $network_lbs | jq -c -r '.[]' | while read nlb; do
+  aws elbv2 delete-load-balancer --load-balancer-arn ${nlb}
+done
+
 echo
+intervals=( 10 9 8 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "${interval} minutes remaining..."
+sleep 60 # give 30 minutes for all clusters to be created
+done
 
-pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb2}"
-echo
+igw_id=$(aws ec2 describe-internet-gateways --query "InternetGateways[].{ InternetGatewayId: InternetGatewayId, VpcId: Attachments[0].VpcId } | [?VpcId == '$vpc_id'].[InternetGatewayId][0][0]" --output text)
 
-pei "aws elb delete-load-balancer --load-balancer-name ${classic_lb3}"
-echo
-
-pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb1}"
-echo
-
-pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb2}"
-echo
-
-pei "aws elbv2 delete-load-balancer --load-balancer-arn ${network_lb3}"
-echo
-
-sleep 10
+aws ec2 detach-internet-gateway --internet-gateway-id ${igw_id} --vpc-id ${vpc_id}
+aws ec2 delete-internet-gateway --internet-gateway-id ${igw_id}
 
 
 # DELETE AWS VPC STACK
@@ -126,6 +101,28 @@ echo
 
 aws cloudformation delete-stack --stack-name ${full_stack_name} --region ${AWS_REGION}
 aws cloudformation wait stack-delete-complete --stack-name ${full_stack_name} --region ${AWS_REGION}
+
+
+# DELETE AKS CLUSTER
+tap_run_aks=tap-run-aks
+subscription_id=$(az account show --query id --output tsv)
+
+tanzu mission-control cluster delete ${tap_run_aks} --management-cluster-name attached --provisioner-name attached
+
+echo
+intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "${interval} minutes remaining..."
+sleep 60 # give 30 minutes for all clusters to be created
+done
+
+az aks delete --name ${tap_run_aks} --resource-group aria-operations --yes
+
+kubectl config delete-cluster ${tap_run_aks}
+kubectl config delete-context ${tap_run_aks}
+kubectl config delete-user clusterUser_aria-operations_${tap_run_aks}
+
+az group delete --name aria-operations --yes
 
 
 # DELETE CLUSTER GROUP

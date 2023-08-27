@@ -36,11 +36,13 @@ If successful, the script will out the DNS name of the new jumpbox. Copy and pas
 
     git clone https://github.com/nycpivot/aria-operations -b v1.6.1
 
-    * [02-tanzu-operator-prereqs.sh](02-tanzu-operator-prereqs.sh), this script installs all the prerequisites necessary for the workshop. You will need your AWS Access Key and Secret.
+    [02-tanzu-operator-prereqs.sh](02-tanzu-operator-prereqs.sh)
 
 On the jumpbox, it is recommended to run these from the directory above the cloned repository, as some scripts might include relative path references.
 
-    bash aria-operations/02-operator-prereqs.sh
+    bash ~/aria-operations/02-operator-prereqs.sh
+
+This script installs all the prerequisites necessary for the workshop. You will need your AWS Access Key and Secret.
 
 ## Prerequisites
 
@@ -56,17 +58,18 @@ All subsequent scripts retrieve secrets from AWS Secrets Manager. Or, you can ed
 * weather-bit-api-key, the key to use for an external weather API service (optional).
 * github-token, GitOps only.
 
+The next script will download and install tanzu CLI, plugins, and download the tanzu-cluster-essentials package. It will also login to the tmc CLI, as well as the tanzu mission-control CLI as the tmc CLI is being deprecated.
 
-03-tanzu-prereqs-aws.sh
-04-tanzu-vpc-stack.sh
+    ~/aria-operations/operator/aws/01-tanzu-prereqs-aws.sh
 
-Follow the steps here to provision clusters in TMC.
-Follow the steps here to install and configure the TAP clusters.
+The following script will create a VPC for hosting our clusters.
 
-Now we are ready to provision our TAP clusters with TMC.
+    ~/aria-operations/operator/aws/02-tanzu-vpc-stack.sh
 
-aria-operations/tmc/01-tap-clusters-aws-cli.sh
-aria-operations/tmc/03-tap-clusters-azure-create-and-attach-cli.sh # creates the AKS cluster to attach
+Follow the steps [here](tmc) to provision clusters in TMC.
+
+Follow the steps [here](tap) to configure the TAP clusters.
+
 
 TAP
 aria-operations/tap/cli/multi-tmc/01-tap-multi-aws-tmc-prereqs.sh

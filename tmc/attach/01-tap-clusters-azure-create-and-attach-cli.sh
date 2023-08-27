@@ -18,7 +18,7 @@ tmc_cluster_group=tmc-operations
 az group create --name ${group} --location ${aks_region_code}
 
 az aks create --name ${tap_run_aks} --resource-group ${group} \
-    --node-count 2 --node-vm-size Standard_B4ms --kubernetes-version 1.25.6 \
+    --node-count 2 --node-vm-size Standard_B8ms --kubernetes-version 1.25.6 \
     --enable-managed-identity --enable-addons monitoring --enable-msi-auth-for-monitoring --generate-ssh-keys 
 
 az aks get-credentials --name ${tap_run_aks} --resource-group ${group}
@@ -49,3 +49,9 @@ for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60 # give 20 minutes for all clusters to be created
 done
+
+echo
+echo "***DONE***"
+echo
+echo "***NEXT -> ~/aria-operations/tap/cli/mullti-tmc/01-tap-multi-aws-prereqs.sh"
+echo

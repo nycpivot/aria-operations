@@ -86,5 +86,5 @@ tanzu package repository get tanzu-tap-repository --namespace tap-install
 echo
 echo "***DONE***"
 echo
-echo "NEXT -> ~/aria-operations/tap/cli/supply-chain/04-ootb-basic-run-aks.sh"
+echo "***NEXT -> ~/aria-operations/tap/cli/supply-chain/04-ootb-basic-run-aks.sh"
 echo
