@@ -42,25 +42,11 @@ fi
 
 AWS_REGION=$(aws configure get region)
 
-kubectl config get-contexts
-echo
+tap_build=tap-build
+tap_run_aks=tap-run-aks
+run_aks=run-aks
 
-read -p "Select build context (Press Enter for current context): " kube_context
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
+kubectl config use-context ${tap_build}
 
 pe "tanzu apps workload list"
 echo
@@ -91,13 +77,7 @@ pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.delive
 #pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
 echo
 
-kubectl config get-contexts
-echo
-
-read -p "Select run context: " kube_context
-echo
-
-kubectl config use-context ${kube_context}
+kubectl config use-context ${tap_run_aks}
 echo
 
 pe "helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace"
@@ -141,7 +121,7 @@ spec:
             key: secret-access-key
 EOF
 
-pe "kubectl apply -f ${eso_secret_store}"
+pe "kubectl apply -f ${eso_secret_store}.yaml"
 echo
 
 # CREATE THE ESO OPERATOR
@@ -194,5 +174,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo https://${app_name}.default.${run_aks}.tap.nycpivot.com
 echo
