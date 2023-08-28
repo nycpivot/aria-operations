@@ -47,6 +47,7 @@ tap_run_aks=tap-run-aks
 run_aks=run-aks
 
 kubectl config use-context ${tap_build}
+echo
 
 pe "tanzu apps workload list"
 echo

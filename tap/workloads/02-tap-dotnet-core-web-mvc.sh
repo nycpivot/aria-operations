@@ -46,6 +46,7 @@ run_eks=run-eks
 run_aks=run-aks
 
 kubectl config use-context ${tap_build}
+echo
 
 workload_item=$(tanzu apps workload get ${app_name})
 if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc\" not found" ]]
@@ -61,7 +62,14 @@ fi
 pe "tanzu apps workload list"
 echo
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_aks}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
+
+
+# this is a little weird because we're creating an app that shows how to pass in secrets via...
+# 1) environment variables
+# 2) resource claim
+# we would not normally do both
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name}
+--env WEATHER_API=${weather_api} --env WAVEFRONT_URL=${wavefront_prod_url} --env WAVEFRONT_TOKEN=${wavefront_prod_token} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
 
 pe "clear"
 
