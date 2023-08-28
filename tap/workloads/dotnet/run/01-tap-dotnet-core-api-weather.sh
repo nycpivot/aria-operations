@@ -48,6 +48,9 @@ tap_run_aks_domain=run-aks
 pe "kubectl config use-context ${tap_build}"
 echo
 
+echo "Press Ctrl+C when the workload has finished building and is ready..."
+echo
+
 pe "kubectl get workloads -w"
 echo
 
@@ -66,7 +69,7 @@ echo
 pe "kubectl config use-context ${tap_run_aks}"
 echo
 
-kubectl delete deliverable ${app_name}-deliverable
+kubectl delete -f ${app_name}-deliverable.yaml
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"

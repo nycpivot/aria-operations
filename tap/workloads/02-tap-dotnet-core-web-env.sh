@@ -53,7 +53,7 @@ then
   workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
   if [[ ${workload_name} = ${app_name} ]]
   then
-    tanzu apps workload delete ${app_name}
+    tanzu apps workload delete ${app_name} --yes
     echo
   fi
 fi

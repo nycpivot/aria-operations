@@ -45,6 +45,9 @@ tap_build=tap-build
 pe "kubectl config use-context ${tap_build}"
 echo
 
+pe "tanzu apps workload list"
+echo
+
 workload_item=$(tanzu apps workload get ${app_name})
 if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-claim\" not found" ]]
 then
@@ -55,9 +58,6 @@ then
     echo
   fi
 fi
-
-pe "tanzu apps workload list"
-echo
 
 api_weather_claim=api-weather-claim
 service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim}
