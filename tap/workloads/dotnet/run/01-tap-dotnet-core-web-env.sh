@@ -34,17 +34,12 @@ then
   app_name=tap-dotnet-core-web-mvc-env
 fi
 
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
+tap_build=tap-build
+tap_run_eks=tap-run-eks
+run_eks=run-eks
 
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
-pe "kubectl config use-context tap-build"
+pe "kubectl config use-context ${tap_build}"
 echo
 
 pe "kubectl get workloads -w"
@@ -62,13 +57,7 @@ pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.delive
 echo
 
 #SWITCH TO RUN CLUSTER
-kubectl config get-contexts
-echo
-
-read -p "Select run context: " kube_context
-echo
-
-kubectl config use-context ${kube_context}
+kubectl config use-context ${tap_run_eks}
 echo
 
 kubectl delete deliverable ${app_name}-deliverable
@@ -83,5 +72,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo https://${app_name}.default.${run_eks}.tap.nycpivot.com
 echo

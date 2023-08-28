@@ -40,26 +40,10 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-kubectl config get-contexts
-echo
+tap_build=tap-build
+run_eks=run-eks
 
-read -p "Select build context (Press Enter for current context): " kube_context
-echo
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
+kubectl config use-context ${tap_build}
 
 workload_item=$(tanzu apps workload get ${app_name})
 if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-env\" not found" ]]
@@ -75,7 +59,7 @@ fi
 pe "tanzu apps workload list"
 echo
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${run_eks}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
 
 pe "clear"
 
@@ -88,5 +72,5 @@ echo
 pe "tanzu apps workload get ${app_name}"
 echo
 
-echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/tap-build/default/${app_name}"
+echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${app_name}"
 echo

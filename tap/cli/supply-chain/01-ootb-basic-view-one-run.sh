@@ -209,11 +209,6 @@ tap_gui:
     customize:
       #custom_logo: ""
       custom_name: "The James Portal"
-      banners:
-        text: "The James Portal"
-        color: "white"
-        bg: "black"
-        link: https://youtube.com
     auth:
       allowGuestAccess: true
     catalog:
