@@ -63,36 +63,5 @@ echo
 pe "tanzu apps workload get ${app_name}"
 echo
 
-pe "kubectl get configmaps"
-echo
-
-pe "rm ${app_name}-deliverable.yaml"
-echo
-
-pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
-#pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
-echo
-
-kubectl config get-contexts
-echo
-
-read -p "Select run context: " kube_context
-echo
-
-kubectl config use-context ${tap_run_aks}
-echo
-
-kubectl delete deliverable tap-dotnet-core-api-weather
-echo
-
-pe "kubectl apply -f ${app_name}-deliverable.yaml"
-echo
-
-pe "kubectl get deliverables"
-echo
-
-#pe "kubectl get httpproxy"
-#echo
-
-echo https://${app_name}.default.${tap_run_aks_domain}.tap.nycpivot.com
+echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${app_name}"
 echo
