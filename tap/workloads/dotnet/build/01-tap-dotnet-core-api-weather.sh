@@ -40,25 +40,12 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-kubectl config get-contexts
+tap_build=tap-build
+tap_run_aks=tap-run-aks
+tap_run_aks_domain=run-aks
+
+pe "kubectl config use-context ${tap_build}"
 echo
-
-read -p "Select build context (Press Enter for current context): " kube_context
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
 
 pe "tanzu apps workload list"
 echo
@@ -92,7 +79,7 @@ echo
 read -p "Select run context: " kube_context
 echo
 
-kubectl config use-context ${kube_context}
+kubectl config use-context ${tap_run_aks}
 echo
 
 kubectl delete deliverable tap-dotnet-core-api-weather
@@ -107,5 +94,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo https://${app_name}.default.${tap_run_aks_domain}.tap.nycpivot.com
 echo

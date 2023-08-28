@@ -57,7 +57,7 @@ pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.delive
 echo
 
 #SWITCH TO RUN CLUSTER
-kubectl config use-context ${tap_run_eks}
+pe "kubectl config use-context ${tap_run_eks}"
 echo
 
 kubectl delete deliverable ${app_name}-deliverable

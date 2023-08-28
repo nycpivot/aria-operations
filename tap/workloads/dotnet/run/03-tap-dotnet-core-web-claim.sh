@@ -34,17 +34,13 @@ then
   app_name=tap-dotnet-core-web-mvc-claim
 fi
 
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
+tap_build=tap-build
+tap_run_eks=tap-run-eks
+tap_run_eks_domain=run-eks
+tap_run_aks_domain=run-aks
 
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
-pe "kubectl config use-context tap-build"
+pe "kubectl config use-context ${tap_build}"
 echo
 
 pe "kubectl get workloads -w"
@@ -62,17 +58,10 @@ pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.delive
 echo
 
 #SWITCH TO RUN CLUSTER
+pe "kubectl config use-context ${tap_run_eks}"
+echo
 
 api_weather_claim=api-weather-claim
-
-kubectl config get-contexts
-echo
-
-read -p "Select run context: " kube_context
-echo
-
-kubectl config use-context ${kube_context}
-echo
 
 api_weather_secret=api-weather-secret
 if test -f "${api_weather_secret}.yaml"; then
@@ -87,7 +76,7 @@ metadata:
   name: ${api_weather_secret}
 type: Opaque
 stringData:
-  host: https://tap-dotnet-core-api-weather.default.${run_cluster}.tap.nycpivot.com
+  host: https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
 EOF
 echo
 
@@ -144,5 +133,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo https://${app_name}.default.${tap_run_eks_domain}.tap.nycpivot.com
 echo

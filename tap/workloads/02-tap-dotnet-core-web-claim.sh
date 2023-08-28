@@ -42,8 +42,8 @@ fi
 
 tap_build=tap-build
 tap_run_eks=tap-run-eks
-run_eks=run-eks
-run_aks=run-aks
+tap_run_eks_domain=run-eks
+tap_run_aks_domain=run-aks
 
 kubectl config use-context ${tap_build}
 echo
@@ -107,7 +107,7 @@ metadata:
   name: ${api_weather_host_direct_secret}
 type: Opaque
 stringData:
-  host: https://tap-dotnet-core-api-weather.default.${run_aks}.tap.nycpivot.com
+  host: https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
 EOF
 echo
 
@@ -161,5 +161,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_eks}.tap.nycpivot.com
+echo https://${app_name}.default.${tap_run_eks_domain}.tap.nycpivot.com
 echo

@@ -40,26 +40,10 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-kubectl config get-contexts
+tap_build=tap-build
+
+pe "kubectl config use-context ${tap_build}"
 echo
-
-read -p "Select build context (Press Enter for current context): " kube_context
-echo
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
 
 workload_item=$(tanzu apps workload get ${app_name})
 if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-claim\" not found" ]]
@@ -91,5 +75,5 @@ echo
 pe "tanzu apps workload get ${app_name}"
 echo
 
-echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/tap-build/default/${app_name}"
+echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${app_name}"
 echo

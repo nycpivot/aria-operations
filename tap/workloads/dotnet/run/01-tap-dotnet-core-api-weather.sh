@@ -40,72 +40,43 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-kubectl config get-contexts
+tap_build=tap-build
+tap_run_aks=tap-run-aks
+tap_run_aks_domain=run-aks
+
+#REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
+pe "kubectl config use-context ${tap_build}"
 echo
 
-read -p "Select build context (Press Enter for current context): " kube_context
-
-if [[ -n ${kube_context} ]]
-then
-  kubectl config use-context ${kube_context}
-  echo
-fi
-
-run_cluster=run-eks
-if [[ ${kube_context} = "tap-run-eks" ]]
-then
-  run_cluster=run-eks
-elif [[ ${kube_context} = "tap-run-aks" ]]
-then
-  run_cluster=run-aks
-fi
-
-pe "tanzu apps workload list"
-echo
-
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
-
-pe "clear"
-
-pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
-echo
-
-pe "tanzu apps workload list"
-echo
-
-pe "tanzu apps workload get ${app_name}"
+pe "kubectl get workloads -w"
 echo
 
 pe "kubectl get configmaps"
 echo
 
-pe "rm ${app_name}-deliverable.yaml"
-echo
+if test -f "${app_name}-deliverable.yaml"; then
+  rm ${app_name}-deliverable.yaml
+  echo
+fi
 
 pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
-#pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
 echo
 
-kubectl config get-contexts
+#SWITCH TO RUN CLUSTER
+pe "kubectl config use-context ${tap_run_aks}"
 echo
 
-read -p "Select run context: " kube_context
-echo
-
-kubectl config use-context ${kube_context}
-echo
-
-kubectl delete deliverable tap-dotnet-core-api-weather
+kubectl delete deliverable ${app_name}-deliverable
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
 echo
 
-pe "kubectl get deliverables"
+pe "kubectl get deliverables -w"
 echo
 
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_cluster}.tap.nycpivot.com
+echo https://${app_name}.default.${run_aks}.tap.nycpivot.com
 echo
