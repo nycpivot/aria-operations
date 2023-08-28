@@ -61,7 +61,7 @@ then
   fi
 fi
 
-weather_api=https://tap-dotnet-core-api-weather.default.${run_aks}.tap.nycpivot.com
+weather_api=https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
