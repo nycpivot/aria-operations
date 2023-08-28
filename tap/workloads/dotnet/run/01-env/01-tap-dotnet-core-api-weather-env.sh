@@ -40,41 +40,49 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-app_branch=tap-dotnet-core-web-mvc-env
-
 tap_build=tap-build
 tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
 
+#REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
 pe "kubectl config use-context ${tap_build}"
 echo
 
-pe "tanzu apps workload list"
+echo "Press Ctrl+C on the next command when the workload has finished building and is ready..."
 echo
 
-workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-api-weather-env\" not found" ]]
-then
-  workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
-  if [[ ${workload_name} = ${app_name} ]]
-  then
-    tanzu apps workload delete ${app_name} --yes
-    echo
-  fi
+pe "kubectl get workloads -w"
+echo
+
+pe "kubectl get configmaps | grep ${api_name}"
+echo
+
+if test -f "${app_name}-deliverable.yaml"; then
+  rm ${app_name}-deliverable.yaml
+  echo
 fi
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_branch} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
-
-pe "clear"
-
-pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
 echo
 
-pe "tanzu apps workload list"
+#SWITCH TO RUN CLUSTER
+pe "kubectl config use-context ${tap_run_aks}"
 echo
 
-pe "tanzu apps workload get ${app_name}"
+kubectl delete -f ${app_name}-deliverable.yaml
 echo
 
-echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${app_name}"
+pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
+
+echo "Press Ctrl+C on the next command when the deliverable is ready..."
+echo
+
+pe "kubectl get deliverables -w"
+echo
+
+#pe "kubectl get httpproxy"
+#echo
+
+echo https://${app_name}.default.${tap_run_aks_domain}.tap.nycpivot.com
 echo
