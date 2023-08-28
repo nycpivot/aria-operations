@@ -42,13 +42,13 @@ run_eks=run-eks
 pe "kubectl config use-context ${tap_build}"
 echo
 
-echo "Press Ctrl+C when the workload has finished building and is ready..."
+echo "Press Ctrl+C on the next command when the workload has finished building and is ready..."
 echo
 
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps | grep tap-dotnet-core-web-mvc-env"
+pe "kubectl get configmaps | grep ${api_name}"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
@@ -67,6 +67,9 @@ kubectl delete -f ${app_name}-deliverable.yaml
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
+
+echo "Press Ctrl+C on the next command when the deliverable is ready..."
 echo
 
 pe "kubectl get deliverables -w"

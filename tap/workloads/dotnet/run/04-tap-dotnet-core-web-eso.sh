@@ -43,7 +43,7 @@ tap_run_aks_domain=run-aks
 pe "kubectl config use-context ${tap_build}"
 echo
 
-echo "Press Ctrl+C when the workload has finished building and is ready..."
+echo "Press Ctrl+C on the next command when the workload has finished building and is ready..."
 echo
 
 pe "kubectl get workloads -w"
@@ -69,7 +69,7 @@ api_weather_claim=api-weather-claim
 
 api_weather_secret=api-weather-secret
 if test -f "${api_weather_secret}.yaml"; then
-  kubectl delete -f ${api_weather_secret}
+  kubectl delete -f ${api_weather_secret}.yaml
   rm ${api_weather_secret}.yaml
 fi
 
@@ -90,7 +90,7 @@ echo
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
 stk_secret_reader=stk-secret-reader
 if test -f "${stk_secret_reader}.yaml"; then
-  kubectl delete -f ${stk_secret_reader}
+  kubectl delete -f ${stk_secret_reader}.yaml
   rm ${stk_secret_reader}.yaml
 fi
 
@@ -129,6 +129,9 @@ kubectl delete -f ${app_name}-deliverable.yaml
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
+
+echo "Press Ctrl+C on the next command when the deliverable is ready..."
 echo
 
 pe "kubectl get deliverables -w"
