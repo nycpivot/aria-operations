@@ -45,7 +45,7 @@ echo
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps"
+pe "kubectl get configmaps | grep tap-dotnet-core-web-mvc-env"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then

@@ -42,6 +42,7 @@ fi
 
 tap_build=tap-build
 tap_run_eks_domain=run-eks
+tap_run_aks_domain=run-aks
 
 pe "kubectl config use-context ${tap_build}"
 echo
@@ -60,7 +61,7 @@ fi
 pe "tanzu apps workload list"
 echo
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${tap_run_eks_domain}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
 
 pe "clear"
 

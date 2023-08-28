@@ -51,7 +51,7 @@ echo
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps"
+pe "kubectl get configmaps | grep tap-dotnet-core-api-weather"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
@@ -78,5 +78,5 @@ echo
 #pe "kubectl get httpproxy"
 #echo
 
-echo https://${app_name}.default.${run_aks}.tap.nycpivot.com
+echo https://${app_name}.default.${tap_run_aks_domain}.tap.nycpivot.com
 echo
