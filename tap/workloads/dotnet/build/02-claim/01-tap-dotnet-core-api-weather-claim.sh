@@ -26,13 +26,13 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-web-mvc-env): " app_name
+read -p "App Name (tap-dotnet-core-api-weather): " app_name
 read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-web-mvc-env
+  app_name=tap-dotnet-core-api-weather-claim
 fi
 
 if [[ -z ${git_app_url} ]]
@@ -40,8 +40,10 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
+app_branch=tap-dotnet-core-web-mvc-claim
+
 tap_build=tap-build
-tap_run_eks_domain=run-eks
+tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
 
 pe "kubectl config use-context ${tap_build}"
@@ -51,7 +53,7 @@ pe "tanzu apps workload list"
 echo
 
 workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-env\" not found" ]]
+if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-api-weather\" not found" ]]
 then
   workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
   if [[ ${workload_name} = ${app_name} ]]
@@ -61,11 +63,7 @@ then
   fi
 fi
 
-weather_api=https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
-wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
-wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
-
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --env WEATHER_API=${weather_api} --env WAVEFRONT_URL=${wavefront_url} --env WAVEFRONT_TOKEN=${wavefront_token} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_branch} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
 
 pe "clear"
 

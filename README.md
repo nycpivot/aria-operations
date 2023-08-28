@@ -54,8 +54,8 @@ All subsequent scripts retrieve secrets from AWS Secrets Manager. Or, you can ed
 * tmc-[org-name]-token, the org-name in Aria Cloud Services for which the token applies.
 * tsm-[org-name]-token, the org-name in Aria Cloud Services for which the token applies.
 * registry-secret, any container registry that requires a username and password/secret to login.
-* weather-bit-api-host, the url of the backend API for the frontend MVC app. You'll want to change the domain to match the domain of your EKS run cluster. For example, https://tap-dotnet-core-api-weather.default.run-eks.tap.nycpivot.com.
-* weather-bit-api-key, the key to use for an external weather API service (optional).
+* weather-bit-api-host (optional), the url of an external weather API service used by our ASP.NET WebAPI backend.
+* weather-bit-api-key (optional), the key to use for an external weather API service.
 * github-token, GitOps only.
 
 The next script will download and install tanzu CLI, plugins, and download the tanzu-cluster-essentials package. It will also login to the tmc CLI, as well as the tanzu mission-control CLI as the tmc CLI is being deprecated.
