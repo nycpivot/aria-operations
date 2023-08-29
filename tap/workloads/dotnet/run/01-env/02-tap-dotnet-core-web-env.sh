@@ -48,7 +48,7 @@ echo
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps | grep ${api_name}"
+pe "kubectl get configmaps | grep ${app_name}"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
