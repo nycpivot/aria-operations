@@ -27,17 +27,11 @@ clear
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
 read -p "App Name (tap-dotnet-core-api-weather-env): " app_name
-read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
 echo
 
 if [[ -z ${app_name} ]]
 then
   app_name=tap-dotnet-core-api-weather-env
-fi
-
-if [[ -z ${git_app_url} ]]
-then
-  git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
 tap_build=tap-build
