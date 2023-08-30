@@ -34,6 +34,7 @@ then
   app_name=tap-dotnet-core-api-weather
 fi
 
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
 tap_build=tap-build
@@ -75,8 +76,28 @@ echo -n $AWS_ACCESS_KEY_ID > .aws/access-key
 echo -n $AWS_SECRET_ACCESS_KEY > .aws/secret-access-key
 echo -n $AWS_SESSION_TOKEN > .aws/session-token
 
+if test -f "service-account.yaml"; then
+  rm service-account.yaml
+fi
+
+cat <<EOF | tee service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/PowerUser
+  name: secret-store-sa
+  namespace: default
+EOF
+
+kubectl apply -f service-account.yaml
+
+
 # CREATE A K8S SECRET THAT WILL GIVE THE ESO OPERATOR ACCESS TO AWS SECRETS MANAGER
 aws_secrets_manager_secret=aws-secrets-manager-secret
+
+kubectl delete secret ${aws_secrets_manager_secret}
+
 pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key --from-file=.aws/session-token"
 echo
 
@@ -98,13 +119,16 @@ spec:
       service: SecretsManager
       region: ${AWS_REGION}
       auth:
-        secretRef:
-          accessKeyIDSecretRef:
-            name: ${aws_secrets_manager_secret}
-            key: access-key
-          secretAccessKeySecretRef:
-            name: ${aws_secrets_manager_secret}
-            key: secret-access-key
+        jwt:
+          serviceAccountRef:
+           name: secret-store-sa
+        # secretRef:
+        #   accessKeyIDSecretRef:
+        #     name: ${aws_secrets_manager_secret}
+        #     key: access-key
+        #   secretAccessKeySecretRef:
+        #     name: ${aws_secrets_manager_secret}
+        #     key: secret-access-key
 EOF
 
 pe "kubectl apply -f ${eso_secret_store}.yaml"
