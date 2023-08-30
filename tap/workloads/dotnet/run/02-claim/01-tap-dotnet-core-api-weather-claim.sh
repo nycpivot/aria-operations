@@ -26,18 +26,12 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-api-weather): " app_name
-read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
+read -p "App Name (tap-dotnet-core-api-weather-claim): " app_name
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-api-weather
-fi
-
-if [[ -z ${git_app_url} ]]
-then
-  git_app_url=https://github.com/nycpivot/tap-dotnet-core
+  app_name=tap-dotnet-core-api-weather-claim
 fi
 
 tap_build=tap-build
@@ -54,7 +48,7 @@ echo
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps | grep ${api_name}"
+pe "kubectl get configmaps | grep ${app_name}"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then

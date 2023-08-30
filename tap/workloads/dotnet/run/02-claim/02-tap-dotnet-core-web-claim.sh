@@ -67,7 +67,7 @@ echo
 api_weather_claim=api-weather-claim
 api_wavefront_claim=api-wavefront-claim
 
-weather_api=https://tap-dotnet-core-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
+weather_api=https://tap-dotnet-core-api-weather-claim.default.${tap_run_aks_domain}.tap.nycpivot.com
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
@@ -106,7 +106,7 @@ metadata:
 type: Opaque
 stringData:
   host: ${wavefront_url}
-  password: ${wavefront_token}
+  token: ${wavefront_token}
 EOF
 echo
 
