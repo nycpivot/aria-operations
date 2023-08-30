@@ -61,7 +61,6 @@ then
   fi
 fi
 
-
 api_weather_bit_claim=api-weather-bit-claim
 
 weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim}

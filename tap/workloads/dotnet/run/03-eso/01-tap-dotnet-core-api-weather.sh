@@ -34,6 +34,8 @@ then
   app_name=tap-dotnet-core-api-weather
 fi
 
+AWS_REGION=$(aws configure get region)
+
 tap_build=tap-build
 tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
@@ -48,7 +50,7 @@ echo
 pe "kubectl get workloads -w"
 echo
 
-pe "kubectl get configmaps | grep ${api_name}"
+pe "kubectl get configmaps | grep ${app_name}"
 echo
 
 if test -f "${app_name}-deliverable.yaml"; then
@@ -66,15 +68,16 @@ echo
 pe "helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace"
 echo
 
-KEY_ID=$(aws configure get aws_access_key_id)
-SECRET_KEY=$(aws configure get aws_secret_access_key)
+# KEY_ID=$(aws configure get aws_access_key_id)
+# SECRET_KEY=$(aws configure get aws_secret_access_key)
 
-echo -n $KEY_ID > .aws/access-key
-echo -n $SECRET_KEY > .aws/secret-access-key
+echo -n $AWS_ACCESS_KEY_ID > .aws/access-key
+echo -n $AWS_SECRET_ACCESS_KEY > .aws/secret-access-key
+echo -n $AWS_SESSION_TOKEN > .aws/session-token
 
 # CREATE A K8S SECRET THAT WILL GIVE THE ESO OPERATOR ACCESS TO AWS SECRETS MANAGER
 aws_secrets_manager_secret=aws-secrets-manager-secret
-pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key"
+pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key --from-file=.aws/session-token"
 echo
 
 # CREATE AN ESO SECRET STORE BASED ON THE AWS SECRET CREDS
