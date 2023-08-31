@@ -68,7 +68,7 @@ echo
 pe "kubectl config use-context ${tap_run_aks}"
 echo
 
-api_wavefront_claim=api-wavefront-claim
+pe "clear"
 
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
@@ -94,6 +94,8 @@ echo
 
 pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml"
 echo
+
+pe "clear"
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
 stk_secret_reader_claim_aks=stk-secret-reader-claim-aks
@@ -124,11 +126,10 @@ echo
 pe "kubectl apply -f ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml"
 echo
 
-kubectl delete resourceclaim ${api_weather_claim} --ignore-not-found
-#tanzu service resource-claim delete ${api_wavefront_claim} --yes
-echo
+api_wavefront_claim_claim_aks=api-wavefront-claim-claim-aks
+kubectl delete resourceclaim ${api_wavefront_claim_claim_aks} --ignore-not-found
 
-pe "tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret_claim} --resource-kind Secret --resource-api-version v1"
+pe "tanzu service resource-claim create ${api_wavefront_claim_claim_aks} --resource-name ${api_wavefront_secret_claim_aks} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"

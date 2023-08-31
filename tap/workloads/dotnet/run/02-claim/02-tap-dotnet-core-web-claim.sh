@@ -69,45 +69,42 @@ echo
 pe "kubectl config use-context ${tap_run_eks}"
 echo
 
-api_weather_claim=api-weather-claim
-api_wavefront_claim=api-wavefront-claim
-
 weather_api=https://tap-dotnet-core-api-weather-claim.default.${tap_run_aks_domain}.tap.nycpivot.com
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
-api_weather_secret=api-weather-secret
-if test -f "${HOME}/run/claim/${api_weather_secret}.yaml"; then
-  kubectl delete -f ${HOME}/run/claim/${api_weather_secret}.yaml
-  rm ${HOME}/run/claim/${api_weather_secret}.yaml
+api_weather_secret_claim_eks=api-weather-secret-claim-eks
+if test -f "${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml"; then
+  kubectl delete -f ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml
+  rm ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml
 fi
 
-cat <<EOF | tee ${HOME}/run/claim/${api_weather_secret}.yaml
+cat <<EOF | tee ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ${api_weather_secret}
+  name: ${api_weather_secret_claim_eks}
 type: Opaque
 stringData:
   host: ${weather_api}
 EOF
 echo
 
-pe "kubectl apply -f ${HOME}/run/claim/${api_weather_secret}.yaml"
+pe "kubectl apply -f ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml"
 echo
 
 # WAVEFRONT SECRETS
-api_wavefront_secret=api-wavefront-secret
-if test -f "${HOME}/run/claim/${api_wavefront_secret}.yaml"; then
-  kubectl delete -f ${HOME}/run/claim/${api_wavefront_secret}.yaml
-  rm ${HOME}/run/claim/${api_wavefront_secret}.yaml
+api_wavefront_secret_claim_eks=api-wavefront-secret-claim-eks
+if test -f "${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml"; then
+  kubectl delete -f ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml
+  rm ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml
 fi
 
-cat <<EOF | tee ${HOME}/run/claim/${api_wavefront_secret}.yaml
+cat <<EOF | tee ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ${api_wavefront_secret}
+  name: ${api_wavefront_secret_claim_eks}
 type: Opaque
 stringData:
   host: ${wavefront_url}
@@ -115,21 +112,21 @@ stringData:
 EOF
 echo
 
-pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret}.yaml"
+pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml"
 echo
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
-stk_secret_reader=stk-secret-reader
-if test -f "${HOME}/run/claim/${stk_secret_reader}.yaml"; then
-  kubectl delete -f ${HOME}/run/claim/${stk_secret_reader}.yaml
-  rm ${HOME}/run/claim/${stk_secret_reader}.yaml
+stk_secret_reader_claim_eks=stk-secret-reader-claim-eks
+if test -f "${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml"; then
+  kubectl delete -f ${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml
+  rm ${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml
 fi
 
-cat <<EOF | tee ${HOME}/run/claim/${stk_secret_reader}.yaml
+cat <<EOF | tee ${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: stk-secret-reader
+  name: ${stk_secret_reader_claim_eks}
   labels:
     servicebinding.io/controller: "true"
 rules:
@@ -144,19 +141,22 @@ rules:
 EOF
 echo
 
-pe "kubectl apply -f ${HOME}/run/claim/${stk_secret_reader}.yaml"
+pe "kubectl apply -f ${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml"
 echo
 
-kubectl delete resourceclaim ${api_weather_claim} --ignore-not-found
-kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
+api_weather_claim_claim_eks=api-weather-claim-claim-eks
+api_wavefront_claim_claim_eks=api-wavefront-claim-claim-eks
+
+kubectl delete resourceclaim ${api_weather_claim_claim_eks} --ignore-not-found
+kubectl delete resourceclaim ${api_wavefront_claim_claim_eks} --ignore-not-found
 # tanzu service resource-claim delete ${api_weather_claim} --yes
 # tanzu service resource-claim delete ${api_wavefront_claim} --yes
 echo
 
-pe "tanzu service resource-claim create ${api_weather_claim} --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1"
+pe "tanzu service resource-claim create ${api_weather_claim_claim_eks} --resource-name ${api_weather_secret_claim_eks} --resource-kind Secret --resource-api-version v1"
 echo
 
-pe "tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1"
+pe "tanzu service resource-claim create ${api_wavefront_claim_claim_eks} --resource-name ${api_wavefront_secret_claim_eks} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"
