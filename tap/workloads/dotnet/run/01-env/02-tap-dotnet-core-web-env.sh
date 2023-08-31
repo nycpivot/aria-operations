@@ -47,6 +47,8 @@ fi
 pe "kubectl config use-context ${tap_build}"
 echo
 
+pe "clear"
+
 echo "Press Ctrl+C on the next command when the workload has finished building and is ready..."
 echo
 
