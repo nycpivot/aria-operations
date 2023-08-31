@@ -10,7 +10,7 @@ kubectl config use-context tap-run-eks
 
 kubectl delete all -l secret-type=env
 
-if [ -d "${HOME}/workloads/env"]
+if [ -d "${HOME}/run/env"]
 then
-  rm -rf ${HOME}/workloads/env
+  rm -rf ${HOME}/run/env
 fi

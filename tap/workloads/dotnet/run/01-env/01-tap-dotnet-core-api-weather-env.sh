@@ -38,9 +38,9 @@ tap_build=tap-build
 tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
 
-if [ ! -d "${HOME}/workloads/env" ]
+if [ ! -d "${HOME}/run/env" ]
 then
-  mkdir -p ${HOME}/workloads/env
+  mkdir -p ${HOME}/run/env
 fi
 
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
@@ -56,25 +56,22 @@ echo
 pe "kubectl get configmaps | grep ${app_name}"
 echo
 
-if test -f "${HOME}/workloads/env/${app_name}-deliverable.yaml"; then
-  rm ${HOME}/workloads/env/${app_name}-deliverable.yaml
+if test -f "${HOME}/run/env/${app_name}-deliverable.yaml"; then
+  rm ${HOME}/run/env/${app_name}-deliverable.yaml
   echo
 fi
 
-pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${HOME}/workloads/env/${app_name}-deliverable.yaml"
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${HOME}/run/env/${app_name}-deliverable.yaml"
 echo
 
 #SWITCH TO RUN CLUSTER
 pe "kubectl config use-context ${tap_run_aks}"
 echo
 
-kubectl delete -f ${HOME}/workloads/env/${app_name}-deliverable.yaml --ignore-not-found
+kubectl delete -f ${HOME}/run/env/${app_name}-deliverable.yaml --ignore-not-found
 echo
 
-pe "kubectl apply -f ${HOME}/workloads/env/${app_name}-deliverable.yaml"
-echo
-
-pe "kubectl label deliverable ${app_name} operations=aria secret-type=env"
+pe "kubectl apply -f ${HOME}/run/env/${app_name}-deliverable.yaml"
 echo
 
 echo "Press Ctrl+C on the next command when the deliverable is ready..."

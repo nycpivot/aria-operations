@@ -50,16 +50,7 @@ echo
 pe "tanzu apps workload list"
 echo
 
-workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-api-weather\" not found" ]]
-then
-  workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
-  if [[ ${workload_name} = ${app_name} ]]
-  then
-    tanzu apps workload delete ${app_name} --yes
-    echo
-  fi
-fi
+kubectl delete workload ${app_name} --ignore-not-found
 
 api_weather_bit_claim=api-weather-bit-claim
 

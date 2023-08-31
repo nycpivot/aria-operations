@@ -14,19 +14,19 @@ kubectl config use-context ${tap_run_eks}
 
 kubectl delete all -l operations=aria
 
-if [ -d "${HOME}/workloads/env"]
+if [ -d "${HOME}/run/env"]
 then
-  rm -rf ${HOME}/workloads/env
+  rm -rf ${HOME}/run/env
 fi
 
-if [ -d "${HOME}/workloads/claim"]
+if [ -d "${HOME}/run/claim"]
 then
-  rm -rf ${HOME}/workloads/claim
+  rm -rf ${HOME}/run/claim
 fi
 
-if [ -d "${HOME}/workloads/eso"]
+if [ -d "${HOME}/run/eso"]
 then
-  rm -rf ${HOME}/workloads/eso
+  rm -rf ${HOME}/run/eso
 fi
 
 

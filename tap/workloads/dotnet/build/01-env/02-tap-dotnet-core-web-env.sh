@@ -50,16 +50,7 @@ echo
 pe "tanzu apps workload list"
 echo
 
-workload_item=$(tanzu apps workload get ${app_name})
-if [[ ${workload_item} != "Workload \"default/tap-dotnet-core-web-mvc-env\" not found" ]]
-then
-  workload_name=$(tanzu apps workload get ${app_name} -oyaml | yq -r .metadata.name)
-  if [[ ${workload_name} = ${app_name} ]]
-  then
-    tanzu apps workload delete ${app_name} --yes
-    echo
-  fi
-fi
+kubectl delete workload ${app_name} --ignore-not-found
 
 weather_api=https://tap-dotnet-core-api-weather-env.default.${tap_run_aks_domain}.tap.nycpivot.com
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")

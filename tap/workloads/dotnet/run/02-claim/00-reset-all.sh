@@ -10,7 +10,7 @@ kubectl config use-context tap-run-eks
 
 kubectl delete all -l secret-type=claim
 
-if [ -d "${HOME}/workloads/claim"]
+if [ -d "${HOME}/run/claim"]
 then
-  rm -rf ${HOME}/workloads/claim
+  rm -rf ${HOME}/run/claim
 fi
