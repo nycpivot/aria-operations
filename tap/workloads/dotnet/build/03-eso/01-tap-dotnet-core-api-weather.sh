@@ -52,11 +52,13 @@ echo
 
 kubectl delete workload ${app_name} --ignore-not-found
 
-api_weather_bit_claim=api-weather-bit-claim
+api_weather_bit_claim_eso=api-weather-bit-claim_eso
+api_wavefront_claim_eso_aks=api-wavefront-claim-eso-aks
 
-weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim}
+weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim_eso}
+wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim_eso_aks}
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=eso --label operations=aria --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --service-ref ${weather_bit_api_service_ref} --yes"
+pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch main --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=eso --label operations=aria --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --service-ref ${weather_bit_api_service_ref} --service-ref ${wavefront_api_service_ref} --yes"
 
 pe "clear"
 

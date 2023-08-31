@@ -3,6 +3,9 @@
 # DELETE AKS RESOURCES
 kubectl config use-context tap-run-aks
 
+kubectl delete secret -l secret-type=claim
+kubectl delete clusterrole -l secret-type=claim
+
 kubectl delete all -l secret-type=claim
 
 # DELETE EKS RESOURCES
