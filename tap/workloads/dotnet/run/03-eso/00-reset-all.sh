@@ -10,7 +10,7 @@ kubectl config use-context tap-run-eks
 
 kubectl delete all -l secret-type=eso
 
-if [ -d "${HOME}/workloads/eso"]
+if [ -d "${HOME}/workloads/eso" ]
 then
   rm -rf ${HOME}/workloads/eso
 fi

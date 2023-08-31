@@ -85,6 +85,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ${api_wavefront_secret_claim_aks}
+  labels:
+    operations: aria
+    secret-type: claim
 type: Opaque
 stringData:
   host: ${wavefront_url}
@@ -111,6 +114,8 @@ metadata:
   name: ${stk_secret_reader_claim_aks}
   labels:
     servicebinding.io/controller: "true"
+    operations: aria
+    secret-type: claim
 rules:
 - apiGroups:
   - ""

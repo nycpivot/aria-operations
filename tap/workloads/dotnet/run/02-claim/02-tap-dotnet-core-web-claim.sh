@@ -84,6 +84,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ${api_weather_secret_claim_eks}
+  labels:
+    operations: aria
+    secret-type: claim
 type: Opaque
 stringData:
   host: ${weather_api}
@@ -105,6 +108,9 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ${api_wavefront_secret_claim_eks}
+  labels:
+    operations: aria
+    secret-type: claim
 type: Opaque
 stringData:
   host: ${wavefront_url}
@@ -129,6 +135,8 @@ metadata:
   name: ${stk_secret_reader_claim_eks}
   labels:
     servicebinding.io/controller: "true"
+    operations: aria
+    secret-type: claim
 rules:
 - apiGroups:
   - ""
