@@ -66,7 +66,7 @@ echo
 kubectl delete -f ${app_name}-deliverable.yaml
 echo
 
-pe "kubectl apply -f ${app_name}-deliverable.yaml"
+pe "kubectl apply -f ${app_name}-deliverable.yaml --labels operations=aria"
 echo
 
 echo "Press Ctrl+C on the next command when the deliverable is ready..."

@@ -66,6 +66,8 @@ echo
 pe "kubectl config use-context ${tap_run_aks}"
 echo
 
+pe "clear"
+
 pe "helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace"
 echo
 
@@ -89,9 +91,10 @@ metadata:
   name: secret-store-sa
   namespace: default
 EOF
+echo
 
 kubectl apply -f service-account.yaml
-
+echo
 
 # CREATE A K8S SECRET THAT WILL GIVE THE ESO OPERATOR ACCESS TO AWS SECRETS MANAGER
 aws_secrets_manager_secret=aws-secrets-manager-secret
@@ -119,17 +122,15 @@ spec:
       service: SecretsManager
       region: ${AWS_REGION}
       auth:
-        jwt:
-          serviceAccountRef:
-           name: secret-store-sa
-        # secretRef:
-        #   accessKeyIDSecretRef:
-        #     name: ${aws_secrets_manager_secret}
-        #     key: access-key
-        #   secretAccessKeySecretRef:
-        #     name: ${aws_secrets_manager_secret}
-        #     key: secret-access-key
+        secretRef:
+          accessKeyIDSecretRef:
+            name: ${aws_secrets_manager_secret}
+            key: access-key
+          secretAccessKeySecretRef:
+            name: ${aws_secrets_manager_secret}
+            key: secret-access-key
 EOF
+echo
 
 pe "kubectl apply -f ${eso_secret_store}.yaml"
 echo
@@ -170,6 +171,7 @@ spec:
   # - extract:
   #     key: weather-bit-api-key
 EOF
+echo
 
 pe "kubectl apply -f ${eso_operator}.yaml"
 echo

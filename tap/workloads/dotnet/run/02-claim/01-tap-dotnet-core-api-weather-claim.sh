@@ -69,17 +69,17 @@ wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations 
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
 # WAVEFRONT SECRETS
-api_wavefront_secret=api-wavefront-secret
-if test -f "${api_wavefront_secret}.yaml"; then
-  kubectl delete -f ${api_wavefront_secret}.yaml
-  rm ${api_wavefront_secret}.yaml
+api_wavefront_secret_claim_aks=api-wavefront-secret-claim-aks
+if test -f "${api_wavefront_secret_claim_aks}.yaml"; then
+  kubectl delete -f ${api_wavefront_secret_claim_aks}.yaml
+  rm ${api_wavefront_secret_claim_aks}.yaml
 fi
 
-cat <<EOF | tee ${api_wavefront_secret}.yaml
+cat <<EOF | tee ${api_wavefront_secret_claim_aks}.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ${api_wavefront_secret}
+  name: ${api_wavefront_secret_claim_aks}
 type: Opaque
 stringData:
   host: ${wavefront_url}
@@ -87,21 +87,21 @@ stringData:
 EOF
 echo
 
-pe "kubectl apply -f ${api_wavefront_secret}.yaml"
+pe "kubectl apply -f ${api_wavefront_secret_claim_aks}.yaml"
 echo
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
-stk_secret_reader=stk-secret-reader
-if test -f "${stk_secret_reader}.yaml"; then
-  kubectl delete -f ${stk_secret_reader}.yaml
-  rm ${stk_secret_reader}.yaml
+stk_secret_reader_claim_aks=stk-secret-reader-claim-aks
+if test -f "${stk_secret_reader_claim_aks}.yaml"; then
+  kubectl delete -f ${stk_secret_reader_claim_aks}.yaml
+  rm ${stk_secret_reader_claim_aks}.yaml
 fi
 
-cat <<EOF | tee ${stk_secret_reader}.yaml
+cat <<EOF | tee ${stk_secret_reader_claim}.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: stk-secret-reader
+  name: ${stk_secret_reader_claim}
   labels:
     servicebinding.io/controller: "true"
 rules:
@@ -116,13 +116,13 @@ rules:
 EOF
 echo
 
-pe "kubectl apply -f ${stk_secret_reader}.yaml"
+pe "kubectl apply -f ${stk_secret_reader_claim}.yaml"
 echo
 
 tanzu service resource-claim delete ${api_wavefront_claim} --yes
 echo
 
-pe "tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1"
+pe "tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret_claim} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"

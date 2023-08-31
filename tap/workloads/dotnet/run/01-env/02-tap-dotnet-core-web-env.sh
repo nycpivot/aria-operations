@@ -51,8 +51,8 @@ echo
 pe "kubectl get configmaps | grep ${app_name}"
 echo
 
-if test -f "${app_name}-deliverable.yaml"; then
-  rm ${app_name}-deliverable.yaml
+if test -f "$HOME/deliverables/${app_name}-deliverable.yaml"; then
+  rm $HOME/deliverables/${app_name}-deliverable.yaml
   echo
 fi
 
@@ -63,10 +63,10 @@ echo
 pe "kubectl config use-context ${tap_run_eks}"
 echo
 
-kubectl delete -f ${app_name}-deliverable.yaml
+kubectl delete -f $HOME/deliverables/${app_name}-deliverable.yaml
 echo
 
-pe "kubectl apply -f ${app_name}-deliverable.yaml"
+pe "kubectl apply -f $HOME/deliverables/${app_name}-deliverable.yaml --labels operations=aria"
 echo
 
 echo "Press Ctrl+C on the next command when the deliverable is ready..."
