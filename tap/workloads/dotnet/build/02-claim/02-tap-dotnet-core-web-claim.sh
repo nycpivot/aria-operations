@@ -50,11 +50,11 @@ echo
 
 kubectl delete workload ${app_name} --ignore-not-found
 
-api_weather_claim=api-weather-claim
-api_wavefront_claim=api-wavefront-claim
+api_weather_claim_claim_eks=api-weather-claim-claim-eks
+api_wavefront_claim_claim_eks=api-wavefront-claim-claim-eks
 
-weather_api_service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim}
-wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
+weather_api_service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim_claim_eks}
+wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim_claim_eks}
 
 pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_name} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=claim --label operations=aria --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Web.Mvc --service-ref ${weather_api_service_ref} --service-ref ${wavefront_api_service_ref} --yes"
 
