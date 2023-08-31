@@ -69,6 +69,8 @@ echo
 pe "kubectl config use-context ${tap_run_eks}"
 echo
 
+pe "clear"
+
 weather_api=https://tap-dotnet-core-api-weather-claim.default.${tap_run_aks_domain}.tap.nycpivot.com
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
@@ -96,6 +98,8 @@ echo
 pe "kubectl apply -f ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml"
 echo
 
+pe "clear"
+
 # WAVEFRONT SECRETS
 api_wavefront_secret_claim_eks=api-wavefront-secret-claim-eks
 if test -f "${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml"; then
@@ -120,6 +124,8 @@ echo
 
 pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml"
 echo
+
+pe "clear"
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
 stk_secret_reader_claim_eks=stk-secret-reader-claim-eks
@@ -152,6 +158,8 @@ echo
 pe "kubectl apply -f ${HOME}/run/claim/${stk_secret_reader_claim_eks}.yaml"
 echo
 
+pe "clear"
+
 api_weather_claim_claim_eks=api-weather-claim-claim-eks
 api_wavefront_claim_claim_eks=api-wavefront-claim-claim-eks
 
@@ -159,7 +167,6 @@ kubectl delete resourceclaim ${api_weather_claim_claim_eks} --ignore-not-found
 kubectl delete resourceclaim ${api_wavefront_claim_claim_eks} --ignore-not-found
 # tanzu service resource-claim delete ${api_weather_claim} --yes
 # tanzu service resource-claim delete ${api_wavefront_claim} --yes
-echo
 
 pe "tanzu service resource-claim create ${api_weather_claim_claim_eks} --resource-name ${api_weather_secret_claim_eks} --resource-kind Secret --resource-api-version v1"
 echo
@@ -177,7 +184,6 @@ echo
 # echo
 
 kubectl delete -f ${HOME}/run/claim/${app_name}-deliverable.yaml --ignore-not-found
-echo
 
 pe "kubectl apply -f ${HOME}/run/claim/${app_name}-deliverable.yaml"
 echo

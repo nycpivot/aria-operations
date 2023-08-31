@@ -75,8 +75,8 @@ wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operation
 
 # WAVEFRONT SECRETS
 api_wavefront_secret_claim_aks=api-wavefront-secret-claim-aks
+kubectl delete secret ${api_wavefront_secret_claim_aks} --ignore-not-found
 if test -f "${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml"; then
-  kubectl delete -f ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml
   rm ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml
 fi
 
@@ -102,8 +102,8 @@ pe "clear"
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
 stk_secret_reader_claim_aks=stk-secret-reader-claim-aks
+kubectl delete clusterrole ${stk_secret_reader_claim_aks} --ignore-not-found
 if test -f "${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml"; then
-  kubectl delete -f ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml
   rm ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml
 fi
 
