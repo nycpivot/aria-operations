@@ -9,6 +9,27 @@ kubectl config use-context ${tap_build}
 
 kubectl delete all -l operations=aria
 
+# DELETE ALL ON TAP-RUN-EKS
+kubectl config use-context ${tap_run_eks}
+
+kubectl delete all -l operations=aria
+
+if [ -d "${HOME}/workloads/env"]
+then
+  rm -rf ${HOME}/workloads/env
+fi
+
+if [ -d "${HOME}/workloads/claim"]
+then
+  rm -rf ${HOME}/workloads/claim
+fi
+
+if [ -d "${HOME}/workloads/eso"]
+then
+  rm -rf ${HOME}/workloads/eso
+fi
+
+
 
 
 
