@@ -75,6 +75,7 @@ weather_api=https://tap-dotnet-core-api-weather-claim.default.${tap_run_aks_doma
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
+# API WEATHER SECRET
 api_weather_secret_claim_eks=api-weather-secret-claim-eks
 if test -f "${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml"; then
   kubectl delete -f ${HOME}/run/claim/${api_weather_secret_claim_eks}.yaml
@@ -126,6 +127,13 @@ pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret_claim_eks}.yaml"
 echo
 
 pe "clear"
+
+# CREATE REDIS INSTANCE AND SERVICE REF
+cache_redis_claim_claim_eks=cache_redis_claim_claim_eks
+tanzu service class-claim delete ${cache_redis_claim_claim_eks}
+
+pe "tanzu service class-claim create ${cache_redis_claim_claim_eks} --class redis-unmanaged --parameter storageGB=1"
+echo
 
 #GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
 stk_secret_reader_claim_eks=stk-secret-reader-claim-eks

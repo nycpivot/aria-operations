@@ -127,6 +127,9 @@ apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
   name: ${eso_secret_store}
+  labels:
+    operations: aria
+    secret-type: eso
 spec:
   provider:
     aws:
@@ -160,6 +163,9 @@ apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: ${eso_operator_api_weather_bit}
+  labels:
+    operations: aria
+    secret-type: eso
 spec:
   refreshInterval: 30s
   secretStoreRef:
@@ -201,6 +207,9 @@ apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: ${eso_operator_api_wavefront}
+  labels:
+    operations: aria
+    secret-type: eso
 spec:
   refreshInterval: 30s
   secretStoreRef:
