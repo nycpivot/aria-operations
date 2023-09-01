@@ -14,3 +14,6 @@ if [ -d "${HOME}/workloads/eso" ]
 then
   rm -rf ${HOME}/workloads/eso
 fi
+
+helm uninstall prometheus
+helm uninstall external-secrets -n external-secrets

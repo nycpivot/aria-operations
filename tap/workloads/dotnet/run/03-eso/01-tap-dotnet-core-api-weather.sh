@@ -41,6 +41,11 @@ tap_build=tap-build
 tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
 
+if [ ! -d "${HOME}/run/eso" ]
+then
+  mkdir -p ${HOME}/run/eso
+fi
+
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
 pe "kubectl config use-context ${tap_build}"
 echo
@@ -54,12 +59,12 @@ echo
 pe "kubectl get configmaps | grep ${app_name}"
 echo
 
-if test -f "${app_name}-deliverable.yaml"; then
-  rm ${app_name}-deliverable.yaml
+if test -f "${HOME}/run/eso/${app_name}-deliverable.yaml"; then
+  rm ${HOME}/run/eso/${app_name}-deliverable.yaml
   echo
 fi
 
-pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
+pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${HOME}/run/eso/${app_name}-deliverable.yaml"
 echo
 
 #SWITCH TO RUN CLUSTER
@@ -68,157 +73,178 @@ echo
 
 pe "clear"
 
-# pe "helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace"
-# echo
+
+# ******************************************************************************* #
+# SETUP EXTERNAL SECRETS OPERATOR
+# ******************************************************************************* #
+pe "helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace"
+echo
 
 # # KEY_ID=$(aws configure get aws_access_key_id)
 # # SECRET_KEY=$(aws configure get aws_secret_access_key)
 
-# echo -n $AWS_ACCESS_KEY_ID > .aws/access-key
-# echo -n $AWS_SECRET_ACCESS_KEY > .aws/secret-access-key
-# echo -n $AWS_SESSION_TOKEN > .aws/session-token
+echo -n $AWS_ACCESS_KEY_ID > .aws/access-key
+echo -n $AWS_SECRET_ACCESS_KEY > .aws/secret-access-key
 
-# if test -f "service-account.yaml"; then
-#   rm service-account.yaml
+# if test -f "${HOME}/run/eso/service-account.yaml"; then
+#   rm ${HOME}/run/eso/service-account.yaml
 # fi
 
-# cat <<EOF | tee service-account.yaml
+# cat <<EOF | tee ${HOME}/run/eso/service-account.yaml
 # apiVersion: v1
 # kind: ServiceAccount
 # metadata:
 #   annotations:
 #     eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/PowerUser
+#   labels:
+#     operations: aria
+#     secret-type: eso
 #   name: secret-store-sa
 #   namespace: default
 # EOF
 # echo
 
-# kubectl apply -f service-account.yaml
+# kubectl apply -f ${HOME}/run/eso/service-account.yaml
 # echo
 
-# # CREATE A K8S SECRET THAT WILL GIVE THE ESO OPERATOR ACCESS TO AWS SECRETS MANAGER
-# aws_secrets_manager_secret=aws-secrets-manager-secret
+# CREATE A K8S SECRET THAT WILL GIVE THE ESO OPERATOR ACCESS TO AWS SECRETS MANAGER
+aws_secrets_manager_secret=aws-secrets-manager-secret
 
-# kubectl delete secret ${aws_secrets_manager_secret}
+kubectl delete secret ${aws_secrets_manager_secret} --ignore-not-found
 
-# pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key --from-file=.aws/session-token"
-# echo
+pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key"
+echo
 
-# # CREATE AN ESO SECRET STORE BASED ON THE AWS SECRET CREDS
-# eso_secret_store=eso-secret-store-api-weather
-# if test -f "${eso_secret_store}.yaml"; then
-#   kubectl delete -f ${eso_secret_store}.yaml
-#   rm ${eso_secret_store}.yaml
-# fi
-
-# cat <<EOF | tee ${eso_secret_store}.yaml
-# apiVersion: external-secrets.io/v1beta1
-# kind: SecretStore
-# metadata:
-#   name: ${eso_secret_store}
-# spec:
-#   provider:
-#     aws:
-#       service: SecretsManager
-#       region: ${AWS_REGION}
-#       auth:
-#         secretRef:
-#           accessKeyIDSecretRef:
-#             name: ${aws_secrets_manager_secret}
-#             key: access-key
-#           secretAccessKeySecretRef:
-#             name: ${aws_secrets_manager_secret}
-#             key: secret-access-key
-# EOF
-# echo
-
-# pe "kubectl apply -f ${eso_secret_store}.yaml"
-# echo
-
-# # CREATE THE ESO OPERATOR
-# eso_operator=eso-operator-api-weather
-# if test -f "${eso_operator}.yaml"; then
-#   kubectl delete -f ${eso_operator}.yaml
-#   rm ${eso_operator}.yaml
-# fi
-
-# api_weather_bit_claim=api-weather-bit-claim
-
-# cat <<EOF | tee ${eso_operator}.yaml
-# apiVersion: external-secrets.io/v1beta1
-# kind: ExternalSecret
-# metadata:
-#   name: ${eso_operator}
-# spec:
-#   refreshInterval: 30s
-#   secretStoreRef:
-#     name: ${eso_secret_store}
-#     kind: SecretStore
-#   target:
-#     name: ${api_weather_bit_claim}
-#     creationPolicy: Owner
-#   data:
-#   - secretKey: host
-#     remoteRef:
-#       key: aria-operations
-#       # version: provider-key-version
-#       property: weather-bit-api-host
-#   - secretKey: key
-#     remoteRef:
-#       key: aria-operations
-#       property: weather-bit-api-key
-#   # dataFrom:
-#   # - extract:
-#   #     key: weather-bit-api-key
-# EOF
-# echo
-
-# pe "kubectl apply -f ${eso_operator}.yaml"
-# echo
-
-
-wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
-wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
-
-# WAVEFRONT SECRETS
-api_wavefront_secret_claim_aks=api-wavefront-secret-claim-aks
-kubectl delete secret ${api_wavefront_secret_claim_aks} --ignore-not-found
-if test -f "${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml"; then
-  rm ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml
+# CREATE AN ESO SECRET STORE BASED ON THE AWS SECRET CREDS
+eso_secret_store=eso-secret-store-api-weather
+kubectl delete ${eso_secret_store} --ignore-not-found
+if test -f "${HOME}/run/eso/${eso_secret_store}.yaml"; then
+  rm ${HOME}/run/eso/${eso_secret_store}.yaml
 fi
 
-cat <<EOF | tee ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml
-apiVersion: v1
-kind: Secret
+cat <<EOF | tee ${HOME}/run/eso/${eso_secret_store}.yaml
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
 metadata:
-  name: ${api_wavefront_secret_claim_aks}
-  labels:
-    operations: aria
-    secret-type: claim
-type: Opaque
-stringData:
-  host: ${wavefront_url}
-  token: ${wavefront_token}
+  name: ${eso_secret_store}
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: ${AWS_REGION}
+      auth:
+        secretRef:
+          accessKeyIDSecretRef:
+            name: ${aws_secrets_manager_secret}
+            key: access-key
+          secretAccessKeySecretRef:
+            name: ${aws_secrets_manager_secret}
+            key: secret-access-key
 EOF
 echo
 
-pe "kubectl apply -f ${HOME}/run/claim/${api_wavefront_secret_claim_aks}.yaml"
+pe "kubectl apply -f ${HOME}/run/eso/${eso_secret_store}.yaml"
 echo
 
-pe "clear"
-
-#GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
-stk_secret_reader_claim_aks=stk-secret-reader-claim-aks
-kubectl delete clusterrole ${stk_secret_reader_claim_aks} --ignore-not-found
-if test -f "${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml"; then
-  rm ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml
+# CREATE THE ESO OPERATOR FOR WEATHER BIT
+eso_operator_api_weather_bit=eso-operator-api-weather-bit
+kubectl delete ${eso_operator_api_weather_bit} --ignore-not-found
+if test -f "${HOME}/run/eso/${eso_operator_api_weather_bit}.yaml"; then
+  rm ${HOME}/run/eso/${eso_operator_api_weather_bit}.yaml
 fi
 
-cat <<EOF | tee ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml
+api_weather_bit_secret=api-weather-bit-secret
+
+cat <<EOF | tee ${HOME}/run/eso/${eso_operator_api_weather_bit}.yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ${eso_operator_api_weather_bit}
+spec:
+  refreshInterval: 30s
+  secretStoreRef:
+    name: ${eso_secret_store}
+    kind: SecretStore
+  target:
+    name: ${api_weather_bit_secret}
+    creationPolicy: Owner
+  data:
+  - secretKey: host
+    remoteRef:
+      key: aria-operations
+      # version: provider-key-version
+      property: weather-bit-api-host
+  - secretKey: key
+    remoteRef:
+      key: aria-operations
+      property: weather-bit-api-key
+  # dataFrom:
+  # - extract:
+  #     key: weather-bit-api-key
+EOF
+echo
+
+pe "kubectl apply -f ${HOME}/run/eso/${eso_operator_api_weather_bit}.yaml"
+echo
+
+# CREATE THE ESO OPERATOR FOR WAVEFRONT
+eso_operator_api_wavefront=eso-operator-api-wavefront
+kubectl delete ${eso_operator_api_wavefront} --ignore-not-found
+if test -f "${HOME}/run/eso/${eso_operator_api_wavefront}.yaml"; then
+  rm ${HOME}/run/eso/${eso_operator_api_wavefront}.yaml
+fi
+
+api_wavefront_secret=api-wavefront-secret
+
+cat <<EOF | tee ${HOME}/run/eso/${eso_operator_api_wavefront}.yaml
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: ${eso_operator_api_wavefront}
+spec:
+  refreshInterval: 30s
+  secretStoreRef:
+    name: ${eso_secret_store}
+    kind: SecretStore
+  target:
+    name: ${api_wavefront_secret}
+    creationPolicy: Owner
+  data:
+  - secretKey: host
+    remoteRef:
+      key: aria-operations
+      # version: provider-key-version
+      property: wavefront-prod-url
+  - secretKey: token
+    remoteRef:
+      key: aria-operations
+      property: wavefront-prod-token
+  # dataFrom:
+  # - extract:
+  #     key: weather-bit-api-key
+EOF
+echo
+
+pe "kubectl apply -f ${HOME}/run/eso/${eso_operator_api_wavefront}.yaml"
+echo
+
+# ******************************************************************************* #
+# END EXTERNAL SECRETS OPERATOR SETUP
+# ******************************************************************************* #
+
+
+#GIVE SERVICES TOOLKIT PERMISSION TO READ SECRET
+stk_secret_reader=stk-secret-reader
+kubectl delete clusterrole ${stk_secret_reader} --ignore-not-found
+if test -f "${HOME}/run/eso/${stk_secret_reader}.yaml"; then
+  rm ${HOME}/run/eso/${stk_secret_reader}.yaml
+fi
+
+cat <<EOF | tee ${HOME}/run/eso/${stk_secret_reader}.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: ${stk_secret_reader_claim_aks}
+  name: ${stk_secret_reader}
   labels:
     servicebinding.io/controller: "true"
     operations: aria
@@ -235,25 +261,31 @@ rules:
 EOF
 echo
 
-pe "kubectl apply -f ${HOME}/run/claim/${stk_secret_reader_claim_aks}.yaml"
+pe "kubectl apply -f ${HOME}/run/eso/${stk_secret_reader}.yaml"
 echo
 
-api_wavefront_claim_claim_aks=api-wavefront-claim-claim-aks
-kubectl delete resourceclaim ${api_wavefront_claim_claim_aks} --ignore-not-found
+api_weather_bit_claim=api-weather-bit-claim
+api_wavefront_claim=api-wavefront-claim
 
-pe "tanzu service resource-claim create ${api_wavefront_claim_claim_aks} --resource-name ${api_wavefront_secret_claim_aks} --resource-kind Secret --resource-api-version v1"
+kubectl delete resourceclaim ${api_weather_bit_claim} --ignore-not-found
+kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
+
+pe "tanzu service resource-claim create ${api_weather_bit_claim} --resource-name ${api_weather_bit_secret} --resource-kind Secret --resource-api-version v1"
+echo
+
+pe "tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1"
 echo
 
 pe "tanzu service resource-claim list -o wide"
 echo
 
-pe "tanzu services resource-claims get ${api_weather_bit_claim}"
+# pe "tanzu services resource-claims get ${api_wavefront_claim}"
+# echo
+
+kubectl delete  -f ${HOME}/run/eso/${app_name}-deliverable.yaml --ignore-not-found
 echo
 
-kubectl delete -f ${app_name}-deliverable.yaml
-echo
-
-pe "kubectl apply -f ${app_name}-deliverable.yaml"
+pe "kubectl apply -f ${HOME}/run/eso/${app_name}-deliverable.yaml"
 echo
 
 echo "Press Ctrl+C on the next command when the deliverable is ready..."
@@ -261,7 +293,6 @@ echo
 
 pe "kubectl get deliverables -w"
 echo
-
 
 #pe "kubectl get httpproxy"
 #echo
