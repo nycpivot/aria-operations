@@ -26,12 +26,12 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-web-mvc-claim): " app_name
+read -p "App Name (tap-dotnet-web-mvc): " app_name
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-web-mvc-claim
+  app_name=tap-dotnet-web-mvc
 fi
 
 tap_build=tap-build
@@ -39,9 +39,9 @@ tap_run_eks=tap-run-eks
 tap_run_eks_domain=run-eks
 tap_run_aks_domain=run-aks
 
-if [ ! -d "${HOME}/run/claim" ]
+if [ ! -d "${HOME}/${app_name}" ]
 then
-  mkdir -p ${HOME}/run/claim
+  mkdir -p ${HOME}/${app_name}
 fi
 
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
@@ -57,8 +57,8 @@ echo
 pe "kubectl get configmaps | grep ${app_name}"
 echo
 
-if test -f "${HOME}/run/claim/${app_name}-deliverable.yaml"; then
-  rm ${HOME}/run/claim/${app_name}-deliverable.yaml
+if test -f "${HOME}/${app_name}/${app_name}-deliverable.yaml"; then
+  rm ${HOME}/${app_name}/${app_name}-deliverable.yaml
   echo
 fi
 

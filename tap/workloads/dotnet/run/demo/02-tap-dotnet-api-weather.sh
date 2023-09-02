@@ -26,21 +26,21 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-api-weather-claim): " app_name
+read -p "App Name (tap-dotnet-core-api-weather): " app_name
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-api-weather-claim
+  app_name=tap-dotnet-core-api-weather
 fi
 
 tap_build=tap-build
 tap_run_aks=tap-run-aks
 tap_run_aks_domain=run-aks
 
-if [ ! -d "${HOME}/run/claim" ]
+if [ ! -d "${HOME}/${app_name}" ]
 then
-  mkdir -p ${HOME}/run/claim
+  mkdir -p ${HOME}/${app_name}
 fi
 
 #REBUILD DELIVERABLE HERE IF NEW SOURCE CODE WAS COMMITTED AND BUILT
