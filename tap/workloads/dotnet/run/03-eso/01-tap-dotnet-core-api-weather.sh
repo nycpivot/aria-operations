@@ -85,6 +85,7 @@ echo
 
 echo -n $AWS_ACCESS_KEY_ID > .aws/access-key
 echo -n $AWS_SECRET_ACCESS_KEY > .aws/secret-access-key
+# echo -n $AWS_SESSION_TOKEN > .aws/session-token
 
 # if test -f "${HOME}/run/eso/service-account.yaml"; then
 #   rm ${HOME}/run/eso/service-account.yaml
@@ -112,12 +113,12 @@ aws_secrets_manager_secret=aws-secrets-manager-secret
 
 kubectl delete secret ${aws_secrets_manager_secret} --ignore-not-found
 
-pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key"
+pe "kubectl create secret generic ${aws_secrets_manager_secret} --from-file=.aws/access-key --from-file=.aws/secret-access-key" # --from-file .aws/session-token"
 echo
 
 # CREATE AN ESO SECRET STORE BASED ON THE AWS SECRET CREDS
 eso_secret_store=eso-secret-store-api-weather
-kubectl delete ${eso_secret_store} --ignore-not-found
+kubectl delete secretstore ${eso_secret_store} --ignore-not-found
 if test -f "${HOME}/run/eso/${eso_secret_store}.yaml"; then
   rm ${HOME}/run/eso/${eso_secret_store}.yaml
 fi
@@ -134,6 +135,7 @@ spec:
   provider:
     aws:
       service: SecretsManager
+      # role: arn:aws:iam::964978768106:role/PowerUser
       region: ${AWS_REGION}
       auth:
         secretRef:

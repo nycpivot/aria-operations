@@ -59,6 +59,13 @@ api_wavefront_claim_claim_aks=api-wavefront-claim-claim-aks
 
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim_claim_aks}
 
+# api_weather_bit_claim=api-weather-bit-claim
+# api_wavefront_claim=api-wavefront-claim
+
+# weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim}
+# wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
+
+
 pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_branch} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=claim --label operations=aria --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --service-ref ${wavefront_api_service_ref} --yes"
 
 pe "clear"

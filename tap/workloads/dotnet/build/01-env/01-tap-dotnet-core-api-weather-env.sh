@@ -26,13 +26,13 @@ clear
 
 DEMO_PROMPT="${GREEN}➜ TAP ${CYAN}\W "
 
-read -p "App Name (tap-dotnet-core-api-weather-env): " app_name
+read -p "App Name (tap-dotnet-core-api-weather): " app_name
 read -p "Git Repo Name (https://github.com/nycpivot/tap-dotnet-core): " git_app_url
 echo
 
 if [[ -z ${app_name} ]]
 then
-  app_name=tap-dotnet-core-api-weather-env
+  app_name=tap-dotnet-core-api-weather
 fi
 
 if [[ -z ${git_app_url} ]]
@@ -40,7 +40,7 @@ then
   git_app_url=https://github.com/nycpivot/tap-dotnet-core
 fi
 
-app_branch=tap-dotnet-core-web-mvc-env
+app_branch=tap-dotnet-core-env
 
 tap_build=tap-build
 tap_run_aks=tap-run-aks
@@ -49,25 +49,30 @@ tap_run_aks_domain=run-aks
 pe "kubectl config use-context ${tap_build}"
 echo
 
-pe "tanzu apps workload list"
+kubectl delete ns ${app_branch} --ignore-not-found
+
+pe "kubectl create ns ${app_branch}"
 echo
 
-kubectl delete workload ${app_name} --ignore-not-found
+pe "tanzu apps workload list -n ${app_branch}"
+echo
+
+kubectl delete workload ${app_name} -n ${app_branch} --ignore-not-found
 
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
 wavefront_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-token\")
 
-pe "tanzu apps workload create ${app_name} --git-repo ${git_app_url} --git-branch ${app_branch} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=env --label operations=aria --env WAVEFRONT_URL=${wavefront_url} --env WAVEFRONT_TOKEN=${wavefront_token} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
+pe "tanzu apps workload create ${app_name} -n ${app_branch} --git-repo ${git_app_url} --git-branch ${app_branch} --type web --annotation autoscaling.knative.dev/min-scale=2 --label app.kubernetes.io/part-of=${app_name} --label secret-type=env --label operations=aria --env WAVEFRONT_URL=${wavefront_url} --env WAVEFRONT_TOKEN=${wavefront_token} --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Core.Api.Weather --yes"
 
 pe "clear"
 
-pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
+pe "tanzu apps workload tail ${app_name} -n ${app_branch} --since 1h --timestamp"
 echo
 
-pe "tanzu apps workload list"
+pe "tanzu apps workload list -n ${app_branch}"
 echo
 
-pe "tanzu apps workload get ${app_name}"
+pe "tanzu apps workload get ${app_name} -n ${app_branch}"
 echo
 
 echo "To see supply chain: https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${app_name}"

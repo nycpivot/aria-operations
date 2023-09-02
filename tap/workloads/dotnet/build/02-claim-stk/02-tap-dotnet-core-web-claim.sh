@@ -52,7 +52,7 @@ kubectl delete workload ${app_name} --ignore-not-found
 
 api_weather_claim_claim_eks=api-weather-claim-claim-eks
 api_wavefront_claim_claim_eks=api-wavefront-claim-claim-eks
-cache_redis_claim_claim_eks=cache_redis_claim_claim_eks
+cache_redis_claim_claim_eks=cache-redis-claim-claim-eks
 
 weather_api_service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim_claim_eks}
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim_claim_eks}
