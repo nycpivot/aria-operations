@@ -55,6 +55,8 @@ fi
 # *********************************************************************************************** #
 # START BUILD OF TAP-DOTNET-MVC-WEB IN TAP-BUILD
 # *********************************************************************************************** #
+kubectl config use-context ${tap_build}
+
 kubectl delete workload ${tap_dotnet_mvc_web} --ignore-not-found
 
 # INJECT SOME ENVIRONMENT VARIABLES
@@ -97,11 +99,11 @@ api_wavefront_claim=api-wavefront-claim
 weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim}
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
 
-tanzu apps workload create ${app_name} \
+tanzu apps workload create ${tap_dotnet_api_weather} \
     --git-repo ${git_app_url} --git-branch main --type web \
     --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Api.Weather \
     --annotation autoscaling.knative.dev/min-scale=2 \
-    --label app.kubernetes.io/part-of=${app_name} \
+    --label app.kubernetes.io/part-of=${tap_dotnet_api_weather} \
     --label operations=aria \
     --service-ref ${weather_bit_api_service_ref} \
     --service-ref ${wavefront_api_service_ref} \
