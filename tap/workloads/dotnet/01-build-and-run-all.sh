@@ -282,7 +282,7 @@ metadata:
 type: Opaque
 stringData:
   host: ${weather_bit_url}
-  key: ${weather_bit_token}
+  key: ${weather_bit_key}
 EOF
 
 kubectl apply -f ${HOME}/${tap_dotnet_api_weather}/${api_weather_bit_secret}.yaml
