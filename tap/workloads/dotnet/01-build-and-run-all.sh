@@ -88,6 +88,12 @@ tanzu apps workload create ${tap_dotnet_mvc_web} \
 # END BUILD OF TAP-DOTNET-MVC-WEB IN TAP-BUILD
 # *********************************************************************************************** #
 
+# give 7 minutes to build tap-dotnet-web-mvc
+intervals=( 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "${interval} minutes remaining..."
+sleep 60
+done
 
 # *********************************************************************************************** #
 # START BUILD OF TAP-DOTNET-API-WEATHER IN TAP-BUILD
@@ -113,8 +119,8 @@ tanzu apps workload create ${tap_dotnet_api_weather} \
 # END BUILD OF TAP-DOTNET-API-WEATHER IN TAP-BUILD
 # *********************************************************************************************** #
 
-# give 10 minutes for both builds to complete
-intervals=( 10 9 8 7 6 5 4 3 2 1 )
+# give 7 minutes to build tap-dotnet-api-weather
+intervals=( 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60
