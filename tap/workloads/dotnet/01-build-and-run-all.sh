@@ -226,14 +226,14 @@ EOF
 
 kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${stk_cluster_role}.yaml
 
-api_weather_claim=api-weather-claim
+# api_weather_claim=api-weather-claim
 api_wavefront_claim=api-wavefront-claim
 
-kubectl delete resourceclaim ${api_weather_claim} --ignore-not-found
+# kubectl delete resourceclaim ${api_weather_claim} --ignore-not-found
 kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
 
-tanzu service resource-claim create ${api_weather_claim} \
-  --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1
+# tanzu service resource-claim create ${api_weather_claim} \
+#   --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1
 tanzu service resource-claim create ${api_wavefront_claim} \
   --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1
 
