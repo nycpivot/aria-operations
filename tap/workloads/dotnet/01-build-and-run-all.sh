@@ -79,8 +79,7 @@ tanzu apps workload create ${tap_dotnet_mvc_web} \
     --annotation autoscaling.knative.dev/min-scale=2 \
     --label app.kubernetes.io/part-of=${tap_dotnet_mvc_web} \
     --label operations=aria \
-    --env DEFAULT_ZIP_CODE_ENV=${default_zip_code_env} \
-    --service-ref ${weather_api_service_ref} \
+    --env WEATHER_API=${weather_api} \
     --service-ref ${wavefront_api_service_ref} \
     --service-ref ${cache_service_ref} \
     --yes
@@ -146,27 +145,27 @@ kubectl get configmap ${tap_dotnet_mvc_web}-deliverable -o go-template='{{.data.
 
 kubectl config use-context ${tap_run_eks}
 
-# api-weather secret
-api_weather_secret=api-weather-secret
+# # api-weather secret
+# api_weather_secret=api-weather-secret
 
-kubectl delete -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-if test -f "${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml"; then
-  rm ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-fi
+# kubectl delete -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
+# if test -f "${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml"; then
+#   rm ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
+# fi
 
-cat <<EOF | tee ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ${api_weather_secret}
-  labels:
-    operations: aria
-type: Opaque
-stringData:
-  host: ${weather_api}
-EOF
+# cat <<EOF | tee ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: ${api_weather_secret}
+#   labels:
+#     operations: aria
+# type: Opaque
+# stringData:
+#   host: ${weather_api}
+# EOF
 
-kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
+# kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
 
 # wavefront secret
 api_wavefront_secret=api-wavefront-secret
