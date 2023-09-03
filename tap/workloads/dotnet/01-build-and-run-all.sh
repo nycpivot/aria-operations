@@ -10,8 +10,11 @@ git_app_url=https://github.com/nycpivot/tap-dotnet
 
 tap_dotnet_mvc_web=tap-dotnet-web-mvc
 tap_dotnet_api_weather=tap-dotnet-api-weather
+tap_dotnet_api_db=tap-dotnet-api-db
 
 weather_api=https://tap-dotnet-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
+weather_db_api=https://tap-dotnet-api-db.default.${tap_run_aks_domain}.tap.nycpivot.com
+
 weather_bit_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"weather-bit-api-host\")
 weather_bit_key=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"weather-bit-api-key\")
 wavefront_url=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"wavefront-prod-url\")
@@ -48,6 +51,11 @@ if [ -d ${HOME}/${tap_dotnet_api_weather} ]
 then
   rm -rf ${HOME}/${tap_dotnet_api_weather}
 fi
+
+if [ -d ${HOME}/${tap_dotnet_api_db} ]
+then
+  rm -rf ${HOME}/${tap_dotnet_api_db}
+fi
 # *********************************************************************************************** #
 # END RESET ALL IN TAP-BUILD
 # *********************************************************************************************** #
@@ -60,16 +68,11 @@ kubectl config use-context ${tap_build}
 
 kubectl delete workload ${tap_dotnet_mvc_web} --ignore-not-found
 
-# INJECT SOME ENVIRONMENT VARIABLES
-default_zip_code_env="10001"
-
-# THESE SECRETS ARE CREATED ON THE RUN CLUSTER
-api_weather_claim=api-weather-claim
+# THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 api_wavefront_claim=api-wavefront-claim
 cache_redis_claim=cache-redis-claim
 
-# THESE ARE THE NAME OF THE CLAIMS
-weather_api_service_ref=weather-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_claim}
+# THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
 cache_service_ref=cache-config=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${cache_redis_claim}
 
@@ -99,9 +102,11 @@ done
 # *********************************************************************************************** #
 kubectl delete workload ${tap_dotnet_api_weather} --ignore-not-found
 
+# THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 api_weather_bit_claim=api-weather-bit-claim
 api_wavefront_claim=api-wavefront-claim
 
+# THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
 weather_bit_api_service_ref=weather-bit-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_weather_bit_claim}
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
 
@@ -111,6 +116,7 @@ tanzu apps workload create ${tap_dotnet_api_weather} \
     --annotation autoscaling.knative.dev/min-scale=2 \
     --label app.kubernetes.io/part-of=${tap_dotnet_api_weather} \
     --label operations=aria \
+    --env WEATHER_DB_API=${weather_db_api} \
     --service-ref ${weather_bit_api_service_ref} \
     --service-ref ${wavefront_api_service_ref} \
     --yes
@@ -119,6 +125,41 @@ tanzu apps workload create ${tap_dotnet_api_weather} \
 # *********************************************************************************************** #
 
 # give 7 minutes to build tap-dotnet-api-weather
+intervals=( 7 6 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "${interval} minutes remaining..."
+sleep 60
+done
+
+# *********************************************************************************************** #
+# START BUILD OF TAP-DOTNET-API-DB IN TAP-BUILD
+# *********************************************************************************************** #
+kubectl config use-context ${tap_build}
+
+kubectl delete workload ${tap_dotnet_api_db} --ignore-not-found
+
+# THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
+db_weather_claim=db-weather-claim
+api_wavefront_claim=api-wavefront-claim
+
+# THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
+db_weather_service_ref=db-weather=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${db_weather_claim}
+wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
+
+tanzu apps workload create ${tap_dotnet_api_db} \
+    --git-repo ${git_app_url} --git-branch main --type web \
+    --build-env BP_DOTNET_PROJECT_PATH=src/Tap.Dotnet.Api.Data \
+    --annotation autoscaling.knative.dev/min-scale=2 \
+    --label app.kubernetes.io/part-of=${tap_dotnet_api_db} \
+    --label operations=aria \
+    --service-ref ${db_weather_service_ref} \
+    --service-ref ${wavefront_api_service_ref} \
+    --yes
+# *********************************************************************************************** #
+# END BUILD OF TAP-DOTNET-API-DB IN TAP-BUILD
+# *********************************************************************************************** #
+
+# give 7 minutes to build tap-dotnet-api-db
 intervals=( 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
@@ -145,28 +186,6 @@ kubectl get configmap ${tap_dotnet_mvc_web}-deliverable -o go-template='{{.data.
 
 kubectl config use-context ${tap_run_eks}
 
-# # api-weather secret
-# api_weather_secret=api-weather-secret
-
-# kubectl delete -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-# if test -f "${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml"; then
-#   rm ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-# fi
-
-# cat <<EOF | tee ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: ${api_weather_secret}
-#   labels:
-#     operations: aria
-# type: Opaque
-# stringData:
-#   host: ${weather_api}
-# EOF
-
-# kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${api_weather_secret}.yaml
-
 # wavefront secret
 api_wavefront_secret=api-wavefront-secret
 
@@ -189,13 +208,6 @@ stringData:
 EOF
 
 kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${api_wavefront_secret}.yaml
-
-# create redis instance and service-ref
-cache_redis_claim=cache-redis-claim
-
-kubectl delete classclaim ${cache_redis_claim} --ignore-not-found
-
-tanzu service class-claim create ${cache_redis_claim} --class redis-unmanaged --parameter storageGB=1
 
 # give services toolkit permission to view secrets
 stk_cluster_role=stk-cluster-role
@@ -226,14 +238,14 @@ EOF
 
 kubectl apply -f ${HOME}/${tap_dotnet_mvc_web}/${stk_cluster_role}.yaml
 
-# api_weather_claim=api-weather-claim
+cache_redis_claim=cache-redis-claim
 api_wavefront_claim=api-wavefront-claim
 
-# kubectl delete resourceclaim ${api_weather_claim} --ignore-not-found
+kubectl delete classclaim ${cache_redis_claim} --ignore-not-found
 kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
 
-# tanzu service resource-claim create ${api_weather_claim} \
-#   --resource-name ${api_weather_secret} --resource-kind Secret --resource-api-version v1
+tanzu service class-claim create ${cache_redis_claim} \
+  --class redis-unmanaged --parameter storageGB=1
 tanzu service resource-claim create ${api_wavefront_claim} \
   --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1
 
@@ -341,8 +353,10 @@ kubectl delete resourceclaim ${api_weather_bit_claim} --ignore-not-found
 api_wavefront_claim=api-wavefront-claim
 kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
 
-tanzu service resource-claim create ${api_weather_bit_claim} --resource-name ${api_weather_bit_secret} --resource-kind Secret --resource-api-version v1
-tanzu service resource-claim create ${api_wavefront_claim} --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1
+tanzu service resource-claim create ${api_weather_bit_claim} \
+  --resource-name ${api_weather_bit_secret} --resource-kind Secret --resource-api-version v1
+tanzu service resource-claim create ${api_wavefront_claim} \
+  --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1
 
 kubectl delete -f ${HOME}/${tap_dotnet_api_weather}/${tap_dotnet_api_weather}-deliverable.yaml --ignore-not-found
 
@@ -350,6 +364,94 @@ kubectl apply -f ${HOME}/${tap_dotnet_api_weather}/${tap_dotnet_api_weather}-del
 # *********************************************************************************************** #
 # END RUN DELIVERABLE OF TAP-DOTNET-API-WEATHER IN TAP-RUN-AKS
 # *********************************************************************************************** #
+
+
+# *********************************************************************************************** #
+# START RUN DELIVERABLE OF TAP-DOTNET-API-DB IN TAP-RUN-AKS
+# *********************************************************************************************** #
+kubectl config use-context ${tap_build}
+
+if [ ! -d ${HOME}/${tap_dotnet_api_db} ]
+then
+  mkdir ${HOME}/${tap_dotnet_api_db}
+fi
+
+if test -f "${HOME}/${tap_dotnet_api_db}/${tap_dotnet_api_db}-deliverable.yaml"; then
+  rm ${HOME}/${tap_dotnet_api_db}/${tap_dotnet_api_db}-deliverable.yaml
+  echo
+fi
+
+kubectl get configmap ${tap_dotnet_api_db}-deliverable -o go-template='{{.data.deliverable}}' \
+  > ${HOME}/${tap_dotnet_api_db}/${tap_dotnet_api_db}-deliverable.yaml
+
+kubectl config use-context ${tap_run_aks}
+
+# create wavefront secret for claim
+api_wavefront_secret=api-wavefront-secret
+kubectl delete secret ${api_wavefront_secret} --ignore-not-found
+if test -f "${HOME}/${tap_dotnet_api_db}/${api_wavefront_secret}.yaml"; then
+  rm ${HOME}/${tap_dotnet_api_db}/${api_wavefront_secret}.yaml
+fi
+
+cat <<EOF | tee ${HOME}/${tap_dotnet_api_db}/${api_wavefront_secret}.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ${api_wavefront_secret}
+  labels:
+    operations: aria
+type: Opaque
+stringData:
+  host: ${wavefront_url}
+  token: ${wavefront_token}
+EOF
+
+kubectl apply -f ${HOME}/${tap_dotnet_api_db}/${api_wavefront_secret}.yaml
+
+stk_cluster_role=stk-cluster-role
+kubectl delete clusterrole ${stk_cluster_role} --ignore-not-found
+if test -f "${HOME}/${tap_dotnet_api_db}/${stk_cluster_role}.yaml"; then
+  rm ${HOME}/${tap_dotnet_api_db}/${stk_cluster_role}.yaml
+fi
+
+cat <<EOF | tee ${HOME}/${tap_dotnet_api_db}/${stk_cluster_role}.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ${stk_cluster_role}
+  labels:
+    servicebinding.io/controller: "true"
+    operations: aria
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+EOF
+
+kubectl apply -f ${HOME}/${tap_dotnet_api_db}/${stk_cluster_role}.yaml
+
+db_weather_claim=db-weather-claim
+api_wavefront_claim=api-wavefront-claim
+
+kubectl delete classclaim ${db_weather_claim} --ignore-not-found
+kubectl delete resourceclaim ${api_wavefront_claim} --ignore-not-found
+
+tanzu service class-claim create ${db_weather_claim} \
+  --class postgresql-unmanaged --parameter storageGB=1
+tanzu service resource-claim create ${api_wavefront_claim} \
+  --resource-name ${api_wavefront_secret} --resource-kind Secret --resource-api-version v1
+
+kubectl delete -f ${HOME}/${tap_dotnet_api_db}/${tap_dotnet_api_db}-deliverable.yaml --ignore-not-found
+kubectl apply -f ${HOME}/${tap_dotnet_api_db}/${tap_dotnet_api_db}-deliverable.yaml
+# *********************************************************************************************** #
+# END RUN DELIVERABLE OF TAP-DOTNET-API-WEATHER IN TAP-RUN-AKS
+# *********************************************************************************************** #
+
 
 echo
 echo
