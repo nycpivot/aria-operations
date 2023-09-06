@@ -10,7 +10,7 @@ kubectl config use-context ${tap_build}
 kubectl delete workload ${tap_dotnet_weather_api} --ignore-not-found
 
 # ENVIRONMENT VARIABLES
-weather_db_api=https://tap-dotnet-api-db.default.${tap_run_aks_domain}.tap.nycpivot.com
+weather_db_api=http://tap-dotnet-weather-data.default.${tap_run_aks_domain}.tap.nycpivot.com
 
 # THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 weather_bit_api_resource_claim=weather-bit-api-resource-claim

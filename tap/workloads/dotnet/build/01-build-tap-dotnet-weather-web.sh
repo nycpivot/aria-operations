@@ -10,7 +10,7 @@ kubectl config use-context ${tap_build}
 kubectl delete workload ${tap_dotnet_weather_web} --ignore-not-found
 
 # ENVIRONMENT VARIABLES
-weather_api=https://tap-dotnet-api-weather.default.${tap_run_aks_domain}.tap.nycpivot.com
+weather_api=http://tap-dotnet-weather-api.default.${tap_run_aks_domain}.tap.nycpivot.com
 
 # THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 redis_cache_class_claim=redis-cache-class-claim
