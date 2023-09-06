@@ -17,8 +17,8 @@ redis_cache_class_claim=redis-cache-class-claim
 wavefront_api_resource_claim=wavefront-api-resource-claim
 
 # THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
-wavefront_api_service_ref=${redis_cache_class_claim}=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${redis_cache_class_claim}
-redis_cache_service_ref=${wavefront_api_resource_claim}=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${wavefront_api_resource_claim}
+redis_cache_service_ref=${redis_cache_class_claim}=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${redis_cache_class_claim}
+wavefront_api_service_ref=${wavefront_api_resource_claim}=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${wavefront_api_resource_claim}
 
 tanzu apps workload create ${tap_dotnet_weather_web} \
   --git-repo ${git_app_url} --git-branch main --type web \
@@ -27,12 +27,12 @@ tanzu apps workload create ${tap_dotnet_weather_web} \
   --label app.kubernetes.io/part-of=${tap_dotnet_weather_web} \
   --label operations=aria \
   --env WEATHER_API=${weather_api} \
-  --service-ref ${wavefront_api_service_ref} \
   --service-ref ${redis_cache_service_ref} \
+  --service-ref ${wavefront_api_service_ref} \
   --yes
 
-# give 7 minutes to build tap-dotnet-weather-web
-intervals=( 7 6 5 4 3 2 1 )
+# give 5 minutes to build tap-dotnet-weather-web
+intervals=( 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60

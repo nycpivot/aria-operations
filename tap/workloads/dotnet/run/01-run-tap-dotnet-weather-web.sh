@@ -9,7 +9,7 @@ kubectl config use-context ${tap_build}
 
 if [ ! -d ${HOME}/run/${tap_dotnet_weather_web} ]
 then
-  mkdir ${HOME}/run/${tap_dotnet_weather_web}
+  mkdir -p ${HOME}/run/${tap_dotnet_weather_web}
 fi
 
 if test -f "${HOME}/run/${tap_dotnet_weather_web}/${tap_dotnet_weather_web}-deliverable.yaml"; then
@@ -87,6 +87,8 @@ tanzu service class-claim create ${redis_cache_class_claim} \
   --class redis-unmanaged --parameter storageGB=1
 tanzu service resource-claim create ${wavefront_api_resource_claim} \
   --resource-name ${wavefront_api_secret} --resource-kind Secret --resource-api-version v1
+
+sleep 20
 
 kubectl delete -f ${HOME}/run/${tap_dotnet_weather_web}/${tap_dotnet_weather_web}-deliverable.yaml --ignore-not-found
 kubectl apply -f ${HOME}/run/${tap_dotnet_weather_web}/${tap_dotnet_weather_web}-deliverable.yaml

@@ -26,8 +26,8 @@ tanzu apps workload create ${tap_dotnet_weather_data} \
   --service-ref ${wavefront_api_service_ref} \
   --yes
 
-# give 7 minutes to build tap-dotnet-weather-data
-intervals=( 7 6 5 4 3 2 1 )
+# give 5 minutes to build tap-dotnet-weather-data
+intervals=( 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60

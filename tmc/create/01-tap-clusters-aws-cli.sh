@@ -57,18 +57,6 @@ tmc_token=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq
 export TMC_API_TOKEN=${tmc_token}
 export TANZU_API_TOKEN=${tmc_token}
 
-# if test -f tmc-${aria_org}-token.json; then
-#   rm tmc-${aria_org}-token.json
-# fi
-
-# curl -X POST https://console.cloud.vmware.com/csp/gateway/am/api/auth/api-tokens/authorize \
-#   -H "Accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" \
-#   -d "refresh_token=${tmc_token}" \
-#   -o tmc-${aria_org}-token.json
-
-# access_token=$(cat tmc-${aria_org}-token.json | jq .access_token -r)
-
-
 # 2. CREATE A TMC CLUSTER GROUP
 tmc_cluster_group=tmc-operations
 
@@ -207,7 +195,7 @@ cat <<EOF | tee ${cluster_nodepool}.json
     "scalingConfig": {
       "desiredSize": 2,
       "maxSize": 2,
-      "minSize: 2
+      "minSize": 2
     },
     "instanceTypes": [
       "t3.2xlarge"

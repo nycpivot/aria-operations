@@ -9,7 +9,7 @@ kubectl config use-context ${tap_build}
 
 if [ ! -d ${HOME}/run/${tap_dotnet_weather_api} ]
 then
-  mkdir ${HOME}/run/${tap_dotnet_weather_api}
+  mkdir -p ${HOME}/run/${tap_dotnet_weather_api}
 fi
 
 if test -f "${HOME}/run/${tap_dotnet_weather_api}/${tap_dotnet_weather_api}-deliverable.yaml"; then
