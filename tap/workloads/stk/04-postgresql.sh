@@ -38,3 +38,9 @@ echo
 # claim_secret=$(kubectl get classclaim weather-db -ojson | jq -r .status.resourceRef.name)
 claim_reference=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:weather-db
 service_ref=db=${claim_reference}
+
+
+# psql -U postgres <password>
+# \l    list databases
+# \c <database name>
+# \dt   list tables

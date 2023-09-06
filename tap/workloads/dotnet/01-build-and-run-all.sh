@@ -96,6 +96,7 @@ for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60
 done
+echo
 
 # *********************************************************************************************** #
 # START BUILD OF TAP-DOTNET-API-WEATHER IN TAP-BUILD
@@ -130,6 +131,7 @@ for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60
 done
+echo
 
 # *********************************************************************************************** #
 # START BUILD OF TAP-DOTNET-API-DB IN TAP-BUILD
@@ -143,7 +145,7 @@ db_weather_claim=db-weather-claim
 api_wavefront_claim=api-wavefront-claim
 
 # THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
-db_weather_service_ref=db-weather=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${db_weather_claim}
+db_weather_service_ref=weather-db=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${db_weather_claim}
 wavefront_api_service_ref=wavefront-api=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${api_wavefront_claim}
 
 tanzu apps workload create ${tap_dotnet_api_db} \
@@ -165,6 +167,7 @@ for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60
 done
+echo
 
 # *********************************************************************************************** #
 # START RUN DELIVERABLE OF TAP-DOTNET-WEB-MVC IN TAP-RUN-EKS
