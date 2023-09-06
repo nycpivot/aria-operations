@@ -10,7 +10,7 @@ kubectl delete workload ${tap_dotnet_weather_data} --ignore-not-found
 
 # THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 weather_db_class_claim=weather-db-class-claim
-wavefront_api_resource_claim=weather-api-resource-claim
+wavefront_api_resource_claim=wavefront-api-resource-claim
 
 # THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
 weather_data_service_ref=${weather_db_class_claim}=services.apps.tanzu.vmware.com/v1alpha1:ClassClaim:${weather_db_class_claim}
