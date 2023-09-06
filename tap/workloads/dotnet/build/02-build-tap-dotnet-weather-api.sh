@@ -14,11 +14,11 @@ weather_db_api=https://tap-dotnet-api-db.default.${tap_run_aks_domain}.tap.nycpi
 
 # THESE ARE THE NAMES OF THE CLAIMS TO BE CREATED ON THE RUN CLUSTER
 weather_bit_api_resource_claim=weather-bit-api-resource-claim
-wavefront_api_class_claim=wavefront-api-class-claim
+wavefront_api_resource_claim=wavefront-api-resource-claim
 
 # THESE ARE THE NAMES OF THE SERVICE REFS TO THOSE CLAIMS
 weather_bit_api_service_ref=${weather_bit_api_resource_claim}=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${weather_bit_api_resource_claim}
-wavefront_api_service_ref=${wavefront_api_class_claim}=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${wavefront_api_class_claim}
+wavefront_api_service_ref=${wavefront_api_resource_claim}=services.apps.tanzu.vmware.com/v1alpha1:ResourceClaim:${wavefront_api_resource_claim}
 
 tanzu apps workload create ${tap_dotnet_weather_api} \
   --git-repo ${git_app_url} --git-branch main --type web \
