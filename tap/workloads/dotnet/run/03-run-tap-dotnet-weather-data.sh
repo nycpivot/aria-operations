@@ -74,7 +74,7 @@ EOF
 
 kubectl apply -f ${HOME}/run/${tap_dotnet_weather_data}/${stk_cluster_role}.yaml
 
-weather_db_class_claim=weater-db-class-claim
+weather_db_class_claim=weather-db-class-claim
 wavefront_api_resource_claim=wavefront-api-resource-claim
 
 kubectl delete classclaim ${weather_db_class_claim} --ignore-not-found
@@ -84,6 +84,8 @@ tanzu service class-claim create ${weather_db_class_claim} \
   --class postgresql-unmanaged --parameter storageGB=1
 tanzu service resource-claim create ${wavefront_api_resource_claim} \
   --resource-name ${wavefront_api_secret} --resource-kind Secret --resource-api-version v1
+
+sleep 15
 
 kubectl delete -f ${HOME}/run/${tap_dotnet_weather_data}/${tap_dotnet_weather_data}-deliverable.yaml --ignore-not-found
 kubectl apply -f ${HOME}/run/${tap_dotnet_weather_data}/${tap_dotnet_weather_data}-deliverable.yaml

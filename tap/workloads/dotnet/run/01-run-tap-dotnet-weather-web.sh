@@ -88,7 +88,7 @@ tanzu service class-claim create ${redis_cache_class_claim} \
 tanzu service resource-claim create ${wavefront_api_resource_claim} \
   --resource-name ${wavefront_api_secret} --resource-kind Secret --resource-api-version v1
 
-sleep 20
+sleep 15
 
 kubectl delete -f ${HOME}/run/${tap_dotnet_weather_web}/${tap_dotnet_weather_web}-deliverable.yaml --ignore-not-found
 kubectl apply -f ${HOME}/run/${tap_dotnet_weather_web}/${tap_dotnet_weather_web}-deliverable.yaml
