@@ -34,5 +34,12 @@ sleep 60
 done
 echo
 
+tanzu apps workload list
+echo
+
+tanzu apps workload get ${tap_dotnet_weather_data}
+echo
+
 echo ">>> Supply Chain:"
 echo https://tap-gui.view.tap.nycpivot.com/supply-chain/${tap_build}/default/${tap_dotnet_weather_data}
+echo
