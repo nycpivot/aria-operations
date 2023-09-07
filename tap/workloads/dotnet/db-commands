@@ -1,0 +1,37 @@
+-- BEFORE MEETING --
+Refresh CloudGate token
+
+kubectl config use-context tap-run-aks
+
+kubectl delete deliverable tap-dotnet-weather-data
+kubectl delete deliverable tap-dotnet-weather-api
+
+
+Deploy web front end app only
+
+
+
+-- DURING MEETING --
+Refresh TOS page last 5 minutes - no data
+
+Open Web front end page (with errors)
+
+bash aria-operations/tap/workloads/dotnet/run/02-run-tap-dotnet-weather-api.sh
+bash aria-operations/tap/workloads/dotnet/run/03-run-tap-dotnet-weather-data.sh
+
+
+kubectl config use-context tap-run-aks
+
+kubectl get secrets
+kubectl get secret <secret> -ojson | jq -r ".data.password" | base64 --decode
+
+kubectl get pods -A | grep db
+
+kubectl exec -it weather-db-class-claim-4wr8g-0 -n weather-db-class-claim-4wr8g -- bash
+
+psql -U postgres
+\l
+\c <db-name>
+\dt
+
+
