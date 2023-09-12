@@ -4,6 +4,8 @@ This repository will demonstrate the automated deployment of a simple microservi
 
 * Tanzu Application Platform (TAP), a multicluster installation consisting of a 1) View Cluster (tap-view), hosts a portal for developers to manage, monitor, and discover organizational resources in a single dashboard, a 2) Build Cluster (tap-build), hosts a complete end-to-end automated supply chain for compiling and building source code into OCI-compliant container images pushed to a registry and ready for deployment, and 3) Run Cluster(s), where the application and its dependent services are run and accessed by users.
 
+* [Tanzu Application Platform](https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.6/tap/overview.html), a complete end-to-end supply chain for automating the container build process and deploying applications on Kubernetes fast and efficiently.
+
 * [Tanzu Mission Control](https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/index.html), will be used to provision the multicluster TAP environment.
 
 * [Aria Operations for Applications](https://docs.wavefront.com/), for monitoring resources and traces of both applications, services, and clusters across cloud environments.
