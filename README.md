@@ -6,13 +6,13 @@ This repository will demonstrate the automated deployment of a simple microservi
 
 * [Tanzu Mission Control](https://docs.vmware.com/en/VMware-Tanzu-Mission-Control/index.html), will be used to provision the multicluster TAP environment.
 
-* [Tanzu Service Mesh](https://docs.vmware.com/en/VMware-Tanzu-Service-Mesh/index.html), where all of our applications and services hosted on TAP Run clusters will be encapsulated in a Global Namespace (GNS).
-
 * [Aria Operations for Applications](https://docs.wavefront.com/), for monitoring resources and traces of both applications, services, and clusters across cloud environments.
 
-* [VMware Application Catalog](https://docs.vmware.com/en/VMware-Application-Catalog/index.html), the repository hosting open-source software to support the application.
+* [Tanzu Service Mesh](https://docs.vmware.com/en/VMware-Tanzu-Service-Mesh/index.html), where all of our applications and services hosted on TAP Run clusters will be encapsulated in a Global Namespace (GNS).
 
-* [Tanzu Data Services](https://docs.vmware.com/en/Data-Management-for-VMware-Tanzu/index.html), will provide the database and caching services for the application.
+* [Bitnami Application Catalog](https://docs.bitnami.com/), helps to provision supporting services and binding them to applications with the services toolkit.
+
+* [VMware Application Catalog](https://docs.vmware.com/en/VMware-Application-Catalog/index.html), the repository hosting open-source software to support the application.
 
 * [Aria Operations for Logs](https://docs.vmware.com/en/VMware-Aria-Operations-for-Logs/index.html), will capture and store log data for each of the aforementioned services.
 
