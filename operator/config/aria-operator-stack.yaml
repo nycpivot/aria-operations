@@ -10,6 +10,8 @@ Mappings:
     us-west-2:
       Id: "ami-017fecd1353bcc96e"
 Parameters:
+  VpcId:
+    Type: String
   OperatorName:
     Type: String
     Default: aria-operator
@@ -28,7 +30,7 @@ Resources:
   OperatorSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: vpc-0616056f55547657e
+      VpcId: !Ref VpcId
       GroupDescription: Security Group for AMIs
       SecurityGroupIngress:
         - IpProtocol: tcp

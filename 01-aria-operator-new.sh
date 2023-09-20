@@ -4,7 +4,6 @@ read -p "Stack Name (aria-operator-stack): " stack_name
 read -p "Operator Name (aria-operator): " operator_name
 read -p "AWS Region Code (us-east-1): " aws_region_code
 
-
 if [[ -z $stack_name ]]
 then
     stack_name=aria-operator-stack
@@ -20,11 +19,19 @@ then
     aws_region_code=us-east-1
 fi
 
+vpc_id=$(aws ec2 describe-vpcs --region ${aws_region_code} --filter "Name=isDefault,Values=true" --query "Vpcs[].VpcId" --output text)
+
+if [[ -z $vpc_id ]]
+then
+    read -p "VPC Id: " vpc_id
+fi
+
 aws cloudformation create-stack \
     --stack-name ${stack_name} \
     --region ${aws_region_code} \
     --parameters ParameterKey=OperatorName,ParameterValue=${operator_name} \
-    --template-body file://operator/config/aria-operator-stack-${aws_region_code}.yaml
+    --parameters ParameterKey=VpcId,ParameterValue=${vpc_id} \
+    --template-body file://operator/config/aria-operator-stack.yaml
 
 aws cloudformation wait stack-create-complete --stack-name ${stack_name} --region ${aws_region_code}
 

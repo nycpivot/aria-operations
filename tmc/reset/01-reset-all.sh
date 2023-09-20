@@ -60,6 +60,8 @@ echo $network_lbs | jq -c -r '.[]' | while read nlb; do
   aws elbv2 delete-load-balancer --load-balancer-arn ${nlb}
 done
 
+echo "Deleting load balancers..."
+
 echo
 intervals=( 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
@@ -72,6 +74,14 @@ igw_id=$(aws ec2 describe-internet-gateways --query "InternetGateways[].{ Intern
 aws ec2 detach-internet-gateway --internet-gateway-id ${igw_id} --vpc-id ${vpc_id}
 aws ec2 delete-internet-gateway --internet-gateway-id ${igw_id}
 
+echo "Deleting internet gateways..."
+
+echo
+intervals=( 5 4 3 2 1 )
+for interval in "${intervals[@]}" ; do
+echo "${interval} minutes remaining..."
+sleep 60 # give 30 minutes for all clusters to be created
+done
 
 # DELETE AWS VPC STACK
 tanzu_stack_name=tanzu-vpc-stack

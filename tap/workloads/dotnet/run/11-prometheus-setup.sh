@@ -26,7 +26,7 @@ data:
       scrape_timeout: 10s
        evaluation_interval: 15s
     scrape_configs:
-      - job_name:  'tap-dotnet-weather-api'
+      - job_name: 'tap-dotnet-weather-api'
         scrape_interval: 5s
         static_configs:
           - targets: [ 'tap-dotnet-weather-api-00005-private.default.svc.cluster.local' ] # SVC DNS
