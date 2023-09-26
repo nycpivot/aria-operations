@@ -1,11 +1,5 @@
 #!/bin/bash
 
-echo
-read -p "Now would be a good time to input your AWS CloudGate credentials! Press Ctrl+C to leave this script."
-
-# AWS CONFIGURE
-# read -p "AWS Access Key: " aws_access_key
-# read -p "AWS Secret Access Key: " aws_secret_access_key
 read -p "AWS Default Region (us-east-1): " aws_region_code
 read -p "Aria Organization (customer0): " aria_org
 
