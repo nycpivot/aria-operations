@@ -1,7 +1,7 @@
 #!/bin/bash
 
 read -p "AWS Default Region (us-east-1): " aws_region_code
-read -p "Aria Organization (customer0): " aria_org
+read -p "Aria Organization (nycpivot): " aria_org
 
 if [[ -z ${aws_region_code} ]]
 then
@@ -10,7 +10,7 @@ fi
 
 if [[ -z ${aria_org} ]]
 then
-  aria_org=customer0
+  aria_org=nycpivot
 fi
 
 # aws configure set aws_access_key_id $aws_access_key
@@ -19,7 +19,6 @@ aws configure set default.region $aws_region_code
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
-
 
 # PIVNET CREDENTIALS
 export PIVNET_USERNAME=$(aws secretsmanager get-secret-value --secret-id aria-operations | jq -r .SecretString | jq -r .\"pivnet-username\")
@@ -73,8 +72,9 @@ cd $HOME
 
 
 # DOWNLOAD AND INSTALL CLUSTER ESSENTIALS
-# https://docs.vmware.com/en/Cluster-Essentials-for-VMware-Tanzu/1.5/cluster-essentials/deploy.html
+# https://docs.vmware.com/en/Cluster-Essentials-for-VMware-Tanzu/index.html
 # https://network.tanzu.vmware.com/products/tanzu-cluster-essentials/
+# https://carvel.dev/
 echo
 echo "<<< INSTALLING TANZU CLUSTER ESSENTIALS >>>"
 echo
