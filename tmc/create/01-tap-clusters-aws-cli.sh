@@ -117,14 +117,19 @@ done
 # *********************************************************************************
 
 # 4. GET EXISTING VPC AND SUBNETS
-vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='${tanzu_vpc_stack_name}-VPC']].VpcId" --output text)
-subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
+#vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='${tanzu_vpc_stack_name}-VPC']].VpcId" --output text)
+#subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
 
-subnet1=$(echo $subnets | awk -F ' ' '{print $1}')
-subnet2=$(echo $subnets | awk -F ' ' '{print $2}')
-subnet3=$(echo $subnets | awk -F ' ' '{print $3}')
-subnet4=$(echo $subnets | awk -F ' ' '{print $4}')
+#subnet1=$(echo $subnets | awk -F ' ' '{print $1}')
+#subnet2=$(echo $subnets | awk -F ' ' '{print $2}')
+#subnet3=$(echo $subnets | awk -F ' ' '{print $3}')
+#subnet4=$(echo $subnets | awk -F ' ' '{print $4}')
 
+vpc_id=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "VpcId")' | jq -r .ParameterValue)
+subnet1=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId1")' | jq -r .ParameterValue)
+subnet2=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId2")' | jq -r .ParameterValue)
+subnet3=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId3")' | jq -r .ParameterValue)
+subnet4=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId4")' | jq -r .ParameterValue)
 
 # 5. CREATE CLUSTERS
 tap_view=tap-view
@@ -214,7 +219,7 @@ tanzu mission-control ekscluster nodepool create -f ${cluster_nodepool}.json
 done
 
 echo
-intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+intervals=( 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60 # give 20 minutes for all clusters to be created
