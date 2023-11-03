@@ -31,23 +31,6 @@ echo
 
 sleep 5
 
-# THIS CODE IS NOT NECESSARY IF CLUSTERS ARE CREATED BY TMC
-# aws cloudformation create-stack --stack-name tap-multicluster-stack --region $AWS_REGION \
-#     --parameters file://vpc-params.json --template-body file:///home/ubuntu/aria-operations/tap/config/tap-multicluster-stack-${AWS_REGION}.yaml
-# aws cloudformation wait stack-create-complete --stack-name tap-multicluster-stack --region $AWS_REGION
-
-# arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
-
-# aws eks update-kubeconfig --name $tap_view --region $AWS_REGION
-# aws eks update-kubeconfig --name $tap_build --region $AWS_REGION
-# aws eks update-kubeconfig --name $tap_run --region $AWS_REGION
-# #aws eks update-kubeconfig --name $tap_iterate --region $AWS_REGION
-
-# kubectl config rename-context ${arn}/$tap_view $tap_view
-# kubectl config rename-context ${arn}/$tap_build $tap_build
-# kubectl config rename-context ${arn}/$tap_run $tap_run
-# #kubectl config rename-context ${arn}/$tap_iterate $tap_iterate
-
 #CONFIGURE CLUSTERS
 clusters=( $tap_view $tap_build $tap_run )
 
@@ -56,80 +39,6 @@ for cluster in "${clusters[@]}" ; do
     kubectl config use-context $cluster
 
     eksctl utils associate-iam-oidc-provider --cluster $cluster --approve
-
-#     # 2. INSTALL CSI PLUGIN (REQUIRED FOR K8S 1.23+)
-#     echo
-#     echo "<<< INSTALLING CSI PLUGIN ($cluster) >>>"
-#     echo
-
-#     sleep 5
-
-#     rolename=${cluster}-csi-driver-role-${AWS_REGION}
-
-#     aws eks create-addon \
-#       --cluster-name $cluster \
-#       --addon-name aws-ebs-csi-driver \
-#       --service-account-role-arn "arn:aws:iam::$AWS_ACCOUNT_ID:role/$rolename" \
-#       --no-cli-pager
-
-#     # #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
-#     # aws eks describe-cluster --name $cluster --query "cluster.identity.oidc.issuer" --output text
-
-#     #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
-#     oidc_id=$(aws eks describe-cluster --name $cluster --query "cluster.identity.oidc.issuer" --output text | awk -F '/' '{print $5}')
-#     echo "OIDC Id: $oidc_id"
-
-#     # Check if a IAM OIDC provider exists for the cluster
-#     # https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
-#     if [[ -z $(aws iam list-open-id-connect-providers | grep $oidc_id) ]]; then
-#       echo "Creating IAM OIDC provider"
-#       if ! [ -x "$(command -v eksctl)" ]; then
-#         echo "Error `eksctl` CLI is required, https://eksctl.io/introduction/#installation" >&2
-#         exit 1
-#       fi
-
-#       eksctl utils associate-iam-oidc-provider --cluster $cluster --approve
-#     fi
-
-# cat <<EOF | tee aws-ebs-csi-driver-trust-policy.json
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Principal": {
-#         "Federated": "arn:aws:iam::$AWS_ACCOUNT_ID:oidc-provider/oidc.eks.$AWS_REGION.amazonaws.com/id/$oidc_id"
-#       },
-#       "Action": "sts:AssumeRoleWithWebIdentity",
-#       "Condition": {
-#         "StringEquals": {
-#           "oidc.eks.$AWS_REGION.amazonaws.com/id/$oidc_id:aud": "sts.amazonaws.com",
-#           "oidc.eks.$AWS_REGION.amazonaws.com/id/$oidc_id:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-#         }
-#       }
-#     }
-#   ]
-# }
-# EOF
-
-#     aws iam create-role \
-#       --role-name $rolename \
-#       --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy.json" \
-#       --no-cli-pager
-      
-#     aws iam attach-role-policy \
-#       --role-name $rolename \
-#       --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy \
-#       --no-cli-pager
-      
-#     kubectl annotate serviceaccount ebs-csi-controller-sa \
-#         eks.amazonaws.com/role-arn=arn:aws:iam::$AWS_ACCOUNT_ID:role/$rolename \
-#         -n kube-system --overwrite
-
-#     rm aws-ebs-csi-driver-trust-policy.json
-    
-#     echo
-
 
     # 3. DOWNLOAD AND INSTALL TANZU CLI AND ESSENTIALS
     # https://docs.vmware.com/en/VMware-Tanzu-Application-Platform/1.5/tap/install-tanzu-cli.html

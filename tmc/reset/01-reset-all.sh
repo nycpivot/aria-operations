@@ -120,7 +120,7 @@ subscription_id=$(az account show --query id --output tsv)
 tanzu mission-control cluster delete ${tap_run_aks} --management-cluster-name attached --provisioner-name attached
 
 echo
-intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
+intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
 sleep 60 # give 30 minutes for all clusters to be created
