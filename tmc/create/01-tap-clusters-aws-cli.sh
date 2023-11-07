@@ -32,13 +32,7 @@ aws cloudformation create-stack --stack-name ${tmc_iam_stack_name} \
   --template-url https://tmc-mkp.s3.us-west-2.amazonaws.com/tmc_eks.template \
   --parameters ParameterKey=CredentialName,ParameterValue=aws-account-credential ParameterKey=AccountID,ParameterValue=${vmware_cross_account_id} ParameterKey=OrgID,ParameterValue=${aria_org_id} ParameterKey=RoleName,ParameterValue=main/mkp ParameterKey=ExternalID,ParameterValue=${external_id} ParameterKey=GeneratedTemplateID,ParameterValue=${generated_template_stack_id} \
   --capabilities CAPABILITY_NAMED_IAM
-
-# aws cloudformation create-stack \
-#   --stack-name ${tanzu_vpc_stack_name} \
-#   --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
-
 aws cloudformation wait stack-create-complete --stack-name ${tmc_iam_stack_name} --region ${AWS_REGION}
-# aws cloudformation wait stack-create-complete --stack-name ${tanzu_vpc_stack_name} --region ${AWS_REGION}
 
 output=$(aws cloudformation describe-stacks \
     --stack-name ${tmc_iam_stack_name} \
@@ -104,27 +98,21 @@ EOF
 tmc account credential create -f ${aws_account_credential}.yaml
 
 echo
+ctr=15
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
+sleep 5 # give 15 minutes for all clusters to be created
+ctr=`expr $ctr - 1`
+done
+
 intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
 for interval in "${intervals[@]}" ; do
 echo "${interval} minutes remaining..."
-sleep 60 # give 20 minutes for all clusters to be created
+sleep 60 # give 15 minutes for all clusters to be created
 done
 
-
-# *********************************************************************************
-# NONE OF THE CLIs (OLD/NEW) WORK FOR THE FOLLOWING OBJECTS (EKSCLUSTER & NODEPOOL)
-# BUT THE APIs SEEM TO WORK OK - THESE WILL BE REPLACED WHEN THE CLI WORKS
-# *********************************************************************************
-
 # 4. GET EXISTING VPC AND SUBNETS
-#vpc_id=$(aws ec2 describe-vpcs --query "Vpcs[?Tags[?Value=='${tanzu_vpc_stack_name}-VPC']].VpcId" --output text)
-#subnets=$(aws ec2 describe-subnets --query "Subnets[?VpcId=='${vpc_id}']".SubnetId --output text)
-
-#subnet1=$(echo $subnets | awk -F ' ' '{print $1}')
-#subnet2=$(echo $subnets | awk -F ' ' '{print $2}')
-#subnet3=$(echo $subnets | awk -F ' ' '{print $3}')
-#subnet4=$(echo $subnets | awk -F ' ' '{print $4}')
-
 vpc_id=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "VpcId")' | jq -r .ParameterValue)
 subnet1=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId1")' | jq -r .ParameterValue)
 subnet2=$(cat vpc-params.json | jq '.[] | select(.ParameterKey == "SubnetId2")' | jq -r .ParameterValue)
@@ -219,10 +207,12 @@ tanzu mission-control ekscluster nodepool create -f ${cluster_nodepool}.json
 done
 
 echo
-intervals=( 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
-sleep 60 # give 30 minutes for all clusters to be created
+ctr=45
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
+sleep 5 # give 45 minutes for all clusters to be created
+ctr=`expr $ctr - 1`
 done
 
 
