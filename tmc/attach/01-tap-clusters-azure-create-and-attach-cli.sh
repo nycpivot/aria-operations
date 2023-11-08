@@ -44,10 +44,12 @@ sleep 30
 kubectl apply -f k8s-attach-manifest.yaml
 
 echo
-intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
+ctr=15
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
 sleep 60 # give 15 minutes for all clusters to be created
+ctr=`expr $ctr - 1`
 done
 
 echo

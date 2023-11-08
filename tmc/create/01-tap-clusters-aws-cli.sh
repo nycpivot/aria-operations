@@ -11,7 +11,7 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 AWS_REGION=$(aws configure get region)
 
 # nycpivot aria_org defaults
-generated_template_stack_id=17533195724431227713
+generated_template_stack_id=17533195724431227713 #aws-account-credential
 external_id=1cd13c5a-9b6a-53ef-b938-c687989bf70b
 aria_org_id=86514df0-46a7-4b33-857d-954ba2970773
 
@@ -24,7 +24,7 @@ fi
 
 tmc_iam_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
 tanzu_vpc_stack_name=tanzu-vpc-stack
-vmware_cross_account_id=630260974543
+vmware_cross_account_id=630260974543 #tmc aws account-id
 
 
 # 1. CREATE IAM ROLES (THIS IS STEP 2 IN TMC CONSOLE)
@@ -61,7 +61,6 @@ EOF
 
 tanzu mission-control clustergroup create -f ${tmc_cluster_group}.yaml
 
-
 # 3. CREATE TMC AWS ACCOUNT CREDENTIAL (THIS IS STEP 1 IN TMC CONSOLE)
 # THIS ACCOUNT CREDENTIAL WILL REFERENCE THE CLUSTERLIFECYCLE IAM ROLE
 # CREATED AND OUTPUT FROM THE CF STACK ABOVE
@@ -72,7 +71,7 @@ if test -f ${aws_account_credential}.yaml; then
   rm ${aws_account_credential}.yaml
 fi
 
-cat <<EOF | tee ${aws_account_credential}.yaml # TMC CLI VERSION (THIS WORKS)
+cat <<EOF | tee ${aws_account_credential}.yaml
 fullName:
   name: ${aws_account_credential}
   orgId: ${aria_org_id}
@@ -102,14 +101,8 @@ ctr=15
 while [ $ctr -gt 0 ]
 do
 echo "${ctr} minutes remaining..."
-sleep 5 # give 15 minutes for all clusters to be created
-ctr=`expr $ctr - 1`
-done
-
-intervals=( 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
 sleep 60 # give 15 minutes for all clusters to be created
+ctr=`expr $ctr - 1`
 done
 
 # 4. GET EXISTING VPC AND SUBNETS
@@ -211,7 +204,7 @@ ctr=45
 while [ $ctr -gt 0 ]
 do
 echo "${ctr} minutes remaining..."
-sleep 5 # give 45 minutes for all clusters to be created
+sleep 60 # give 45 minutes for all clusters to be created
 ctr=`expr $ctr - 1`
 done
 

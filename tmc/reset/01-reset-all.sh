@@ -37,12 +37,13 @@ tmc ekscluster delete ${cluster} --credential-name ${aws_account_credential} --r
 done
 
 echo
-intervals=( 45 44 43 42 41 40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
+ctr=45
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
 sleep 60 # give 45 minutes for all clusters to be created
+ctr=`expr $ctr - 1`
 done
-
 
 #DELETE ELBs (some of these might not exist, that's fine - ignore errors)
 tanzu_vpc_stack_name=tanzu-vpc-stack
@@ -63,35 +64,39 @@ done
 echo "Deleting load balancers..."
 
 echo
-intervals=( 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
-sleep 60 # give 30 minutes for all clusters to be created
+ctr=2
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
+sleep 60 # give 2 minutes to delete load balancers
+ctr=`expr $ctr - 1`
 done
 
-igw_id=$(aws ec2 describe-internet-gateways --query "InternetGateways[].{ InternetGatewayId: InternetGatewayId, VpcId: Attachments[0].VpcId } | [?VpcId == '$vpc_id'].[InternetGatewayId][0][0]" --output text)
+# igw_id=$(aws ec2 describe-internet-gateways --query "InternetGateways[].{ InternetGatewayId: InternetGatewayId, VpcId: Attachments[0].VpcId } | [?VpcId == '$vpc_id'].[InternetGatewayId][0][0]" --output text)
 
-aws ec2 detach-internet-gateway --internet-gateway-id ${igw_id} --vpc-id ${vpc_id}
-aws ec2 delete-internet-gateway --internet-gateway-id ${igw_id}
+# aws ec2 detach-internet-gateway --internet-gateway-id ${igw_id} --vpc-id ${vpc_id}
+# aws ec2 delete-internet-gateway --internet-gateway-id ${igw_id}
 
-echo "Deleting internet gateways..."
+# echo "Deleting internet gateways..."
 
-echo
-intervals=( 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
-sleep 60 # give 30 minutes for all clusters to be created
-done
+# echo
+# ctr=5
+# while [ $ctr -gt 0 ]
+# do
+# echo "${ctr} minutes remaining..."
+# sleep 60 # give 5 minutes for all clusters to be created
+# ctr=`expr $ctr - 1`
+# done
 
-# DELETE AWS VPC STACK
-tanzu_stack_name=tanzu-vpc-stack
+# # DELETE AWS VPC STACK
+# tanzu_stack_name=tanzu-vpc-stack
 
-echo
-echo "Deleting ${tanzu_stack_name}..."
-echo
+# echo
+# echo "Deleting ${tanzu_stack_name}..."
+# echo
 
-aws cloudformation delete-stack --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
-aws cloudformation wait stack-delete-complete --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
+# aws cloudformation delete-stack --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
+# aws cloudformation wait stack-delete-complete --stack-name ${tanzu_stack_name} --region ${AWS_REGION}
 
 
 # DELETE TMC ACCOUNT CREDENTIAL
@@ -100,7 +105,6 @@ tmc account credential delete ${aws_account_credential}
 if test -f "${aws_account_credential}.yaml"; then
   rm ${aws_account_credential}.yaml
 fi
-
 
 # DELETE THE CF STACK THAT CREATES THE ROLES FOR THE TMC CREDENTIAL
 full_stack_name=eks-tmc-cloud-vmware-com-${generated_template_stack_id}
@@ -120,10 +124,12 @@ subscription_id=$(az account show --query id --output tsv)
 tanzu mission-control cluster delete ${tap_run_aks} --management-cluster-name attached --provisioner-name attached
 
 echo
-intervals=( 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 )
-for interval in "${intervals[@]}" ; do
-echo "${interval} minutes remaining..."
-sleep 60 # give 30 minutes for all clusters to be created
+ctr=20
+while [ $ctr -gt 0 ]
+do
+echo "${ctr} minutes remaining..."
+sleep 60 # give 20 minutes for all clusters to be deleted
+ctr=`expr $ctr - 1`
 done
 
 az aks delete --name ${tap_run_aks} --resource-group aria-operations --yes
@@ -133,7 +139,6 @@ kubectl config delete-context ${tap_run_aks}
 kubectl config delete-user clusterUser_aria-operations_${tap_run_aks}
 
 az group delete --name aria-operations --yes
-
 
 # DELETE CLUSTER GROUP
 tmc_cluster_group=tmc-operations
