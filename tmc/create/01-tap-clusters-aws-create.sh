@@ -233,13 +233,8 @@ data:
       username: PowerUser/cloudgate@mijames
 EOF
 
+read -p "Press ENTER to continue..."
 echo
-kubectl config get-contexts
-
-echo
-kubectl get ns
-
-sleep 10
 
 # GET KUBECONFIGS AND UPDATE AWS-AUTH CONFIG MAP TO ADD PERMISSIONS TO CURRENT AWS USER
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
@@ -256,8 +251,7 @@ for cluster in "${clusters[@]}" ; do
 
   kubectl config use-context ${cluster}
 
-  echo
-  kubectl get configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig -o yaml > aws-auth-${cluster}.yaml
+  read -p "Press ENTER to continue..."
   echo
 
   #DELETE DEFAULT AWS-AUTH CONFIG MAP
@@ -266,12 +260,6 @@ for cluster in "${clusters[@]}" ; do
   #CREATE NEW AWS-AUTH CONFIG MAP WITH NEW ROLE
   kubectl apply -f aws-auth-config-map.yaml --kubeconfig .kube/${cluster}-kubeconfig
 done
-
-echo
-kubectl get ns
-
-echo
-kubectl get configmap aws-auth
 
 echo
 echo "***DONE***"
