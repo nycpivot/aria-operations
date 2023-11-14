@@ -233,14 +233,12 @@ data:
       username: PowerUser/cloudgate@mijames
 EOF
 
-read -p "Press ENTER to continue..."
-echo
-
 # GET KUBECONFIGS AND UPDATE AWS-AUTH CONFIG MAP TO ADD PERMISSIONS TO CURRENT AWS USER
 arn=arn:aws:eks:$AWS_REGION:$AWS_ACCOUNT_ID:cluster
 
 for cluster in "${clusters[@]}" ; do
-  #UPDATE THE MAIN KUBECONFIG FILE
+  #UPDATE THE MAIN KUBECONFIG FILE SO IT'S THERE 
+  #WHEN WE CAN ACCESS IT WITH MY CREDENTIALS
   aws eks update-kubeconfig --name ${cluster} --region $AWS_REGION
 
   kubectl config rename-context ${arn}/${cluster} ${cluster}
@@ -250,9 +248,6 @@ for cluster in "${clusters[@]}" ; do
     --management-cluster-name eks --provisioner-name eks >> .kube/${cluster}-kubeconfig
 
   kubectl config use-context ${cluster}
-
-  read -p "Press ENTER to continue..."
-  echo
 
   #DELETE DEFAULT AWS-AUTH CONFIG MAP
   kubectl delete configmap aws-auth -n kube-system --kubeconfig .kube/${cluster}-kubeconfig

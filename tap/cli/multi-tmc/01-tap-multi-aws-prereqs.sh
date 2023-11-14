@@ -21,8 +21,6 @@ export TAP_VERSION=1.6.1
 tap_view=tap-view
 tap_build=tap-build
 tap_run=tap-run-eks
-#tap_iterate=tap-iterate
-
 
 # 1. CONFIGURE CLUSTERS
 echo

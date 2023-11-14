@@ -64,10 +64,10 @@ export IMGPKG_REGISTRY_USERNAME_1=tanzuapplicationregistry
 export IMGPKG_REGISTRY_PASSWORD_1=$registry_secret
 export INSTALL_REPO=tanzu-application-platform/tap-packages
 
-docker login $IMGPKG_REGISTRY_HOSTNAME_0 -u $IMGPKG_REGISTRY_USERNAME_0 -p $IMGPKG_REGISTRY_PASSWORD_0
+# docker login $IMGPKG_REGISTRY_HOSTNAME_0 -u $IMGPKG_REGISTRY_USERNAME_0 -p $IMGPKG_REGISTRY_PASSWORD_0
 
-imgpkg copy --concurrency 1 -b $IMGPKG_REGISTRY_HOSTNAME_0/tanzu-application-platform/tap-packages:${TAP_VERSION} \
-    --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/$INSTALL_REPO
+# imgpkg copy --concurrency 1 -b $IMGPKG_REGISTRY_HOSTNAME_0/tanzu-application-platform/tap-packages:${TAP_VERSION} \
+#     --to-repo ${IMGPKG_REGISTRY_HOSTNAME_1}/$INSTALL_REPO
 
 kubectl create ns tap-install
 
