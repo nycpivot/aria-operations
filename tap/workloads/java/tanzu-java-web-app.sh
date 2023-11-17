@@ -65,21 +65,11 @@ echo
 pe "tanzu apps workload get ${app_name}"
 echo
 
-#pe "kubectl api-resources | grep knative"
-#echo
-
-#kubectl get ksvc
-
-#kubectl get deliverable
-
-#kubectl get services.serving.knative
-
 pe "kubectl get configmaps"
 echo
 
 pe "rm ${app_name}-deliverable.yaml"
 pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
-#pe "kubectl get configmap ${app_name}-deliverable -o yaml | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' > ${app_name}-deliverable.yaml"
 echo
 
 kubectl config use-context $tap_run_eks
@@ -91,7 +81,11 @@ echo
 pe "kubectl get deliverables"
 echo
 
-#pe "kubectl get httpproxy"
-#echo
+kubectl config use-context $tap_run_aks
+echo
+
+pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
 
 echo https://${app_name}.default.run-eks.tap.nycpivot.com
+echo https://${app_name}.default.run-aks.tap.nycpivot.com
