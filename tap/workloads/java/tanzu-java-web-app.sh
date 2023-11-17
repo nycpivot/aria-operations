@@ -39,7 +39,7 @@ tap_run_aks=tap-run-aks
 
 git_app_url=https://github.com/nycpivot/${app_name}
 
-kubectl config use-context $tap_build
+pe "kubectl config use-context ${tap_build}
 echo
 
 #pe "tanzu apps workload delete --all --yes"
@@ -78,7 +78,7 @@ echo
 
 pe "clear"
 
-kubectl config use-context $tap_run_eks
+pe "kubectl config use-context ${tap_run_eks}"
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
@@ -89,7 +89,7 @@ echo
 
 pe "clear"
 
-kubectl config use-context $tap_run_aks
+pe "kubectl config use-context ${tap_run_aks}"
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
