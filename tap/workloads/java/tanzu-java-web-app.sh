@@ -59,11 +59,15 @@ pe "clear"
 pe "tanzu apps workload tail ${app_name} --since 1h --timestamp"
 echo
 
+pe "clear"
+
 pe "tanzu apps workload list"
 echo
 
 pe "tanzu apps workload get ${app_name}"
 echo
+
+pe "clear"
 
 pe "kubectl get configmaps"
 echo
@@ -71,6 +75,8 @@ echo
 pe "rm ${app_name}-deliverable.yaml"
 pe "kubectl get configmap ${app_name}-deliverable -o go-template='{{.data.deliverable}}' > ${app_name}-deliverable.yaml"
 echo
+
+pe "clear"
 
 kubectl config use-context $tap_run_eks
 echo
@@ -81,10 +87,15 @@ echo
 pe "kubectl get deliverables"
 echo
 
+pe "clear"
+
 kubectl config use-context $tap_run_aks
 echo
 
 pe "kubectl apply -f ${app_name}-deliverable.yaml"
+echo
+
+pe "kubectl get deliverables"
 echo
 
 echo https://${app_name}.default.run-eks.tap.nycpivot.com
